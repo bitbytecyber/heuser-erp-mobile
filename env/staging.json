@@ -1,0 +1,9 @@
+{
+  "FLAVOR": "staging",
+  "APP_NAME": "Heuser Staging",
+  "API_BASE_URL": "https://devsis.digiavanza.com",
+  "WS_BASE_URL": "wss://devsis.digiavanza.com",
+  "GOOGLE_WEB_CLIENT_ID": "",
+  "APPLE_CLIENT_ID": "com.heusercollege.erp.staging",
+  "APP_STORE_ID": ""
+}

@@ -1,0 +1,110 @@
+name: heuser_erp_mobile
+description: Heuser College mobile app — admissions (applicant portal), notifications and profile.
+publish_to: none
+
+# The marketing version is taken from the git tag in CI (see RELEASE.md);
+# this value is only the fallback for local builds. Build number comes from
+# Codemagic's PROJECT_BUILD_NUMBER.
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.13.1
+  # Pinned to the same minor as codemagic.yaml, .fvmrc and every
+  # `shorebird --flutter-version`. Bump all of them together.
+  flutter: ">=3.47.1 <3.48.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  heuser_ds:
+    path: packages/heuser_ds
+
+  # state / di
+  flutter_bloc: ^9.1.1
+  bloc: ^9.2.1
+  bloc_concurrency: ^0.3.0
+  equatable: ^2.0.7 # alchemist pins ^2; do not bump to 3 until it does
+  get_it: ^9.3.0
+  injectable: ^3.0.0
+  freezed_annotation: ^3.1.0
+  json_annotation: ^4.12.0
+  fpdart: ^1.2.0
+
+  # routing
+  go_router: ^18.0.2
+
+  # networking
+  dio: ^5.11.1
+  web_socket_channel: ^3.0.3
+  connectivity_plus: ^7.3.2
+  cached_network_image: ^4.0.4
+
+  # auth
+  flutter_secure_storage: ^11.2.0
+  google_sign_in: ^7.2.0
+  sign_in_with_apple: ^8.2.0
+  local_auth: ^3.0.2
+
+  # firebase
+  firebase_core: ^4.15.0
+  firebase_crashlytics: ^5.4.0
+  firebase_analytics: ^12.6.0
+  firebase_messaging: ^16.7.0
+  firebase_remote_config: ^6.7.0
+  firebase_app_check: ^0.4.8
+
+  # ota / platform
+  shorebird_code_push: ^2.0.7
+  package_info_plus: ^10.2.2
+  device_info_plus: ^13.3.0
+  path_provider: ^2.1.6
+  shared_preferences: ^2.5.6
+  url_launcher: ^6.3.3
+  share_plus: ^13.3.1
+  open_filex: ^4.7.0
+  permission_handler: ^13.0.2
+  file_picker: ^13.1.0
+  image_picker: ^1.2.4
+  flutter_image_compress: ^2.5.1
+  flutter_native_splash: ^2.4.8
+
+  # ui / motion (the design system re-exports what screens need)
+  flutter_animate: ^4.5.2
+  animations: ^3.0.0
+  rive: ^0.14.11
+  flutter_svg: ^2.3.0
+  skeletonizer: ^3.0.0
+  infinite_scroll_pagination: ^5.1.1
+  mask_text_input_formatter: ^2.9.0
+
+  # i18n / env / logging
+  slang: ^4.19.2
+  slang_flutter: ^4.19.0
+  intl: ^0.20.3
+  talker_flutter: ^5.1.20
+  talker_bloc_logger: ^5.1.20
+  talker_dio_logger: ^5.1.20
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  integration_test:
+    sdk: flutter
+  build_runner: ^2.16.1
+  freezed: ^4.0.1
+  json_serializable: ^6.14.1
+  injectable_generator: ^3.1.3
+  go_router_builder: ^4.5.0
+  slang_build_runner: ^4.19.0
+  very_good_analysis: ^11.0.0
+  bloc_test: ^10.0.0
+  mocktail: ^1.0.5
+  alchemist: ^0.14.0
+  flutter_launcher_icons: ^0.14.4
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
+    - assets/rive/
+    - shorebird.yaml

@@ -1,0 +1,18 @@
+{
+  "app": {
+    "name": "Heuser",
+    "tagline": "Where learning knows no limits"
+  },
+  "common": {
+    "retry": "Try again",
+    "cancel": "Cancel",
+    "continue": "Continue",
+    "back": "Back",
+    "save": "Save",
+    "done": "Done",
+    "ok": "OK",
+    "loading": "Loading…",
+    "offline": "You're offline. We'll retry when you're back.",
+    "somethingWentWrong": "Something went wrong. Please try again."
+  }
+}

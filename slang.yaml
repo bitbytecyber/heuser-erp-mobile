@@ -1,0 +1,11 @@
+# slang codegen (`dart run slang`, also wired into build_runner). English only
+# for now; a new locale is one more lib/i18n/<locale>.i18n.json file.
+base_locale: en
+fallback_strategy: base_locale
+input_directory: lib/i18n
+input_file_pattern: .i18n.json
+output_directory: lib/core/i18n
+output_file_name: strings.g.dart
+string_interpolation: braces
+flat_map: false
+translation_class_visibility: public

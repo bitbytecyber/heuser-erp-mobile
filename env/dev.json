@@ -1,0 +1,9 @@
+{
+  "FLAVOR": "dev",
+  "APP_NAME": "Heuser Dev",
+  "API_BASE_URL": "http://10.0.2.2:8090",
+  "WS_BASE_URL": "ws://10.0.2.2:8091",
+  "GOOGLE_WEB_CLIENT_ID": "",
+  "APPLE_CLIENT_ID": "com.heusercollege.erp.dev",
+  "APP_STORE_ID": ""
+}

@@ -1,0 +1,438 @@
+# Codemagic pipelines for heuser-erp-mobile.
+#
+# Workflows
+#   analyze-and-test        every push / PR: the same gate as `make check`
+#   android-release-<f>     manual, from a `v*` tag: shorebird release → Play internal
+#   ios-release-<f>         manual, from a `v*` tag: shorebird release → TestFlight
+#   android-patch-<f>       manual, inputs.release_version: shorebird patch (staging track)
+#   ios-patch-<f>           manual, inputs.release_version: shorebird patch (staging track)
+#   integration-nightly     scheduled: integration_test against the staging backend
+#
+# Flutter is pinned (not `stable`) and must equal .fvmrc, pubspec.yaml and every
+# --flutter-version below. Bump all of them in one commit.
+#
+# Secrets (Codemagic → Teams → Environment variable groups):
+#   shorebird:     SHOREBIRD_TOKEN              (shorebird login:ci)
+#   google_play:   GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
+#   App Store Connect integration "heuser_asc" (issuer id, key id, .p8)
+#   android_signing reference "heuser_upload_keystore"
+#   firebase: FIREBASE_SERVICE_ACCOUNT (optional, for dSYM upload if not using the pod tool)
+
+definitions:
+  flutter_version: &flutter_version 3.47.1
+  instance: &instance mac_mini_m2
+  cache: &cache
+    cache_paths:
+      - $HOME/.pub-cache
+      - $HOME/.gradle/caches
+      - $HOME/Library/Caches/CocoaPods
+      - $HOME/.shorebird
+
+  scripts:
+    pub_get: &pub_get
+      name: Get packages (app, design system, widgetbook)
+      script: |
+        flutter pub get
+        (cd packages/heuser_ds && flutter pub get)
+        (cd apps/widgetbook && flutter pub get)
+    resolve_version: &resolve_version
+      name: Resolve version name from the git tag
+      script: |
+        # The tag is the source of truth for the marketing version; pubspec.yaml is
+        # only the local fallback. Build number is Codemagic's per-project counter,
+        # so a version code is never reused.
+        BUILD_NAME=$(printf '%s' "${CM_TAG:-}" | sed -E 's/^v//')
+        if [ -z "$BUILD_NAME" ]; then
+          BUILD_NAME=$(grep -E '^version:' pubspec.yaml | sed -E 's/^version:[[:space:]]*//; s/\+.*//')
+          echo "No CM_TAG - falling back to pubspec.yaml version $BUILD_NAME"
+        fi
+        if ! printf '%s' "$BUILD_NAME" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+          echo "Refusing to build: '$BUILD_NAME' is not MAJOR.MINOR.PATCH. Tag releases as vMAJOR.MINOR.PATCH."
+          exit 1
+        fi
+        echo "BUILD_NAME=$BUILD_NAME" >> $CM_ENV
+        echo "Building $BUILD_NAME+$PROJECT_BUILD_NUMBER"
+    analyze: &analyze
+      name: Analyze (fatal infos and warnings)
+      script: |
+        flutter analyze --fatal-infos --fatal-warnings
+        (cd packages/heuser_ds && flutter analyze --fatal-infos --fatal-warnings)
+        (cd apps/widgetbook && flutter analyze --fatal-infos --fatal-warnings)
+    setup_shorebird: &setup_shorebird
+      name: Set up Shorebird
+      script: |
+        if [ -z "$SHOREBIRD_TOKEN" ]; then
+          echo "SHOREBIRD_TOKEN is not set: run 'shorebird login:ci' and add it to the 'shorebird' group."
+          exit 1
+        fi
+        SHOREBIRD_BIN="$HOME/.shorebird/bin/shorebird"
+        if [ -x "$SHOREBIRD_BIN" ] && "$SHOREBIRD_BIN" --version >/dev/null 2>&1; then
+          echo "Shorebird restored from cache."
+        else
+          rm -rf "$HOME/.shorebird"
+          curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/shorebirdtech/install/main/install.sh | bash
+        fi
+        "$SHOREBIRD_BIN" --version
+        echo "PATH=$HOME/.shorebird/bin:$PATH" >> $CM_ENV
+    write_android_keystore: &write_android_keystore
+      name: Write android/key.properties from the Codemagic keystore reference
+      script: |
+        cat > $CM_BUILD_DIR/android/key.properties <<EOF
+        storePassword=$CM_KEYSTORE_PASSWORD
+        keyPassword=$CM_KEY_PASSWORD
+        keyAlias=$CM_KEY_ALIAS
+        storeFile=$CM_KEYSTORE_PATH
+        EOF
+    release_notes_play: &release_notes_play
+      name: Generate Play release notes from the commit log
+      script: |
+        git fetch --tags --unshallow >/dev/null 2>&1 || git fetch --tags >/dev/null 2>&1 || true
+        previous_tag=$(git describe --tags --abbrev=0 --match 'v*' HEAD^ 2>/dev/null || echo "")
+        filter() { grep -viE '^- (Bump (version|build number)|Merge (branch|pull request))' || true; }
+        if [ -n "$previous_tag" ]; then notes=$(git log "$previous_tag"..HEAD --pretty=format:'- %s' | filter); else notes=$(git log -10 --pretty=format:'- %s' | filter); fi
+        [ -z "$notes" ] && notes="- Bug fixes and improvements"
+        printf '%s\n' "$notes" | head -c 500 > release_notes.txt
+        cat release_notes.txt
+    release_notes_testflight: &release_notes_testflight
+      name: Generate TestFlight release notes from the commit log
+      script: |
+        git fetch --tags --unshallow >/dev/null 2>&1 || git fetch --tags >/dev/null 2>&1 || true
+        previous_tag=$(git describe --tags --abbrev=0 --match 'v*' HEAD^ 2>/dev/null || echo "")
+        filter() { grep -viE '^- (Bump (version|build number)|Merge (branch|pull request))' || true; }
+        if [ -n "$previous_tag" ]; then notes=$(git log "$previous_tag"..HEAD --pretty=format:'- %s' | filter); else notes=$(git log -10 --pretty=format:'- %s' | filter); fi
+        [ -z "$notes" ] && notes="- Bug fixes and improvements"
+        python3 - "$notes" <<'PY'
+        import io, json, sys
+        text = sys.argv[1].replace('<', '').replace('>', '').strip()[:3900]
+        io.open('release_notes.json', 'w', encoding='utf-8').write(json.dumps([{'language': 'en-US', 'text': text}], ensure_ascii=False, indent=2))
+        PY
+        cat release_notes.json
+    ios_signing_setup: &ios_signing_setup
+      name: Set up code signing
+      script: xcode-project use-profiles
+    pods: &pods
+      name: Install CocoaPods dependencies
+      script: find . -name "Podfile" -maxdepth 2 -execdir pod install --repo-update \;
+    verify_ipa: &verify_ipa
+      name: Verify the Shorebird ipa exists
+      script: |
+        # shorebird release ios exports the ipa itself; a missing file means the
+        # release step silently produced nothing. Never add an xcode-project
+        # build-ipa step here: it would overwrite the Shorebird build with one
+        # that cannot take patches.
+        ls -la build/ios/ipa/ || true
+        ls build/ios/ipa/*.ipa >/dev/null 2>&1 || { echo "No ipa after 'shorebird release ios'"; exit 1; }
+    upload_dsyms: &upload_dsyms
+      name: Upload iOS dSYMs to Crashlytics
+      script: |
+        GSP="ios/Runner/GoogleService-Info.plist"
+        UPLOAD="ios/Pods/FirebaseCrashlytics/upload-symbols"
+        DSYMS="build/ios/archive/Runner.xcarchive/dSYMs"
+        if [ ! -f "$GSP" ]; then echo "No GoogleService-Info.plist: Firebase not configured, skipping dSYM upload"; exit 0; fi
+        [ -x "$UPLOAD" ] || { echo "No upload-symbols at $UPLOAD"; exit 1; }
+        [ -d "$DSYMS" ] || { echo "No dSYMs at $DSYMS (check DEBUG_INFORMATION_FORMAT = dwarf-with-dsym)"; exit 1; }
+        for required in Runner.app.dSYM App.framework.dSYM; do
+          [ -d "$DSYMS/$required" ] || { echo "$required missing: Crashlytics would hold every report"; exit 1; }
+        done
+        if "$UPLOAD" -gsp "$GSP" -p ios "$DSYMS" > upload-symbols.log 2>&1; then STATUS=0; else STATUS=$?; fi
+        cat upload-symbols.log
+        [ "$STATUS" -eq 0 ] || exit 1
+        grep -qi "error:" upload-symbols.log && exit 1
+        mkdir -p build/ios/dsyms && for keep in Runner.app.dSYM App.framework.dSYM; do cp -R "$DSYMS/$keep" build/ios/dsyms/; done
+        (cd build/ios/dsyms && zip -qry ../dsyms.zip .)
+
+  android_release: &android_release
+    max_build_duration: 60
+    instance_type: *instance
+    environment:
+      flutter: *flutter_version
+      groups: [shorebird, google_play]
+      android_signing: [heuser_upload_keystore]
+    cache: *cache
+    scripts:
+      - *pub_get
+      - *resolve_version
+      - *analyze
+      - *write_android_keystore
+      - *release_notes_play
+      - *setup_shorebird
+      - name: Cut Shorebird release (Android app bundle)
+        script: |
+          shorebird release android --artifact=aab --flavor $FLAVOR -t lib/main_$FLAVOR.dart \
+            --flutter-version=3.47.1 --build-name=$BUILD_NAME --build-number=$PROJECT_BUILD_NUMBER \
+            --dart-define-from-file=env/$FLAVOR.json \
+            -- --obfuscate --split-debug-info=build/symbols
+    artifacts:
+      - build/app/outputs/bundle/*/*.aab
+      - build/app/outputs/**/mapping.txt
+      - build/symbols/**
+    publishing:
+      google_play:
+        credentials: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
+        track: internal
+        submit_as_draft: false
+        in_app_update_priority: 0
+
+  ios_release: &ios_release
+    max_build_duration: 75
+    instance_type: *instance
+    environment:
+      flutter: *flutter_version
+      xcode: latest
+      cocoapods: default
+      groups: [shorebird]
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: $BUNDLE_ID
+    integrations:
+      app_store_connect: heuser_asc
+    cache: *cache
+    scripts:
+      - *pub_get
+      - *resolve_version
+      - *analyze
+      - *release_notes_testflight
+      - *ios_signing_setup
+      - *setup_shorebird
+      - *pods
+      - name: Cut Shorebird release (iOS)
+        script: |
+          shorebird release ios --flavor $FLAVOR -t lib/main_$FLAVOR.dart \
+            --flutter-version=3.47.1 --build-name=$BUILD_NAME --build-number=$PROJECT_BUILD_NUMBER \
+            --dart-define-from-file=env/$FLAVOR.json \
+            --export-options-plist=$HOME/export_options.plist \
+            -- --obfuscate --split-debug-info=build/symbols
+      - *verify_ipa
+      - *upload_dsyms
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - build/ios/dsyms.zip
+      - build/symbols/**
+      - upload-symbols.log
+      - /tmp/xcodebuild_logs/*.log
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
+        submit_to_app_store: false
+
+  android_patch: &android_patch
+    max_build_duration: 45
+    instance_type: *instance
+    environment:
+      flutter: *flutter_version
+      groups: [shorebird]
+      android_signing: [heuser_upload_keystore]
+    inputs:
+      release_version:
+        description: "Release to patch, e.g. 1.2.0+48 (shorebird releases list --flavor <f>)"
+        type: string
+      track:
+        description: "staging (then promote) or stable"
+        type: choice
+        default: staging
+        options: [staging, stable]
+    cache: *cache
+    scripts:
+      - *pub_get
+      - *analyze
+      - *write_android_keystore
+      - *setup_shorebird
+      - name: Patch (Android)
+        script: |
+          shorebird patch android --flavor $FLAVOR -t lib/main_$FLAVOR.dart \
+            --release-version=${{ inputs.release_version }} --track=${{ inputs.track }} \
+            --flutter-version=3.47.1 --dart-define-from-file=env/$FLAVOR.json \
+            -- --obfuscate --split-debug-info=build/symbols
+
+  ios_patch: &ios_patch
+    max_build_duration: 60
+    instance_type: *instance
+    environment:
+      flutter: *flutter_version
+      xcode: latest
+      cocoapods: default
+      groups: [shorebird]
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: $BUNDLE_ID
+    inputs:
+      release_version:
+        description: "Release to patch, e.g. 1.2.0+47"
+        type: string
+      track:
+        description: "staging (then promote) or stable"
+        type: choice
+        default: staging
+        options: [staging, stable]
+    cache: *cache
+    scripts:
+      - *pub_get
+      - *analyze
+      - *ios_signing_setup
+      - *setup_shorebird
+      - *pods
+      - name: Patch (iOS)
+        script: |
+          shorebird patch ios --flavor $FLAVOR -t lib/main_$FLAVOR.dart \
+            --release-version=${{ inputs.release_version }} --track=${{ inputs.track }} \
+            --flutter-version=3.47.1 --dart-define-from-file=env/$FLAVOR.json \
+            --export-options-plist=$HOME/export_options.plist \
+            -- --obfuscate --split-debug-info=build/symbols
+
+workflows:
+  analyze-and-test:
+    name: Analyze & Test
+    max_build_duration: 40
+    instance_type: *instance
+    environment:
+      flutter: *flutter_version
+    cache: *cache
+    triggering:
+      events: [push, pull_request]
+      branch_patterns:
+        - pattern: "*"
+          include: true
+      cancel_previous_builds: true
+    scripts:
+      - *pub_get
+      - name: Verify formatting
+        script: dart format --output=none --set-exit-if-changed lib test packages/heuser_ds/lib packages/heuser_ds/test apps/widgetbook/lib
+      - name: Codegen is committed and fresh
+        script: sh scripts/check-codegen.sh
+      - *analyze
+      - name: Material confined to the design system
+        script: sh scripts/check-imports.sh
+      - name: Every DS component has a golden
+        script: sh scripts/check-ds-goldens.sh
+      - name: Tests (app, with coverage)
+        script: flutter test --coverage
+      - name: Tests (design system, incl. goldens)
+        script: (cd packages/heuser_ds && flutter test)
+      - name: Coverage gate
+        script: sh scripts/coverage-gate.sh
+    artifacts:
+      - coverage/lcov.info
+      - packages/heuser_ds/test/**/failures/**
+    publishing:
+      email:
+        recipients: [bitbytecyber@gmail.com]
+        notify: { success: false, failure: true }
+
+  android-release-staging:
+    <<: *android_release
+    name: Android release · staging (Play internal)
+    environment:
+      flutter: *flutter_version
+      groups: [shorebird, google_play]
+      android_signing: [heuser_upload_keystore]
+      vars:
+        FLAVOR: staging
+        PACKAGE_NAME: com.heusercollege.erp.staging
+  android-release-prod:
+    <<: *android_release
+    name: Android release · prod (Play internal)
+    environment:
+      flutter: *flutter_version
+      groups: [shorebird, google_play]
+      android_signing: [heuser_upload_keystore]
+      vars:
+        FLAVOR: prod
+        PACKAGE_NAME: com.heusercollege.erp
+
+  ios-release-staging:
+    <<: *ios_release
+    name: iOS release · staging (TestFlight)
+    environment:
+      flutter: *flutter_version
+      xcode: latest
+      cocoapods: default
+      groups: [shorebird]
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.heusercollege.erp.staging
+      vars:
+        FLAVOR: staging
+        BUNDLE_ID: com.heusercollege.erp.staging
+  ios-release-prod:
+    <<: *ios_release
+    name: iOS release · prod (TestFlight)
+    environment:
+      flutter: *flutter_version
+      xcode: latest
+      cocoapods: default
+      groups: [shorebird]
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.heusercollege.erp
+      vars:
+        FLAVOR: prod
+        BUNDLE_ID: com.heusercollege.erp
+
+  android-patch-staging:
+    <<: *android_patch
+    name: Android patch · staging
+    environment:
+      flutter: *flutter_version
+      groups: [shorebird]
+      android_signing: [heuser_upload_keystore]
+      vars: { FLAVOR: staging }
+  android-patch-prod:
+    <<: *android_patch
+    name: Android patch · prod
+    environment:
+      flutter: *flutter_version
+      groups: [shorebird]
+      android_signing: [heuser_upload_keystore]
+      vars: { FLAVOR: prod }
+
+  ios-patch-staging:
+    <<: *ios_patch
+    name: iOS patch · staging
+    environment:
+      flutter: *flutter_version
+      xcode: latest
+      cocoapods: default
+      groups: [shorebird]
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.heusercollege.erp.staging
+      vars: { FLAVOR: staging, BUNDLE_ID: com.heusercollege.erp.staging }
+  ios-patch-prod:
+    <<: *ios_patch
+    name: iOS patch · prod
+    environment:
+      flutter: *flutter_version
+      xcode: latest
+      cocoapods: default
+      groups: [shorebird]
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.heusercollege.erp
+      vars: { FLAVOR: prod, BUNDLE_ID: com.heusercollege.erp }
+
+  integration-nightly:
+    name: Integration tests (nightly, staging backend)
+    max_build_duration: 60
+    instance_type: *instance
+    environment:
+      flutter: *flutter_version
+      groups: [integration_test]   # STAGING_TEST_EMAIL / STAGING_TEST_PASSWORD
+    cache: *cache
+    triggering:
+      events: [schedule]   # configure the schedule in the Codemagic UI
+    scripts:
+      - *pub_get
+      - name: Boot an Android emulator
+        script: |
+          flutter emulators --launch emulator 2>/dev/null || true
+          adb wait-for-device; sleep 20
+      - name: Run integration tests
+        script: |
+          flutter test integration_test --flavor staging -t integration_test/app_smoke_test.dart \
+            --dart-define-from-file=env/staging.json \
+            --dart-define=TEST_EMAIL=$STAGING_TEST_EMAIL --dart-define=TEST_PASSWORD=$STAGING_TEST_PASSWORD
+    publishing:
+      email:
+        recipients: [bitbytecyber@gmail.com]
+        notify: { success: false, failure: true }

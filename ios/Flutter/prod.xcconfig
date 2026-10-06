@@ -1,0 +1,6 @@
+// Flavor: prod. Included by the prod build configurations (Debug-prod, Release-prod, Profile-prod).
+// Set up in Xcode once per clone of the schemes: see RELEASE.md "iOS flavors".
+#include "Generated.xcconfig"
+PRODUCT_BUNDLE_IDENTIFIER = com.heusercollege.erp
+APP_DISPLAY_NAME = Heuser
+FLAVOR = prod

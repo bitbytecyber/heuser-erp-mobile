@@ -1,0 +1,28 @@
+include: package:very_good_analysis/analysis_options.yaml
+
+analyzer:
+  language:
+    strict-casts: true
+    strict-inference: true
+    strict-raw-types: true
+  exclude:
+    - "**/*.g.dart"
+    - build/**
+    - android/**
+    - ios/**
+    - web/**
+    - windows/**
+    - macos/**
+    - linux/**
+
+linter:
+  rules:
+    # pubspec dependencies are grouped by purpose with comments, not sorted.
+    sort_pub_dependencies: false
+    # Keep the classic `ClassName(...)` constructor form: it is what every agent
+    # and reviewer recognises; the shorthand buys nothing here.
+    unnecessary_type_name_in_constructor: false
+    # The design system IS a public API for the app and future agents: keep docs.
+    public_member_api_docs: true
+    require_trailing_commas: false
+    lines_longer_than_80_chars: false

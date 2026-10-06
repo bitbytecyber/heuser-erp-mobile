@@ -1,0 +1,11 @@
+# Launcher icons (`dart run flutter_launcher_icons`).
+# Same icon for every flavor; the launcher label tells them apart.
+flutter_launcher_icons:
+  android: true
+  ios: true
+  remove_alpha_ios: true
+  image_path: assets/brand/icon.png
+  adaptive_icon_background: "#000F1D"
+  adaptive_icon_foreground: assets/brand/icon-foreground.png
+  adaptive_icon_monochrome: assets/brand/icon-foreground.png
+  min_sdk_android: 24

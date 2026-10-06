@@ -1,0 +1,6 @@
+// Flavor: dev. Included by the dev build configurations (Debug-dev, Release-dev, Profile-dev).
+// Set up in Xcode once per clone of the schemes: see RELEASE.md "iOS flavors".
+#include "Generated.xcconfig"
+PRODUCT_BUNDLE_IDENTIFIER = com.heusercollege.erp.dev
+APP_DISPLAY_NAME = Heuser Dev
+FLAVOR = dev

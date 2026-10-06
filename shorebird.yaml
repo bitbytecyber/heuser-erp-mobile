@@ -1,0 +1,16 @@
+# Shorebird code push configuration. Checked in; contains no secrets.
+#
+# One Shorebird app per flavor so a staging patch can never reach prod users.
+# Create them once with (logged into Shorebird):
+#   shorebird init --flavor dev && shorebird init --flavor staging && shorebird init --flavor prod
+# and paste the ids below. Until then `shorebird release` refuses to run, which
+# is the intended failure mode. See RELEASE.md "Shorebird".
+app_id: 00000000-0000-0000-0000-000000000000
+flavors:
+  dev: 00000000-0000-0000-0000-000000000000
+  staging: 00000000-0000-0000-0000-000000000000
+  prod: 00000000-0000-0000-0000-000000000000
+
+# The app drives updates itself (core/updater) so it can show a "restart to
+# update" banner and keep the check off the startup path.
+auto_update: false
