@@ -1,22 +1,23 @@
 import 'dart:async';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:heuser_erp_mobile/app/app.dart';
-import 'package:heuser_erp_mobile/app/theme/theme_preference_store.dart';
+import 'package:heuser_erp_mobile/app/di/injection.dart';
+import 'package:heuser_erp_mobile/core/connectivity/connectivity_service.dart';
 import 'package:heuser_erp_mobile/core/env/app_env.dart';
 import 'package:heuser_erp_mobile/core/env/flavor.dart';
 import 'package:heuser_erp_mobile/core/i18n/strings.g.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:heuser_erp_mobile/core/network/user_agent.dart';
 
-/// Shared startup for every `main_<flavor>.dart`.
-///
-/// Order matters and is documented in ARCHITECTURE.md "Bootstrap":
-/// 1. bind + hold the native splash (the first frame stays hidden);
+/// Shared startup for every `main_<flavor>.dart` (ARCHITECTURE.md "Bootstrap"):
+/// 1. bind and hold the native splash (the first frame stays hidden);
 /// 2. resolve the compile-time environment (fails fast on a bad define);
-/// 3. run the app inside a guarded zone so uncaught errors reach the crash
-///    reporter once it exists.
+/// 3. register dependencies (nothing network-bound);
+/// 4. run the app inside a guarded zone. The app itself then checks the
+///    stored session and the cached branding before releasing the splash.
 Future<void> bootstrap({required Flavor flavor}) async {
   final binding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: binding);
@@ -30,15 +31,17 @@ Future<void> bootstrap({required Flavor flavor}) async {
 
   await runZonedGuarded<Future<void>>(
     () async {
-      final themeStore = SharedPrefsThemeStore(SharedPreferencesAsync());
-      runApp(
-        TranslationProvider(
-          child: HeuserApp(env: env, themeStore: themeStore),
-        ),
+      await configureDependencies(env);
+      unawaited(getIt<ConnectivityService>().initialize());
+      unawaited(
+        HeuserUserAgent.resolve().then((ua) {
+          if (ua != null) getIt<Dio>().options.headers['User-Agent'] = ua;
+        }),
       );
+      runApp(TranslationProvider(child: HeuserApp(env: env)));
     },
     (error, stack) {
-      // Replaced by the crash reporter in M2; never swallow silently.
+      // Replaced by the crash reporter in M6; never swallow silently.
       debugPrint('Uncaught zone error: $error\n$stack');
     },
   );

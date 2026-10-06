@@ -4,34 +4,45 @@ import 'package:flutter/material.dart' show MaterialApp;
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:go_router/go_router.dart';
 import 'package:heuser_ds/heuser_ds.dart';
+import 'package:heuser_erp_mobile/app/di/injection.dart';
+import 'package:heuser_erp_mobile/app/router/app_router.dart';
 import 'package:heuser_erp_mobile/app/theme/theme_cubit.dart';
 import 'package:heuser_erp_mobile/app/theme/theme_preference_store.dart';
+import 'package:heuser_erp_mobile/core/connectivity/connectivity_banner.dart';
+import 'package:heuser_erp_mobile/core/connectivity/connectivity_service.dart';
 import 'package:heuser_erp_mobile/core/env/app_env.dart';
 import 'package:heuser_erp_mobile/core/i18n/strings.g.dart';
-import 'package:heuser_erp_mobile/features/me/presentation/pages/appearance_page.dart';
+import 'package:heuser_erp_mobile/features/auth/domain/auth_repository.dart';
+import 'package:heuser_erp_mobile/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:heuser_erp_mobile/features/branding/data/branding_repository.dart';
+import 'package:heuser_erp_mobile/features/branding/domain/site_branding.dart';
 
-/// Root widget: theme cubit → Material engine app → `HThemeScope`.
-///
-/// `MaterialApp` is used only as the engine (navigator, overlays, text
-/// editing, localisation delegates); every visible style comes from the H
-/// theme through the bridge. The router replaces `home` in M2.
+/// Root widget: session (AuthBloc) + theme (ThemeCubit fed by branding) +
+/// router. `MaterialApp.router` is only the engine; every visible style comes
+/// from the H theme through the bridge.
 class HeuserApp extends StatefulWidget {
-  /// Creates the app.
-  const HeuserApp({required this.env, required this.themeStore, super.key});
+  /// Creates the app. Dependencies come from the locator (see `bootstrap`).
+  const HeuserApp({required this.env, super.key});
 
   /// Compile-time environment.
   final AppEnv env;
-
-  /// Theme persistence.
-  final ThemePreferenceStore themeStore;
 
   @override
   State<HeuserApp> createState() => _HeuserAppState();
 }
 
 class _HeuserAppState extends State<HeuserApp> with WidgetsBindingObserver {
+  static const _brandingBudget = Duration(milliseconds: 1500);
+
+  late final AuthBloc _auth;
   late final ThemeCubit _theme;
+  late final GoRouter _router;
+  late final BrandingRepository _branding = getIt<BrandingRepository>();
+  late final ConnectivityService _connectivity = getIt<ConnectivityService>();
+  StreamSubscription<SiteBranding>? _brandingSub;
+  bool _splashRemoved = false;
 
   @override
   void initState() {
@@ -39,61 +50,93 @@ class _HeuserAppState extends State<HeuserApp> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
     final dispatcher = WidgetsBinding.instance.platformDispatcher;
     _theme = ThemeCubit(
-      widget.themeStore,
+      getIt<ThemePreferenceStore>(),
       platform: dispatcher.platformBrightness,
       reduceMotion: dispatcher.accessibilityFeatures.disableAnimations,
     );
-    unawaited(
-      _theme.start().whenComplete(() {
-        WidgetsBinding.instance.addPostFrameCallback(
-          (_) => FlutterNativeSplash.remove(),
-        );
-      }),
+    _auth = AuthBloc(getIt<AuthRepository>())..add(const AuthEvent.started());
+    _router = buildAppRouter(_auth);
+    _brandingSub = _branding.stream.listen(
+      (b) => unawaited(_theme.remoteUpdated(b.mobileTheme)),
+    );
+    unawaited(_startTheme());
+  }
+
+  Future<void> _startTheme() async {
+    await _theme.start();
+    final cached = await _branding.loadCached();
+    if (cached.mobileTheme != null) {
+      await _theme.remoteUpdated(cached.mobileTheme);
+    }
+    unawaited(_branding.refresh(budget: _brandingBudget));
+  }
+
+  void _removeSplashOnce() {
+    if (_splashRemoved) return;
+    _splashRemoved = true;
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => FlutterNativeSplash.remove(),
     );
   }
 
   @override
-  void didChangePlatformBrightness() {
-    _theme.platformChanged(
-      platform: WidgetsBinding.instance.platformDispatcher.platformBrightness,
-    );
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state != AppLifecycleState.resumed) return;
+    _auth.add(const AuthEvent.appResumed());
+    unawaited(_connectivity.refresh());
+    unawaited(_branding.refresh());
   }
 
   @override
-  void didChangeAccessibilityFeatures() {
-    _theme.platformChanged(
-      reduceMotion: WidgetsBinding
-          .instance
-          .platformDispatcher
-          .accessibilityFeatures
-          .disableAnimations,
-    );
-  }
+  void didChangePlatformBrightness() => _theme.platformChanged(
+    platform: WidgetsBinding.instance.platformDispatcher.platformBrightness,
+  );
+
+  @override
+  void didChangeAccessibilityFeatures() => _theme.platformChanged(
+    reduceMotion: WidgetsBinding
+        .instance
+        .platformDispatcher
+        .accessibilityFeatures
+        .disableAnimations,
+  );
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    unawaited(_brandingSub?.cancel());
+    _router.dispose();
+    unawaited(_auth.close());
     unawaited(_theme.close());
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider.value(
-      value: _theme,
-      child: BlocBuilder<ThemeCubit, ThemeState>(
-        builder: (context, state) => MaterialApp(
-          title: widget.env.appName,
-          debugShowCheckedModeBanner: false,
-          theme: materialThemeFrom(state.data),
-          locale: TranslationProvider.of(context).flutterLocale,
-          supportedLocales: AppLocaleUtils.supportedLocales,
-          localizationsDelegates: const [],
-          builder: (context, child) => HThemeScope(
-            data: state.data,
-            child: child ?? const SizedBox.shrink(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider.value(value: _auth),
+        BlocProvider.value(value: _theme),
+      ],
+      child: BlocListener<AuthBloc, AuthState>(
+        listenWhen: (_, s) => s is! AuthUnknown,
+        listener: (_, _) => _removeSplashOnce(),
+        child: BlocBuilder<ThemeCubit, ThemeState>(
+          builder: (context, state) => MaterialApp.router(
+            title: widget.env.appName,
+            debugShowCheckedModeBanner: false,
+            theme: materialThemeFrom(state.data),
+            routerConfig: _router,
+            locale: TranslationProvider.of(context).flutterLocale,
+            supportedLocales: AppLocaleUtils.supportedLocales,
+            builder: (context, child) => ConnectivityScope(
+              service: _connectivity,
+              child: HThemeScope(
+                data: state.data,
+                child: child ?? const SizedBox.shrink(),
+              ),
+            ),
           ),
-          home: const AppearancePage(),
         ),
       ),
     );
