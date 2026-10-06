@@ -1,0 +1,3 @@
+tags:
+  golden:
+    description: Alchemist golden tests (run with --tags golden, update with --update-goldens)

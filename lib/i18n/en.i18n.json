@@ -11,8 +11,21 @@
     "save": "Save",
     "done": "Done",
     "ok": "OK",
+    "close": "Close",
     "loading": "Loading…",
     "offline": "You're offline. We'll retry when you're back.",
     "somethingWentWrong": "Something went wrong. Please try again."
+  },
+  "appearance": {
+    "title": "Appearance",
+    "modeTitle": "Colour mode",
+    "modeSystem": "System",
+    "modeLight": "Light",
+    "modeDark": "Dark",
+    "presetTitle": "Theme",
+    "presetHint": "Pick the palette you like. The college can change the default at any time.",
+    "presetLocked": "Your college has chosen the theme for everyone.",
+    "setByAdmin": "Set by college",
+    "resetPreset": "Use the college default"
   }
 }

@@ -1,5 +1,68 @@
-/// A Calculator.
-class Calculator {
-  /// Returns [value] plus 1.
-  int addOne(int value) => value + 1;
-}
+/// Heuser design system: tokens, theme presets and the H* component library.
+///
+/// App code imports this (and `package:flutter/widgets.dart`) and nothing
+/// from Material. See DESIGN.md at the repo root.
+library;
+
+export 'src/components/buttons/h_button.dart';
+export 'src/components/buttons/h_icon_button.dart';
+export 'src/components/buttons/h_pressable.dart';
+export 'src/components/data/h_avatar.dart';
+export 'src/components/data/h_fee_table.dart';
+export 'src/components/data/h_key_value.dart';
+export 'src/components/data/h_list_tile.dart';
+export 'src/components/data/h_stage_bar.dart';
+export 'src/components/data/h_timeline.dart';
+export 'src/components/feedback/h_countdown.dart';
+export 'src/components/feedback/h_empty_state.dart';
+export 'src/components/feedback/h_progress.dart';
+export 'src/components/feedback/h_skeleton.dart';
+export 'src/components/feedback/h_status_pill.dart';
+export 'src/components/feedback/h_toast.dart';
+export 'src/components/inputs/h_checkbox.dart';
+export 'src/components/inputs/h_chip.dart';
+export 'src/components/inputs/h_date_picker.dart';
+export 'src/components/inputs/h_field_frame.dart';
+export 'src/components/inputs/h_file_picker_tile.dart';
+export 'src/components/inputs/h_otp_field.dart';
+export 'src/components/inputs/h_radio.dart';
+export 'src/components/inputs/h_search_select.dart';
+export 'src/components/inputs/h_segmented.dart';
+export 'src/components/inputs/h_select.dart';
+export 'src/components/inputs/h_switch.dart';
+export 'src/components/inputs/h_text_field.dart';
+export 'src/components/inputs/h_text_field_masks.dart';
+export 'src/components/navigation/h_app_bar.dart';
+export 'src/components/navigation/h_nav_bar.dart';
+export 'src/components/navigation/h_stepper.dart';
+export 'src/components/navigation/h_tabs.dart';
+export 'src/components/surfaces/h_bottom_sheet.dart';
+export 'src/components/surfaces/h_card.dart';
+export 'src/components/surfaces/h_dialog.dart';
+export 'src/components/surfaces/h_scaffold.dart';
+export 'src/foundation/h_animate.dart';
+export 'src/foundation/h_haptics.dart';
+export 'src/foundation/h_icon.dart';
+export 'src/foundation/h_icons.dart';
+export 'src/foundation/h_page_transitions.dart';
+export 'src/foundation/h_scroll_behavior.dart';
+export 'src/foundation/h_text.dart';
+export 'src/theme/bridge/h_theme_scope.dart';
+export 'src/theme/bridge/h_tokens_extension.dart';
+export 'src/theme/bridge/material_bridge.dart' show materialThemeFrom;
+export 'src/theme/h_theme.dart';
+export 'src/theme/h_theme_data.dart';
+export 'src/theme/h_theme_mode.dart';
+export 'src/theme/presets/h_preset.dart';
+export 'src/theme/presets/heuser_classic.dart';
+export 'src/theme/presets/more_presets.dart';
+export 'src/theme/presets/preset_registry.dart';
+export 'src/theme/remote/mobile_theme.dart';
+export 'src/theme/remote/mobile_theme_codec.dart';
+export 'src/tokens/h_colors.dart';
+export 'src/tokens/h_colors_codec.dart';
+export 'src/tokens/h_elevation.dart';
+export 'src/tokens/h_motion.dart';
+export 'src/tokens/h_radius.dart';
+export 'src/tokens/h_spacing.dart';
+export 'src/tokens/h_typography.dart';

@@ -38,6 +38,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	// Translations
 	late final Translations$app$en app = Translations$app$en.internal(_root);
 	late final Translations$common$en common = Translations$common$en.internal(_root);
+	late final Translations$appearance$en appearance = Translations$appearance$en.internal(_root);
 }
 
 // Path: app
@@ -84,6 +85,9 @@ class Translations$common$en {
 	/// en: 'OK'
 	String get ok => 'OK';
 
+	/// en: 'Close'
+	String get close => 'Close';
+
 	/// en: 'Loading…'
 	String get loading => 'Loading…';
 
@@ -92,4 +96,43 @@ class Translations$common$en {
 
 	/// en: 'Something went wrong. Please try again.'
 	String get somethingWentWrong => 'Something went wrong. Please try again.';
+}
+
+// Path: appearance
+class Translations$appearance$en {
+	Translations$appearance$en.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Appearance'
+	String get title => 'Appearance';
+
+	/// en: 'Colour mode'
+	String get modeTitle => 'Colour mode';
+
+	/// en: 'System'
+	String get modeSystem => 'System';
+
+	/// en: 'Light'
+	String get modeLight => 'Light';
+
+	/// en: 'Dark'
+	String get modeDark => 'Dark';
+
+	/// en: 'Theme'
+	String get presetTitle => 'Theme';
+
+	/// en: 'Pick the palette you like. The college can change the default at any time.'
+	String get presetHint => 'Pick the palette you like. The college can change the default at any time.';
+
+	/// en: 'Your college has chosen the theme for everyone.'
+	String get presetLocked => 'Your college has chosen the theme for everyone.';
+
+	/// en: 'Set by college'
+	String get setByAdmin => 'Set by college';
+
+	/// en: 'Use the college default'
+	String get resetPreset => 'Use the college default';
 }

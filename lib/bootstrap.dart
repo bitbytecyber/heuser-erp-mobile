@@ -4,8 +4,11 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:heuser_erp_mobile/app/app.dart';
+import 'package:heuser_erp_mobile/app/theme/theme_preference_store.dart';
 import 'package:heuser_erp_mobile/core/env/app_env.dart';
 import 'package:heuser_erp_mobile/core/env/flavor.dart';
+import 'package:heuser_erp_mobile/core/i18n/strings.g.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// Shared startup for every `main_<flavor>.dart`.
 ///
@@ -27,7 +30,12 @@ Future<void> bootstrap({required Flavor flavor}) async {
 
   await runZonedGuarded<Future<void>>(
     () async {
-      runApp(HeuserApp(env: env));
+      final themeStore = SharedPrefsThemeStore(SharedPreferencesAsync());
+      runApp(
+        TranslationProvider(
+          child: HeuserApp(env: env, themeStore: themeStore),
+        ),
+      );
     },
     (error, stack) {
       // Replaced by the crash reporter in M2; never swallow silently.
