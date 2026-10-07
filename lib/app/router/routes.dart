@@ -4,6 +4,16 @@ import 'package:go_router/go_router.dart';
 import 'package:heuser_ds/heuser_ds.dart';
 import 'package:heuser_erp_mobile/app/di/injection.dart';
 import 'package:heuser_erp_mobile/app/router/shells/applicant_shell.dart';
+import 'package:heuser_erp_mobile/core/connectivity/connectivity_service.dart';
+import 'package:heuser_erp_mobile/core/files/file_pick_service.dart';
+import 'package:heuser_erp_mobile/core/storage/json_file_cache.dart';
+import 'package:heuser_erp_mobile/features/application_form/data/file_draft_store.dart';
+import 'package:heuser_erp_mobile/features/application_form/presentation/pages/application_form_page.dart';
+import 'package:heuser_erp_mobile/features/applications/data/models/application.dart';
+import 'package:heuser_erp_mobile/features/applications/domain/intake_repository.dart';
+import 'package:heuser_erp_mobile/features/applications/presentation/bloc/applications_bloc.dart';
+import 'package:heuser_erp_mobile/features/applications/presentation/cubit/application_load_cubit.dart';
+import 'package:heuser_erp_mobile/features/applications/presentation/pages/application_page.dart';
 import 'package:heuser_erp_mobile/features/applications/presentation/pages/applications_page.dart';
 import 'package:heuser_erp_mobile/features/auth/domain/auth_repository.dart';
 import 'package:heuser_erp_mobile/features/auth/domain/social_precheck.dart';
@@ -19,8 +29,10 @@ import 'package:heuser_erp_mobile/features/branding/data/branding_repository.dar
 import 'package:heuser_erp_mobile/features/me/presentation/pages/appearance_page.dart';
 import 'package:heuser_erp_mobile/features/me/presentation/pages/profile_page.dart';
 import 'package:heuser_erp_mobile/features/notifications/presentation/pages/notifications_page.dart';
+import 'package:heuser_erp_mobile/features/tracker/presentation/pages/tracker_page.dart';
 
 part 'routes.g.dart';
+part 'routes_applicant.dart';
 
 // Transitions: shared-axis X for pushes, fade-through for root swaps.
 // The duration mirrors HMotion.slow; route builders have no theme context.
@@ -204,91 +216,4 @@ class StudentRoute extends GoRouteData with $StudentRoute {
           context.read<AuthBloc>().add(const AuthEvent.signOutRequested()),
     ),
   );
-}
-
-// --- applicant shell ----------------------------------------------------------
-
-/// The applicant portal: three stateful branches under one nav bar.
-@TypedStatefulShellRoute<ApplicantShellRoute>(
-  branches: <TypedStatefulShellBranch<StatefulShellBranchData>>[
-    TypedStatefulShellBranch<ApplicationsBranch>(
-      routes: [TypedGoRoute<ApplicationsRoute>(path: '/apply')],
-    ),
-    TypedStatefulShellBranch<NotificationsBranch>(
-      routes: [TypedGoRoute<NotificationsRoute>(path: '/apply/notifications')],
-    ),
-    TypedStatefulShellBranch<ProfileBranch>(
-      routes: [
-        TypedGoRoute<ProfileRoute>(
-          path: '/apply/profile',
-          routes: [TypedGoRoute<AppearanceRoute>(path: 'appearance')],
-        ),
-      ],
-    ),
-  ],
-)
-class ApplicantShellRoute extends StatefulShellRouteData {
-  /// Const.
-  const ApplicantShellRoute();
-
-  @override
-  Widget builder(
-    BuildContext context,
-    GoRouterState state,
-    StatefulNavigationShell navigationShell,
-  ) => ApplicantShell(navigationShell: navigationShell);
-}
-
-/// Applications branch.
-class ApplicationsBranch extends StatefulShellBranchData {
-  /// Const.
-  const ApplicationsBranch();
-}
-
-/// Notifications branch.
-class NotificationsBranch extends StatefulShellBranchData {
-  /// Const.
-  const NotificationsBranch();
-}
-
-/// Profile branch.
-class ProfileBranch extends StatefulShellBranchData {
-  /// Const.
-  const ProfileBranch();
-}
-
-/// Applications tab.
-class ApplicationsRoute extends GoRouteData with $ApplicationsRoute {
-  /// Const.
-  const ApplicationsRoute();
-  @override
-  Widget build(BuildContext context, GoRouterState state) =>
-      ApplicationsPage(branding: getIt<BrandingRepository>());
-}
-
-/// Notifications tab.
-class NotificationsRoute extends GoRouteData with $NotificationsRoute {
-  /// Const.
-  const NotificationsRoute();
-  @override
-  Widget build(BuildContext context, GoRouterState state) =>
-      const NotificationsPage();
-}
-
-/// Profile tab.
-class ProfileRoute extends GoRouteData with $ProfileRoute {
-  /// Const.
-  const ProfileRoute();
-  @override
-  Widget build(BuildContext context, GoRouterState state) =>
-      ProfilePage(onAppearance: () => const AppearanceRoute().go(context));
-}
-
-/// Appearance (preset + mode).
-class AppearanceRoute extends GoRouteData with $AppearanceRoute {
-  /// Const.
-  const AppearanceRoute();
-  @override
-  Page<void> buildPage(BuildContext context, GoRouterState state) =>
-      _slide(state, const AppearancePage());
 }

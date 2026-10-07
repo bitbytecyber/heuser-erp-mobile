@@ -385,6 +385,13 @@ RouteBase get $applicantShellRoute => StatefulShellRouteData.$route(
           path: '/apply',
           hasOverriddenOnExit: false,
           factory: $ApplicationsRoute._fromState,
+          routes: [
+            GoRouteData.$route(
+              path: ':id',
+              hasOverriddenOnExit: false,
+              factory: $ApplicationRoute._fromState,
+            ),
+          ],
         ),
       ],
     ),
@@ -440,6 +447,35 @@ mixin $ApplicationsRoute on GoRouteData {
 
   @override
   void replace(BuildContext context) => context.replace(location);
+}
+
+mixin $ApplicationRoute on GoRouteData {
+  static ApplicationRoute _fromState(GoRouterState state) => ApplicationRoute(
+    id: int.parse(state.pathParameters['id']!),
+    $extra: state.extra as Application?,
+  );
+
+  ApplicationRoute get _self => this as ApplicationRoute;
+
+  @override
+  String get location => GoRouteData.$location(
+    '/apply/${Uri.encodeComponent(_self.id.toString())}',
+  );
+
+  @override
+  void go(BuildContext context) => context.go(location, extra: _self.$extra);
+
+  @override
+  Future<T?> push<T>(BuildContext context) =>
+      context.push<T>(location, extra: _self.$extra);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location, extra: _self.$extra);
+
+  @override
+  void replace(BuildContext context) =>
+      context.replace(location, extra: _self.$extra);
 }
 
 mixin $NotificationsRoute on GoRouteData {

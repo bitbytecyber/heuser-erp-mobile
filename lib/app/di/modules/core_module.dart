@@ -4,7 +4,12 @@ import 'package:heuser_erp_mobile/core/auth/auth_signals.dart';
 import 'package:heuser_erp_mobile/core/auth/session_token_store.dart';
 import 'package:heuser_erp_mobile/core/connectivity/connectivity_service.dart';
 import 'package:heuser_erp_mobile/core/env/app_env.dart';
+import 'package:heuser_erp_mobile/core/files/file_pick_service.dart';
 import 'package:heuser_erp_mobile/core/network/dio_factory.dart';
+import 'package:heuser_erp_mobile/core/storage/json_file_cache.dart';
+import 'package:heuser_erp_mobile/features/applications/data/datasources/intake_api.dart';
+import 'package:heuser_erp_mobile/features/applications/data/repositories/intake_repository_impl.dart';
+import 'package:heuser_erp_mobile/features/applications/domain/intake_repository.dart';
 import 'package:heuser_erp_mobile/features/auth/data/datasources/allauth_api.dart';
 import 'package:heuser_erp_mobile/features/auth/data/datasources/apple_auth_service.dart';
 import 'package:heuser_erp_mobile/features/auth/data/datasources/google_auth_service.dart';
@@ -119,4 +124,22 @@ abstract class CoreModule {
     google: google,
     apple: apple,
   );
+
+  /// Applicant intake endpoints.
+  @lazySingleton
+  IntakeApi intakeApi(Dio dio) => IntakeApi(dio);
+
+  /// Intake with option / country caches.
+  @LazySingleton(as: IntakeRepository)
+  IntakeRepositoryImpl intakeRepository(IntakeApi api) =>
+      IntakeRepositoryImpl(api);
+
+  /// Unsaved form drafts, one JSON file per application.
+  @Named('drafts')
+  @lazySingleton
+  JsonFileCache draftCache() => JsonFileCache('drafts');
+
+  /// Camera / gallery / document picking with compression.
+  @lazySingleton
+  FilePickService filePickService() => FilePickService();
 }

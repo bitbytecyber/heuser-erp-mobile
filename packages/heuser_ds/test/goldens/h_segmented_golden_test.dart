@@ -36,6 +36,16 @@ void main() {
           value: 2,
           onChanged: null,
         ),
+        HSpace.gap3,
+        // Nothing chosen yet: no indicator.
+        HSegmented<String>(
+          segments: const [
+            HSegment(value: 'male', label: 'Male'),
+            HSegment(value: 'female', label: 'Female'),
+          ],
+          value: null,
+          onChanged: (_) {},
+        ),
       ],
     ),
   );

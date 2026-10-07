@@ -38,7 +38,7 @@ Map<String, dynamic> _$AbilitiesToJson(_Abilities instance) =>
     <String, dynamic>{
       'version': instance.version,
       'is_superuser': instance.isSuperuser,
-      'roles': instance.roles,
+      'roles': instance.roles.map((e) => e.toJson()).toList(),
       'capabilities': _capabilityKeysToJson(instance.capabilities),
       'portals': _defaultPortalToJson(instance.defaultPortalCode),
     };

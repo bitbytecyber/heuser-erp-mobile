@@ -38,8 +38,8 @@ class HSegmented<T> extends StatelessWidget {
   /// Segments.
   final List<HSegment<T>> segments;
 
-  /// Selected value.
-  final T value;
+  /// Selected value; `null` shows no indicator (nothing chosen yet).
+  final T? value;
 
   /// Change handler.
   final ValueChanged<T>? onChanged;
@@ -53,8 +53,10 @@ class HSegmented<T> extends StatelessWidget {
     final c = h.colors;
     final active = enabled && onChanged != null;
     final n = segments.length;
-    final index = segments.indexWhere((s) => s.value == value).clamp(0, n - 1);
+    final selectedIndex = segments.indexWhere((s) => s.value == value);
+    final index = selectedIndex.clamp(0, n - 1);
     final alignX = n == 1 ? 0.0 : -1 + 2 * index / (n - 1);
+    final hasSelection = selectedIndex >= 0;
     return Container(
       height: 44,
       padding: const EdgeInsets.all(3),
@@ -72,11 +74,15 @@ class HSegmented<T> extends StatelessWidget {
               child: FractionallySizedBox(
                 widthFactor: 1 / n,
                 heightFactor: 1,
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: active ? c.surfaceRaised : c.outlineSoft,
-                    borderRadius: HRadius.smAll,
-                    boxShadow: h.elevation.raised,
+                child: AnimatedOpacity(
+                  duration: h.motion.of(h.motion.fast),
+                  opacity: hasSelection ? 1 : 0,
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: active ? c.surfaceRaised : c.outlineSoft,
+                      borderRadius: HRadius.smAll,
+                      boxShadow: h.elevation.raised,
+                    ),
                   ),
                 ),
               ),

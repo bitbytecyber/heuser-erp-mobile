@@ -40,8 +40,14 @@ gradle.taskGraph.whenReady {
 
 android {
     namespace = "com.heusercollege.erp"
-    compileSdk = flutter.compileSdkVersion
+    // permission_handler 13 needs API 37; Flutter 3.47 still defaults to 36.
+    compileSdk = 37
     ndkVersion = flutter.ndkVersion
+
+    // AGP 9 turns resValues off by default; the flavors use it for app_name.
+    buildFeatures {
+        resValues = true
+    }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17

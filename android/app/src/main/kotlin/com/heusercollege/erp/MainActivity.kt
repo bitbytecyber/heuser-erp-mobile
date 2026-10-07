@@ -1,4 +1,4 @@
-package com.heusercollege.heuser_erp_mobile
+package com.heusercollege.erp
 
 import io.flutter.embedding.android.FlutterActivity
 

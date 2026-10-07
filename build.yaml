@@ -1,0 +1,8 @@
+# json_serializable defaults for every freezed/json model in the app.
+# explicit_to_json: nested models serialise themselves (draft cache, payloads).
+targets:
+  $default:
+    builders:
+      json_serializable:
+        options:
+          explicit_to_json: true

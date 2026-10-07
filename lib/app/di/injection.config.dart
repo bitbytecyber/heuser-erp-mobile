@@ -20,6 +20,12 @@ import 'package:heuser_erp_mobile/core/auth/session_token_store.dart' as _i725;
 import 'package:heuser_erp_mobile/core/connectivity/connectivity_service.dart'
     as _i800;
 import 'package:heuser_erp_mobile/core/env/app_env.dart' as _i1035;
+import 'package:heuser_erp_mobile/core/files/file_pick_service.dart' as _i685;
+import 'package:heuser_erp_mobile/core/storage/json_file_cache.dart' as _i675;
+import 'package:heuser_erp_mobile/features/applications/data/datasources/intake_api.dart'
+    as _i269;
+import 'package:heuser_erp_mobile/features/applications/domain/intake_repository.dart'
+    as _i927;
 import 'package:heuser_erp_mobile/features/auth/data/datasources/allauth_api.dart'
     as _i55;
 import 'package:heuser_erp_mobile/features/auth/data/datasources/apple_auth_service.dart'
@@ -55,8 +61,13 @@ extension GetItInjectableX on _i174.GetIt {
       () => coreModule.connectivity(),
     );
     gh.lazySingleton<_i142.AppleAuthService>(() => coreModule.apple());
+    gh.lazySingleton<_i685.FilePickService>(() => coreModule.filePickService());
     gh.lazySingleton<_i811.GoogleAuthService>(
       () => coreModule.google(gh<_i1035.AppEnv>()),
+    );
+    gh.lazySingleton<_i675.JsonFileCache>(
+      () => coreModule.draftCache(),
+      instanceName: 'drafts',
     );
     gh.lazySingleton<_i256.SessionSnapshotStore>(
       () => coreModule.snapshotStore(gh<_i460.SharedPreferencesAsync>()),
@@ -82,6 +93,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i712.SiteBrandingApi>(
       () => coreModule.siteBrandingApi(gh<_i361.Dio>()),
     );
+    gh.lazySingleton<_i269.IntakeApi>(
+      () => coreModule.intakeApi(gh<_i361.Dio>()),
+    );
     gh.lazySingleton<_i6.AuthRepository>(
       () => coreModule.authRepository(
         gh<_i55.AllauthApi>(),
@@ -94,6 +108,9 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i811.GoogleAuthService>(),
         gh<_i142.AppleAuthService>(),
       ),
+    );
+    gh.lazySingleton<_i927.IntakeRepository>(
+      () => coreModule.intakeRepository(gh<_i269.IntakeApi>()),
     );
     gh.lazySingleton<_i1064.BrandingRepository>(
       () => coreModule.brandingRepository(
