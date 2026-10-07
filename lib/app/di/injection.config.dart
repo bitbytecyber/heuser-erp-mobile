@@ -22,6 +22,8 @@ import 'package:heuser_erp_mobile/core/connectivity/connectivity_service.dart'
 import 'package:heuser_erp_mobile/core/env/app_env.dart' as _i1035;
 import 'package:heuser_erp_mobile/core/files/file_pick_service.dart' as _i685;
 import 'package:heuser_erp_mobile/core/storage/json_file_cache.dart' as _i675;
+import 'package:heuser_erp_mobile/features/applications/data/datasources/booking_api.dart'
+    as _i328;
 import 'package:heuser_erp_mobile/features/applications/data/datasources/intake_api.dart'
     as _i269;
 import 'package:heuser_erp_mobile/features/applications/domain/intake_repository.dart'
@@ -96,6 +98,15 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i269.IntakeApi>(
       () => coreModule.intakeApi(gh<_i361.Dio>()),
     );
+    gh.lazySingleton<_i328.BookingApi>(
+      () => coreModule.bookingApi(gh<_i361.Dio>()),
+    );
+    gh.lazySingleton<_i927.IntakeRepository>(
+      () => coreModule.intakeRepository(
+        gh<_i269.IntakeApi>(),
+        gh<_i328.BookingApi>(),
+      ),
+    );
     gh.lazySingleton<_i6.AuthRepository>(
       () => coreModule.authRepository(
         gh<_i55.AllauthApi>(),
@@ -108,9 +119,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i811.GoogleAuthService>(),
         gh<_i142.AppleAuthService>(),
       ),
-    );
-    gh.lazySingleton<_i927.IntakeRepository>(
-      () => coreModule.intakeRepository(gh<_i269.IntakeApi>()),
     );
     gh.lazySingleton<_i1064.BrandingRepository>(
       () => coreModule.brandingRepository(

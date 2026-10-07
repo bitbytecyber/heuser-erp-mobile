@@ -1,116 +1,218 @@
+import 'dart:async';
+
+import 'package:flutter/services.dart' show Clipboard, ClipboardData;
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:heuser_ds/heuser_ds.dart';
+import 'package:heuser_erp_mobile/core/files/file_pick_service.dart';
 import 'package:heuser_erp_mobile/core/i18n/strings.g.dart';
-import 'package:heuser_erp_mobile/features/application_form/domain/form_draft.dart';
 import 'package:heuser_erp_mobile/features/application_form/presentation/cubit/countries_cubit.dart';
-import 'package:heuser_erp_mobile/features/application_form/presentation/widgets/steps/review_details.dart';
 import 'package:heuser_erp_mobile/features/applications/data/models/application.dart';
-import 'package:heuser_erp_mobile/features/applications/data/models/form_options.dart';
 import 'package:heuser_erp_mobile/features/applications/domain/intake_repository.dart';
+import 'package:heuser_erp_mobile/features/documents/domain/doc_rows.dart';
+import 'package:heuser_erp_mobile/features/documents/domain/doc_rows_input.dart';
+import 'package:heuser_erp_mobile/features/documents/presentation/cubit/documents_cubit.dart';
+import 'package:heuser_erp_mobile/features/documents/presentation/widgets/doc_labels.dart';
+import 'package:heuser_erp_mobile/features/tracker/domain/tracker_rules.dart';
+import 'package:heuser_erp_mobile/features/tracker/presentation/bloc/tracker_bloc.dart';
+import 'package:heuser_erp_mobile/features/tracker/presentation/pages/tracker_feedback.dart';
+import 'package:heuser_erp_mobile/features/tracker/presentation/widgets/status_card_view.dart';
+import 'package:heuser_erp_mobile/features/tracker/presentation/widgets/todo_tab.dart';
+import 'package:heuser_erp_mobile/features/tracker/presentation/widgets/tracker_tabs.dart';
 
-/// The sent application (M3 slice of M4's tracker): status, stage bar and
-/// the read-only review. To-do, documents, interview, offer and history
-/// tabs arrive in M4.
+/// A sent application (`Tracker` in `tracker.tsx`): greeting and reference,
+/// stage bar, status card and the tabs To do / Documents / Application /
+/// History.
 class TrackerPage extends StatelessWidget {
   /// Creates the page.
   const TrackerPage({
     required this.application,
     required this.repo,
+    required this.files,
     required this.collegeName,
-    this.options,
+    this.onChanged,
     super.key,
   });
 
-  /// The application.
+  /// The application as loaded.
   final Application application;
 
-  /// For country names.
+  /// Intake repository.
   final IntakeRepository repo;
+
+  /// File picking for uploads.
+  final FilePickService files;
 
   /// College name for the copy.
   final String collegeName;
 
-  /// Options when already loaded.
-  final FormOptions? options;
+  /// Called with every fresh copy (keeps the list in sync).
+  final ValueChanged<Application>? onChanged;
+
+  @override
+  Widget build(BuildContext context) => MultiBlocProvider(
+    providers: [
+      BlocProvider(
+        create: (_) =>
+            TrackerBloc(repo, application)..add(const TrackerEvent.started()),
+      ),
+      BlocProvider(
+        create: (_) => DocumentsCubit(
+          repo: repo,
+          files: files,
+          applicationId: application.id,
+        ),
+      ),
+      BlocProvider(create: (_) => CountriesCubit(repo)),
+    ],
+    child: TrackerFeedback(
+      onChanged: onChanged,
+      child: _TrackerView(repo: repo, collegeName: collegeName),
+    ),
+  );
+}
+
+class _TrackerView extends StatefulWidget {
+  const _TrackerView({required this.repo, required this.collegeName});
+
+  final IntakeRepository repo;
+  final String collegeName;
+
+  @override
+  State<_TrackerView> createState() => _TrackerViewState();
+}
+
+class _TrackerViewState extends State<_TrackerView> {
+  int _tab = 0;
 
   @override
   Widget build(BuildContext context) {
     final t = Translations.of(context);
-    final a = application;
-    final draft = FormDraft.fromApplication(a);
-    final stages = a.tracker.stages;
-    return BlocProvider(
-      create: (_) => CountriesCubit(repo),
-      child: Builder(
-        builder: (context) => HScaffold(
-          appBar: HAppBar(
-            title: a.fullName.isEmpty ? t.applications.title : a.fullName,
-            subtitle: a.reference,
-            backLabel: t.common.back,
-          ),
-          body: ListView(
-            padding: HSpace.page,
-            children: [
-              HHeroCard(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    HStatusPill(
-                      a.tracker.ended ?? a.statusLabel,
-                      tone: a.status.isEnded ? HTone.danger : HTone.brand,
-                      solid: true,
-                    ),
-                    HSpace.gap3,
-                    HText(
-                      t.applications.sentTitle,
-                      style: HTextStyle.headlineMd,
-                    ),
-                    HSpace.gap1,
-                    HText(t.applications.sentBody, tone: HTextTone.secondary),
-                  ],
-                ),
+    final state = context.watch<TrackerBloc>().state;
+    final a = state.application;
+    final rows = buildDocRows(
+      DocRowsInput(
+        types: state.options?.documentTypes ?? const [],
+        slots: a.documents,
+        results: a.results,
+        qualification: a.profile.qualification,
+        predicted: a.results.isNotEmpty && a.results.every((r) => !r.resultOut),
+        refereeName: a.profile.referee.name,
+        hasActivities: a.activities.isNotEmpty,
+        sent: true,
+        titles: DocLabels.titles(t),
+      ),
+    );
+    final first = a.profile.firstName.trim();
+    return HScaffold(
+      appBar: HAppBar(
+        title: a.fullName.isEmpty ? t.applications.title : a.fullName,
+        backLabel: t.common.back,
+        actions: [
+          if (state.refreshing)
+            const Padding(padding: EdgeInsets.all(HSpace.x3), child: HSpinner())
+          else
+            HIconButton(
+              icon: HIcons.refresh,
+              semanticsLabel: t.common.retry,
+              onPressed: () => context.read<TrackerBloc>().add(
+                const TrackerEvent.refreshed(),
               ),
-              HSpace.gap4,
-              if (stages.isNotEmpty)
-                HCard(
-                  child: HStageBar(
-                    stages: [
-                      for (final s in stages)
-                        HStage(key: s.key, label: s.label),
-                    ],
-                    currentIndex: a.tracker.currentIndex,
-                  ),
+            ),
+        ],
+      ),
+      body: ListView(
+        padding: HSpace.page,
+        children: [
+          HHeroCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                HText(
+                  first.isEmpty ? t.tracker.hiThere : t.tracker.hi(name: first),
+                  style: HTextStyle.headlineMd,
                 ),
-              HSpace.gap3,
-              HCard(
-                child: Row(
-                  children: [
-                    const HIcon(HIcons.info, tone: HTextTone.info),
-                    HSpace.hgap2,
-                    Expanded(
-                      child: HText(
-                        t.applications.trackerSoon,
-                        style: HTextStyle.bodySm,
-                        tone: HTextTone.secondary,
+                HSpace.gap1,
+                HText(t.tracker.lede, tone: HTextTone.secondary),
+                if (a.reference != null) ...[
+                  HSpace.gap3,
+                  Row(
+                    children: [
+                      HStatusPill(
+                        '${t.tracker.reference} ${a.reference}',
+                        tone: HTone.brand,
                       ),
-                    ),
-                  ],
-                ),
-              ),
-              HSpace.gap4,
-              Builder(
-                builder: (context) => ReviewDetails(
-                  draft: draft,
-                  options: options,
-                  countryName: context.watch<CountriesCubit>().nameOf,
-                  collegeName: collegeName,
-                  readOnly: true,
-                ),
-              ),
-            ].hStaggered(context),
+                      HSpace.hgap2,
+                      HButton.ghost(
+                        label: t.tracker.copy,
+                        icon: HIcons.copy,
+                        size: HButtonSize.sm,
+                        onPressed: () {
+                          unawaited(
+                            Clipboard.setData(
+                              ClipboardData(text: a.reference!),
+                            ),
+                          );
+                          HToast.success(context, t.tracker.copied);
+                        },
+                      ),
+                    ],
+                  ),
+                ],
+              ],
+            ),
           ),
-        ),
+          HSpace.gap4,
+          if (a.tracker.stages.isNotEmpty) ...[
+            HCard(
+              child: HStageBar(
+                stages: [
+                  for (final s in a.tracker.stages)
+                    HStage(key: s.key, label: s.label),
+                ],
+                currentIndex: TrackerRules.stageIndex(a.tracker),
+              ),
+            ),
+            HSpace.gap3,
+          ],
+          StatusCardView(
+            card: TrackerRules.statusCard(a, rows),
+            collegeName: widget.collegeName,
+          ),
+          HSpace.gap4,
+          HTabs(
+            tabs: [
+              HTab(t.tracker.tabs.todo),
+              HTab(t.tracker.tabs.docs),
+              HTab(t.tracker.tabs.form),
+              HTab(t.tracker.tabs.history),
+            ],
+            index: _tab,
+            onChanged: (i) => setState(() => _tab = i),
+          ),
+          HSpace.gap4,
+          AnimatedSwitcher(
+            duration: context.h.motion.of(context.h.motion.standard),
+            child: KeyedSubtree(
+              key: ValueKey(_tab),
+              child: switch (_tab) {
+                0 => TodoTab(
+                  application: a,
+                  rows: rows,
+                  repo: widget.repo,
+                  onOpenDocuments: () => setState(() => _tab = 1),
+                ),
+                1 => DocumentsTab(application: a, rows: rows),
+                2 => ApplicationTab(
+                  application: a,
+                  options: state.options,
+                  collegeName: widget.collegeName,
+                ),
+                _ => HistoryTab(application: a),
+              },
+            ),
+          ),
+        ],
       ),
     );
   }

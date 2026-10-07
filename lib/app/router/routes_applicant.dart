@@ -131,9 +131,14 @@ class ApplicationRoute extends GoRouteData with $ApplicationRoute {
               },
             ),
             trackerBuilder: (context, application) => TrackerPage(
+              key: ValueKey('tracker-${application.id}'),
               application: application,
               repo: repo,
+              files: getIt<FilePickService>(),
               collegeName: branding,
+              onChanged: (_) => context.read<ApplicationsBloc>().add(
+                const ApplicationsEvent.refreshed(force: true),
+              ),
             ),
           ),
         ),

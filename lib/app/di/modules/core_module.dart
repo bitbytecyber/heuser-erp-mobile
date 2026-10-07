@@ -7,6 +7,7 @@ import 'package:heuser_erp_mobile/core/env/app_env.dart';
 import 'package:heuser_erp_mobile/core/files/file_pick_service.dart';
 import 'package:heuser_erp_mobile/core/network/dio_factory.dart';
 import 'package:heuser_erp_mobile/core/storage/json_file_cache.dart';
+import 'package:heuser_erp_mobile/features/applications/data/datasources/booking_api.dart';
 import 'package:heuser_erp_mobile/features/applications/data/datasources/intake_api.dart';
 import 'package:heuser_erp_mobile/features/applications/data/repositories/intake_repository_impl.dart';
 import 'package:heuser_erp_mobile/features/applications/domain/intake_repository.dart';
@@ -131,8 +132,12 @@ abstract class CoreModule {
 
   /// Intake with option / country caches.
   @LazySingleton(as: IntakeRepository)
-  IntakeRepositoryImpl intakeRepository(IntakeApi api) =>
-      IntakeRepositoryImpl(api);
+  IntakeRepositoryImpl intakeRepository(IntakeApi api, BookingApi booking) =>
+      IntakeRepositoryImpl(api, booking);
+
+  /// Interview / trial booking endpoints.
+  @lazySingleton
+  BookingApi bookingApi(Dio dio) => BookingApi(dio);
 
   /// Unsaved form drafts, one JSON file per application.
   @Named('drafts')

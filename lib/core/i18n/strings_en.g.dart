@@ -47,6 +47,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final Translations$notifications$en notifications = Translations$notifications$en.internal(_root);
 	late final Translations$form$en form = Translations$form$en.internal(_root);
 	late final Translations$documents$en documents = Translations$documents$en.internal(_root);
+	late final Translations$tracker$en tracker = Translations$tracker$en.internal(_root);
 }
 
 // Path: app
@@ -799,6 +800,56 @@ class Translations$documents$en {
 
 	/// en: 'View'
 	String get open => 'View';
+}
+
+// Path: tracker
+class Translations$tracker$en {
+	Translations$tracker$en.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Hi {name}, here's where you are.'
+	String hi({required Object name}) => 'Hi ${name}, here\'s where you are.';
+
+	/// en: 'Hi there, here's where you are.'
+	String get hiThere => 'Hi there, here\'s where you are.';
+
+	/// en: 'Everything happens here: interview, documents, offer, fees and enrolment.'
+	String get lede => 'Everything happens here: interview, documents, offer, fees and enrolment.';
+
+	/// en: 'Reference'
+	String get reference => 'Reference';
+
+	/// en: 'Copy'
+	String get copy => 'Copy';
+
+	/// en: 'Reference copied.'
+	String get copied => 'Reference copied.';
+
+	late final Translations$tracker$tabs$en tabs = Translations$tracker$tabs$en.internal(_root);
+
+	/// en: 'Nothing left to do on this application.'
+	String get nothingLeft => 'Nothing left to do on this application.';
+
+	/// en: 'Every file is checked by the admissions office. If they need a clearer copy, an upload button appears here. You can send a newer result slip at any time before your offer; earlier copies stay on your record.'
+	String get docsHint => 'Every file is checked by the admissions office. If they need a clearer copy, an upload button appears here. You can send a newer result slip at any time before your offer; earlier copies stay on your record.';
+
+	/// en: 'A read-only copy of what you sent, exactly as the admissions office sees it. Contact the office if something needs correcting.'
+	String get formHint => 'A read-only copy of what you sent, exactly as the admissions office sees it. Contact the office if something needs correcting.';
+
+	/// en: 'Nothing yet.'
+	String get historyEmpty => 'Nothing yet.';
+
+	late final Translations$tracker$status$en status = Translations$tracker$status$en.internal(_root);
+	late final Translations$tracker$docsTask$en docsTask = Translations$tracker$docsTask$en.internal(_root);
+	late final Translations$tracker$interview$en interview = Translations$tracker$interview$en.internal(_root);
+	late final Translations$tracker$slots$en slots = Translations$tracker$slots$en.internal(_root);
+	late final Translations$tracker$trials$en trials = Translations$tracker$trials$en.internal(_root);
+	late final Translations$tracker$aid$en aid = Translations$tracker$aid$en.internal(_root);
+	late final Translations$tracker$enrolled$en enrolled = Translations$tracker$enrolled$en.internal(_root);
+	late final Translations$tracker$results$en results = Translations$tracker$results$en.internal(_root);
 }
 
 // Path: form.steps
@@ -1746,6 +1797,405 @@ class Translations$documents$resultTitle$en {
 
 	/// en: 'CAIE result'
 	String get caie => 'CAIE result';
+}
+
+// Path: tracker.tabs
+class Translations$tracker$tabs$en {
+	Translations$tracker$tabs$en.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'To do'
+	String get todo => 'To do';
+
+	/// en: 'Documents'
+	String get docs => 'Documents';
+
+	/// en: 'Application'
+	String get form => 'Application';
+
+	/// en: 'History'
+	String get history => 'History';
+}
+
+// Path: tracker.status
+class Translations$tracker$status$en {
+	Translations$tracker$status$en.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Application withdrawn'
+	String get withdrawnTitle => 'Application withdrawn';
+
+	/// en: 'You withdrew this application on {date}. The admissions office has been told. To apply again, start a new application.'
+	String withdrawnBody({required Object date}) => 'You withdrew this application on ${date}. The admissions office has been told. To apply again, start a new application.';
+
+	/// en: 'an earlier date'
+	String get anEarlierDate => 'an earlier date';
+
+	/// en: 'We couldn't offer you a place'
+	String get notOfferedTitle => 'We couldn\'t offer you a place';
+
+	/// en: 'We're unable to offer you a place this time. Thank you for applying.'
+	String get notOfferedBody => 'We\'re unable to offer you a place this time. Thank you for applying.';
+
+	/// en: 'Application closed'
+	String get closedTitle => 'Application closed';
+
+	/// en: 'This application is closed. Contact the admissions office if you have questions.'
+	String get closedBody => 'This application is closed. Contact the admissions office if you have questions.';
+
+	/// en: 'Welcome to {name}'
+	String enrolledTitle({required Object name}) => 'Welcome to ${name}';
+
+	/// en: 'You're enrolled. The college will be in touch about orientation.'
+	String get enrolledBody => 'You\'re enrolled. The college will be in touch about orientation.';
+
+	/// en: 'Place confirmed'
+	String get readyTitle => 'Place confirmed';
+
+	/// en: 'Paid and verified. The office is completing your enrolment.'
+	String get readyBody => 'Paid and verified. The office is completing your enrolment.';
+
+	/// en: 'We're checking your payment'
+	String get checkingTitle => 'We\'re checking your payment';
+
+	/// en: 'Finance is verifying your proof of payment. This page updates once it's done.'
+	String get checkingBody => 'Finance is verifying your proof of payment. This page updates once it\'s done.';
+
+	/// en: 'Pay your fee voucher'
+	String get payTitle => 'Pay your fee voucher';
+
+	/// en: 'Your last proof couldn't be verified. See the reason below and upload a new one.'
+	String get payRejectedBody => 'Your last proof couldn\'t be verified. See the reason below and upload a new one.';
+
+	/// en: 'Pay the voucher online or at the bank, then upload the screenshot or the bank's copy.'
+	String get payBody => 'Pay the voucher online or at the bank, then upload the screenshot or the bank\'s copy.';
+
+	/// en: 'Your offer has expired'
+	String get offerExpiredTitle => 'Your offer has expired';
+
+	/// en: 'Contact the admissions office if you'd like it reconsidered.'
+	String get offerExpiredBody => 'Contact the admissions office if you\'d like it reconsidered.';
+
+	/// en: 'You declined the offer'
+	String get offerDeclinedTitle => 'You declined the offer';
+
+	/// en: 'The admissions office has been told. If you change your mind, contact them; they can make a new offer.'
+	String get offerDeclinedBody => 'The admissions office has been told. If you change your mind, contact them; they can make a new offer.';
+
+	/// en: 'You have an offer'
+	String get offeredTitle => 'You have an offer';
+
+	/// en: 'Read your offer and accept it to get your fee voucher.'
+	String get offeredBody => 'Read your offer and accept it to get your fee voucher.';
+
+	/// en: 'Your sports trial'
+	String get trialTitle => 'Your sports trial';
+
+	/// en: 'Book or attend your trial below. Each sport has its own trial calendar, separate from your interview.'
+	String get trialBody => 'Book or attend your trial below. Each sport has its own trial calendar, separate from your interview.';
+
+	/// en: 'Your interview is done'
+	String get interviewDoneTitle => 'Your interview is done';
+
+	/// en: 'The admissions office is making a decision. This usually takes about a week.'
+	String get interviewDoneBody => 'The admissions office is making a decision. This usually takes about a week.';
+
+	/// en: 'Interview booked'
+	String get bookedTitle => 'Interview booked';
+
+	/// en: 'See you on {when}. A reminder goes to you and your parent the day before.'
+	String bookedBody({required Object when}) => 'See you on ${when}. A reminder goes to you and your parent the day before.';
+
+	/// en: 'Book your interview'
+	String get bookTitle => 'Book your interview';
+
+	/// en: 'Pick a time that suits you and a parent.'
+	String get bookBody => 'Pick a time that suits you and a parent.';
+
+	/// en: 'We're reviewing your application'
+	String get reviewingTitle => 'We\'re reviewing your application';
+
+	/// en: 'Add your {docs} so the office can check them before your interview.'
+	String reviewingMissing({required Object docs}) => 'Add your ${docs} so the office can check them before your interview.';
+
+	/// en: 'The admissions office is checking your details and documents. You can book your interview once they're cleared.'
+	String get reviewingBody => 'The admissions office is checking your details and documents. You can book your interview once they\'re cleared.';
+
+	/// en: ' and '
+	String get and => ' and ';
+}
+
+// Path: tracker.docsTask
+class Translations$tracker$docsTask$en {
+	Translations$tracker$docsTask$en.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Documents'
+	String get title => 'Documents';
+
+	/// en: 'The office asked for a clearer copy of one document'
+	String get replace => 'The office asked for a clearer copy of one document';
+
+	/// en: '{n} needed before your interview'
+	String blocking({required Object n}) => '${n} needed before your interview';
+
+	/// en: 'Still to send: {names}'
+	String toSend({required Object names}) => 'Still to send: ${names}';
+
+	/// en: '{names} and {n} more'
+	String andMore({required Object names, required Object n}) => '${names} and ${n} more';
+
+	/// en: 'Everything needed for now is in. Results-dependent ones can follow.'
+	String get allIn => 'Everything needed for now is in. Results-dependent ones can follow.';
+
+	/// en: 'Upload'
+	String get upload => 'Upload';
+
+	/// en: 'View'
+	String get view => 'View';
+}
+
+// Path: tracker.interview
+class Translations$tracker$interview$en {
+	Translations$tracker$interview$en.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Interview'
+	String get title => 'Interview';
+
+	/// en: 'In progress, {when}'
+	String inProgress({required Object when}) => 'In progress, ${when}';
+
+	/// en: 'Done, {when}'
+	String done({required Object when}) => 'Done, ${when}';
+
+	/// en: 'Missed. Contact the admissions office to arrange another time.'
+	String get missed => 'Missed. Contact the admissions office to arrange another time.';
+
+	/// en: 'Your documents are checked. We'll email you when interview times open.'
+	String get waitingTimes => 'Your documents are checked. We\'ll email you when interview times open.';
+
+	/// en: 'You'll be able to book once your documents are checked'
+	String get waitingDocs => 'You\'ll be able to book once your documents are checked';
+
+	/// en: 'Booked: {when}'
+	String booked({required Object when}) => 'Booked: ${when}';
+
+	/// en: 'Choose a time. A parent should come with you.'
+	String get choose => 'Choose a time. A parent should come with you.';
+
+	/// en: 'You've already moved it once. Contact the office to change it again.'
+	String get movedOnce => 'You\'ve already moved it once. Contact the office to change it again.';
+
+	/// en: 'Not happy with this time? You can move it once.'
+	String get notHappy => 'Not happy with this time? You can move it once.';
+
+	/// en: 'Change it'
+	String get changeIt => 'Change it';
+
+	/// en: 'Pick a new time. You can move your interview once.'
+	String get pickNew => 'Pick a new time. You can move your interview once.';
+
+	/// en: 'Keep {time}'
+	String keep({required Object time}) => 'Keep ${time}';
+
+	/// en: 'No times are open right now. Check back soon.'
+	String get noTimes => 'No times are open right now. Check back soon.';
+
+	/// en: 'Book this interview time?'
+	String get confirmBookTitle => 'Book this interview time?';
+
+	/// en: 'Move your interview?'
+	String get confirmMoveTitle => 'Move your interview?';
+
+	/// en: 'Book it'
+	String get confirmBook => 'Book it';
+
+	/// en: 'Move it'
+	String get confirmMove => 'Move it';
+
+	/// en: '{when}. A parent should come with you. You can move it once later if you need to.'
+	String confirmBookBody({required Object when}) => '${when}. A parent should come with you. You can move it once later if you need to.';
+
+	/// en: '{when} instead of {old}. This uses your one change. After this, the office moves it for you.'
+	String confirmMoveBody({required Object when, required Object old}) => '${when} instead of ${old}. This uses your one change. After this, the office moves it for you.';
+
+	/// en: 'Booked. See you then.'
+	String get bookedToast => 'Booked. See you then.';
+
+	/// en: 'Interview moved.'
+	String get movedToast => 'Interview moved.';
+}
+
+// Path: tracker.slots
+class Translations$tracker$slots$en {
+	Translations$tracker$slots$en.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Today · {date}'
+	String today({required Object date}) => 'Today · ${date}';
+
+	/// en: 'Tomorrow · {date}'
+	String tomorrow({required Object date}) => 'Tomorrow · ${date}';
+
+	/// en: '{n} slots available'
+	String available({required Object n}) => '${n} slots available';
+
+	/// en: '1 slot available'
+	String get availableOne => '1 slot available';
+
+	/// en: 'Fully booked'
+	String get full => 'Fully booked';
+
+	/// en: '{booked} of {total} booked · {left} left'
+	String places({required Object booked, required Object total, required Object left}) => '${booked} of ${total} booked · ${left} left';
+
+	/// en: '{n} left'
+	String left({required Object n}) => '${n} left';
+
+	/// en: 'Last selected'
+	String get lastSelected => 'Last selected';
+}
+
+// Path: tracker.trials
+class Translations$tracker$trials$en {
+	Translations$tracker$trials$en.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Sports trial'
+	String get title => 'Sports trial';
+
+	/// en: 'For the sports scholarship'
+	String get forScholarship => 'For the sports scholarship';
+
+	/// en: 'Trial skipped by the admissions office'
+	String get skipped => 'Trial skipped by the admissions office';
+
+	/// en: 'Booked: {list}'
+	String booked({required Object list}) => 'Booked: ${list}';
+
+	/// en: 'Done'
+	String get done => 'Done';
+
+	/// en: 'Skipped'
+	String get skippedPill => 'Skipped';
+
+	/// en: 'We'll email you when trial timeslots open, then you can book one here.'
+	String get notReleased => 'We\'ll email you when trial timeslots open, then you can book one here.';
+
+	/// en: 'No trial times yet.'
+	String get noTimes => 'No trial times yet.';
+
+	/// en: 'Bring your sports kit. Each sport has its own trial calendar, separate from your interview.'
+	String get kit => 'Bring your sports kit. Each sport has its own trial calendar, separate from your interview.';
+
+	/// en: 'Each sport has its own trial calendar, separate from your interview.'
+	String get calendar => 'Each sport has its own trial calendar, separate from your interview.';
+
+	/// en: 'Book the {sport} trial?'
+	String confirmTitle({required Object sport}) => 'Book the ${sport} trial?';
+
+	/// en: '{when}. Bring your sports kit.'
+	String confirmBody({required Object when}) => '${when}. Bring your sports kit.';
+
+	/// en: 'Trial booked.'
+	String get bookedToast => 'Trial booked.';
+}
+
+// Path: tracker.aid
+class Translations$tracker$aid$en {
+	Translations$tracker$aid$en.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Financial aid form'
+	String get title => 'Financial aid form';
+
+	/// en: 'Sent. The admissions office will review it.'
+	String get sent => 'Sent. The admissions office will review it.';
+
+	/// en: 'Your interviewer has given you the financial aid form.'
+	String get given => 'Your interviewer has given you the financial aid form.';
+
+	/// en: 'The form's questions are being finalised by the college; you'll be able to fill it in here.'
+	String get pending => 'The form\'s questions are being finalised by the college; you\'ll be able to fill it in here.';
+}
+
+// Path: tracker.enrolled
+class Translations$tracker$enrolled$en {
+	Translations$tracker$enrolled$en.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Enrolled'
+	String get title => 'Enrolled';
+
+	/// en: 'The college will be in touch about orientation'
+	String get sub => 'The college will be in touch about orientation';
+
+	/// en: 'Still to add before classes start: {docs}.'
+	String left({required Object docs}) => 'Still to add before classes start: ${docs}.';
+
+	/// en: 'Nothing left to add. You're all set.'
+	String get none => 'Nothing left to add. You\'re all set.';
+}
+
+// Path: tracker.results
+class Translations$tracker$results$en {
+	Translations$tracker$results$en.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Results still to come'
+	String get waitingTitle => 'Results still to come';
+
+	/// en: 'Your results'
+	String get title => 'Your results';
+
+	/// en: 'When a result is out, tap the grade you got, then upload the result below. If a grade you sent is wrong, change it; the office checks it again and keeps the old one on record.'
+	String get hint => 'When a result is out, tap the grade you got, then upload the result below. If a grade you sent is wrong, change it; the office checks it again and keeps the old one on record.';
+
+	/// en: 'expected {grade}'
+	String expected({required Object grade}) => 'expected ${grade}';
+
+	/// en: 'Result out'
+	String get resultOut => 'Result out';
+
+	/// en: 'Change grade'
+	String get changeGrade => 'Change grade';
+
+	/// en: 'Save grade'
+	String get saveGrade => 'Save grade';
+
+	/// en: 'Result is out'
+	String get isOut => 'Result is out';
+
+	/// en: 'Result saved. Upload its slip below.'
+	String get savedToast => 'Result saved. Upload its slip below.';
 }
 
 // Path: form.errors.req

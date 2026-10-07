@@ -65,4 +65,20 @@ abstract interface class IntakeRepository {
 
   /// Cities of a country matching [q].
   Future<Result<List<City>>> searchCities(String country, String q);
+
+  /// Interview times open to the applicant.
+  Future<Result<List<TimeOption>>> interviewTimes(int id);
+
+  /// Books or (with [reschedule]) moves the interview.
+  Future<Result<Application>> bookInterview(
+    int id,
+    String startsAt, {
+    bool reschedule,
+  });
+
+  /// Sessions open for a trial booking.
+  Future<Result<List<TrialOption>>> trialSessions(int id, int booking);
+
+  /// Books a trial session.
+  Future<Result<Application>> bookTrial(int id, int booking, int session);
 }
