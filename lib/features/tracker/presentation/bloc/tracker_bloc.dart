@@ -34,6 +34,17 @@ sealed class TrackerEvent with _$TrackerEvent {
     required int session,
   }) = TrackerTrialBooked;
 
+  /// Accept the offer.
+  const factory TrackerEvent.offerAccepted() = TrackerOfferAccepted;
+
+  /// Send proof of payment (the page picked the file).
+  const factory TrackerEvent.evidenceSubmitted({
+    required int instalment,
+    required String method,
+    required String filePath,
+    required String fileName,
+  }) = TrackerEvidenceSubmitted;
+
   /// A result came out (or a grade is corrected).
   const factory TrackerEvent.resultUpdated({
     required int resultId,
@@ -54,6 +65,12 @@ enum TrackerNoticeKind {
 
   /// Result saved.
   resultSaved,
+
+  /// Offer accepted.
+  offerAccepted,
+
+  /// Proof of payment sent.
+  evidenceSent,
 
   /// An action failed ([TrackerState.failure]).
   failed,
@@ -107,6 +124,31 @@ class TrackerBloc extends Bloc<TrackerEvent, TrackerState> {
         emit,
         () => _repo.bookTrial(state.application.id, e.booking, e.session),
         TrackerNoticeKind.trialBooked,
+      ),
+      transformer: droppable(),
+    );
+    on<TrackerOfferAccepted>(
+      (e, emit) => _run(
+        emit,
+        () => _repo.acceptOffer(
+          state.application.id,
+          state.application.offer!.id,
+        ),
+        TrackerNoticeKind.offerAccepted,
+      ),
+      transformer: droppable(),
+    );
+    on<TrackerEvidenceSubmitted>(
+      (e, emit) => _run(
+        emit,
+        () => _repo.submitEvidence(
+          state.application.id,
+          e.instalment,
+          filePath: e.filePath,
+          fileName: e.fileName,
+          method: e.method,
+        ),
+        TrackerNoticeKind.evidenceSent,
       ),
       transformer: droppable(),
     );

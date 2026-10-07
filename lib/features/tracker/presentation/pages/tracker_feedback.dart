@@ -9,6 +9,7 @@ import 'package:heuser_erp_mobile/core/network/failure.dart';
 import 'package:heuser_erp_mobile/features/applications/data/models/application.dart';
 import 'package:heuser_erp_mobile/features/documents/presentation/cubit/documents_cubit.dart';
 import 'package:heuser_erp_mobile/features/tracker/presentation/bloc/tracker_bloc.dart';
+import 'package:heuser_erp_mobile/features/tracker/presentation/cubit/downloads_cubit.dart';
 
 /// Toasts and hand-offs for the tracker: bloc notices become toasts, and a
 /// document change feeds the fresh application back into the bloc.
@@ -37,6 +38,8 @@ class TrackerFeedback extends StatelessWidget {
                 t.tracker.interview.movedToast,
               TrackerNoticeKind.trialBooked => t.tracker.trials.bookedToast,
               TrackerNoticeKind.resultSaved => t.tracker.results.savedToast,
+              TrackerNoticeKind.offerAccepted => t.tracker.offer.acceptedToast,
+              TrackerNoticeKind.evidenceSent => t.tracker.payment.sentToast,
               TrackerNoticeKind.failed => '',
             };
             if (s.notice == TrackerNoticeKind.failed) {
@@ -53,6 +56,18 @@ class TrackerFeedback extends StatelessWidget {
         BlocListener<TrackerBloc, TrackerState>(
           listenWhen: (a, b) => a.application != b.application,
           listener: (context, s) => onChanged?.call(s.application),
+        ),
+        BlocListener<DownloadsCubit, DownloadsState>(
+          listenWhen: (a, b) => a.seq != b.seq && b.failure != null,
+          listener: (context, s) {
+            final f = s.failure!;
+            HToast.error(
+              context,
+              f is Unknown
+                  ? t.tracker.offer.downloadFailed
+                  : failureMessage(f, t),
+            );
+          },
         ),
         BlocListener<DocumentsCubit, DocumentsState>(
           listenWhen: (a, b) => a.noticeSeq != b.noticeSeq && b.notice != null,

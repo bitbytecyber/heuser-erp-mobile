@@ -4,11 +4,13 @@ import 'package:heuser_erp_mobile/core/auth/auth_signals.dart';
 import 'package:heuser_erp_mobile/core/auth/session_token_store.dart';
 import 'package:heuser_erp_mobile/core/connectivity/connectivity_service.dart';
 import 'package:heuser_erp_mobile/core/env/app_env.dart';
+import 'package:heuser_erp_mobile/core/files/document_opener.dart';
 import 'package:heuser_erp_mobile/core/files/file_pick_service.dart';
 import 'package:heuser_erp_mobile/core/network/dio_factory.dart';
 import 'package:heuser_erp_mobile/core/storage/json_file_cache.dart';
 import 'package:heuser_erp_mobile/features/applications/data/datasources/booking_api.dart';
 import 'package:heuser_erp_mobile/features/applications/data/datasources/intake_api.dart';
+import 'package:heuser_erp_mobile/features/applications/data/datasources/offer_api.dart';
 import 'package:heuser_erp_mobile/features/applications/data/repositories/intake_repository_impl.dart';
 import 'package:heuser_erp_mobile/features/applications/domain/intake_repository.dart';
 import 'package:heuser_erp_mobile/features/auth/data/datasources/allauth_api.dart';
@@ -132,8 +134,19 @@ abstract class CoreModule {
 
   /// Intake with option / country caches.
   @LazySingleton(as: IntakeRepository)
-  IntakeRepositoryImpl intakeRepository(IntakeApi api, BookingApi booking) =>
-      IntakeRepositoryImpl(api, booking);
+  IntakeRepositoryImpl intakeRepository(
+    IntakeApi api,
+    BookingApi booking,
+    OfferApi offers,
+  ) => IntakeRepositoryImpl(api, booking, offers);
+
+  /// Offer, PDFs and proof of payment.
+  @lazySingleton
+  OfferApi offerApi(Dio dio) => OfferApi(dio);
+
+  /// Opens downloaded PDFs.
+  @lazySingleton
+  DocumentOpener documentOpener() => DocumentOpener();
 
   /// Interview / trial booking endpoints.
   @lazySingleton

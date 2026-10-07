@@ -855,6 +855,8 @@ class Translations$tracker$en {
 	late final Translations$tracker$aid$en aid = Translations$tracker$aid$en._(_root);
 	late final Translations$tracker$enrolled$en enrolled = Translations$tracker$enrolled$en._(_root);
 	late final Translations$tracker$results$en results = Translations$tracker$results$en._(_root);
+	late final Translations$tracker$offer$en offer = Translations$tracker$offer$en._(_root);
+	late final Translations$tracker$payment$en payment = Translations$tracker$payment$en._(_root);
 }
 
 // Path: form.steps
@@ -2203,6 +2205,177 @@ class Translations$tracker$results$en {
 	String get savedToast => 'Result saved. Upload its slip below.';
 }
 
+// Path: tracker.offer
+class Translations$tracker$offer$en {
+	Translations$tracker$offer$en._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Offer'
+	String get waitingTitle => 'Offer';
+
+	/// en: 'Usually within a week of your interview'
+	String get waitingSub => 'Usually within a week of your interview';
+
+	/// en: 'Your offer'
+	String get title => 'Your offer';
+
+	/// en: 'Accepted'
+	String get accepted => 'Accepted';
+
+	/// en: 'You declined this offer'
+	String get declined => 'You declined this offer';
+
+	/// en: 'This offer has expired'
+	String get expired => 'This offer has expired';
+
+	/// en: '{level}, {cycle}'
+	String get summary => '{level}, {cycle}';
+
+	/// en: '{summary}, with {list}'
+	String get withScholarships => '{summary}, with {list}';
+
+	/// en: '{summary} · conditional'
+	String get conditional => '{summary} · conditional';
+
+	/// en: 'Respond and pay by {date}'
+	String get respondBy => 'Respond and pay by {date}';
+
+	/// en: 'Deadline passed'
+	String get deadlinePassed => 'Deadline passed';
+
+	/// en: '{label} (monthly)'
+	String get monthly => '{label} (monthly)';
+
+	/// en: 'Scholarship on {label}'
+	String get scholarshipOn => 'Scholarship on {label}';
+
+	/// en: 'Due now'
+	String get dueNow => 'Due now';
+
+	/// en: 'Monthly'
+	String get monthlyTotal => 'Monthly';
+
+	/// en: 'Accept offer'
+	String get accept => 'Accept offer';
+
+	/// en: 'Accept this offer?'
+	String get acceptTitle => 'Accept this offer?';
+
+	/// en: 'You'll then pay {amount} and upload proof of payment to secure your place.'
+	String get acceptBody => 'You\'ll then pay {amount} and upload proof of payment to secure your place.';
+
+	/// en: 'Not yet'
+	String get notYet => 'Not yet';
+
+	/// en: 'Offer accepted. Your fee voucher is ready.'
+	String get acceptedToast => 'Offer accepted. Your fee voucher is ready.';
+
+	/// en: 'Download letter'
+	String get letter => 'Download letter';
+
+	/// en: 'Offer details'
+	String get details => 'Offer details';
+
+	/// en: 'Terms and conditions'
+	String get terms => 'Terms and conditions';
+
+	/// en: '{course} with {teacher}'
+	String get kWith => '{course} with {teacher}';
+
+	/// en: 'Could not open the file.'
+	String get downloadFailed => 'Could not open the file.';
+
+	/// en: 'Accepted'
+	String get pillAccepted => 'Accepted';
+
+	/// en: 'Declined'
+	String get pillDeclined => 'Declined';
+
+	/// en: 'Expired'
+	String get pillExpired => 'Expired';
+}
+
+// Path: tracker.payment
+class Translations$tracker$payment$en {
+	Translations$tracker$payment$en._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Fee payment'
+	String get title => 'Fee payment';
+
+	/// en: 'Your voucher appears when you accept the offer'
+	String get locked => 'Your voucher appears when you accept the offer';
+
+	/// en: 'Paid'
+	String get paid => 'Paid';
+
+	/// en: 'Pay online or at the bank, then upload the screenshot or the bank's copy'
+	String get due => 'Pay online or at the bank, then upload the screenshot or the bank\'s copy';
+
+	/// en: 'Tuition voucher'
+	String get tuition => 'Tuition voucher';
+
+	/// en: 'Tuition voucher · {period}'
+	String get tuitionPeriod => 'Tuition voucher · {period}';
+
+	/// en: 'Instalment {n}'
+	String get instalment => 'Instalment {n}';
+
+	/// en: 'Admission fee voucher'
+	String get admission => 'Admission fee voucher';
+
+	/// en: 'Amount'
+	String get amount => 'Amount';
+
+	/// en: 'Pay by'
+	String get payBy => 'Pay by';
+
+	/// en: 'We've received {paid}. {left} is still due: pay it and upload the proof.'
+	String get partly => 'We\'ve received {paid}. {left} is still due: pay it and upload the proof.';
+
+	/// en: 'Please upload it again.'
+	String get uploadAgain => 'Please upload it again.';
+
+	/// en: 'Paid · approved by finance'
+	String get paidPill => 'Paid · approved by finance';
+
+	/// en: 'Proof sent · being checked'
+	String get checkingPill => 'Proof sent · being checked';
+
+	/// en: 'Download voucher'
+	String get voucher => 'Download voucher';
+
+	/// en: 'Download balance voucher'
+	String get balanceVoucher => 'Download balance voucher';
+
+	/// en: 'Paid online (screenshot)'
+	String get online => 'Paid online (screenshot)';
+
+	/// en: 'Paid at the bank (bank copy)'
+	String get bank => 'Paid at the bank (bank copy)';
+
+	/// en: 'Upload proof'
+	String get upload => 'Upload proof';
+
+	/// en: 'Upload again'
+	String get again => 'Upload again';
+
+	/// en: 'Send another copy'
+	String get another => 'Send another copy';
+
+	/// en: 'Proof sent. Finance will verify it.'
+	String get sentToast => 'Proof sent. Finance will verify it.';
+
+	/// en: 'Uploading file'
+	String get uploading => 'Uploading file';
+}
+
 // Path: form.errors.req
 class Translations$form$errors$req$en {
 	Translations$form$errors$req$en._(this._root);
@@ -2937,6 +3110,57 @@ extension on Translations {
 			'tracker.results.saveGrade' => 'Save grade',
 			'tracker.results.isOut' => 'Result is out',
 			'tracker.results.savedToast' => 'Result saved. Upload its slip below.',
+			'tracker.offer.waitingTitle' => 'Offer',
+			'tracker.offer.waitingSub' => 'Usually within a week of your interview',
+			'tracker.offer.title' => 'Your offer',
+			'tracker.offer.accepted' => 'Accepted',
+			'tracker.offer.declined' => 'You declined this offer',
+			'tracker.offer.expired' => 'This offer has expired',
+			'tracker.offer.summary' => '{level}, {cycle}',
+			'tracker.offer.withScholarships' => '{summary}, with {list}',
+			'tracker.offer.conditional' => '{summary} · conditional',
+			'tracker.offer.respondBy' => 'Respond and pay by {date}',
+			'tracker.offer.deadlinePassed' => 'Deadline passed',
+			'tracker.offer.monthly' => '{label} (monthly)',
+			'tracker.offer.scholarshipOn' => 'Scholarship on {label}',
+			'tracker.offer.dueNow' => 'Due now',
+			'tracker.offer.monthlyTotal' => 'Monthly',
+			'tracker.offer.accept' => 'Accept offer',
+			'tracker.offer.acceptTitle' => 'Accept this offer?',
+			'tracker.offer.acceptBody' => 'You\'ll then pay {amount} and upload proof of payment to secure your place.',
+			'tracker.offer.notYet' => 'Not yet',
+			'tracker.offer.acceptedToast' => 'Offer accepted. Your fee voucher is ready.',
+			'tracker.offer.letter' => 'Download letter',
+			'tracker.offer.details' => 'Offer details',
+			'tracker.offer.terms' => 'Terms and conditions',
+			'tracker.offer.kWith' => '{course} with {teacher}',
+			'tracker.offer.downloadFailed' => 'Could not open the file.',
+			'tracker.offer.pillAccepted' => 'Accepted',
+			'tracker.offer.pillDeclined' => 'Declined',
+			'tracker.offer.pillExpired' => 'Expired',
+			'tracker.payment.title' => 'Fee payment',
+			'tracker.payment.locked' => 'Your voucher appears when you accept the offer',
+			'tracker.payment.paid' => 'Paid',
+			'tracker.payment.due' => 'Pay online or at the bank, then upload the screenshot or the bank\'s copy',
+			'tracker.payment.tuition' => 'Tuition voucher',
+			'tracker.payment.tuitionPeriod' => 'Tuition voucher · {period}',
+			'tracker.payment.instalment' => 'Instalment {n}',
+			'tracker.payment.admission' => 'Admission fee voucher',
+			'tracker.payment.amount' => 'Amount',
+			'tracker.payment.payBy' => 'Pay by',
+			'tracker.payment.partly' => 'We\'ve received {paid}. {left} is still due: pay it and upload the proof.',
+			'tracker.payment.uploadAgain' => 'Please upload it again.',
+			'tracker.payment.paidPill' => 'Paid · approved by finance',
+			'tracker.payment.checkingPill' => 'Proof sent · being checked',
+			'tracker.payment.voucher' => 'Download voucher',
+			'tracker.payment.balanceVoucher' => 'Download balance voucher',
+			'tracker.payment.online' => 'Paid online (screenshot)',
+			'tracker.payment.bank' => 'Paid at the bank (bank copy)',
+			'tracker.payment.upload' => 'Upload proof',
+			'tracker.payment.again' => 'Upload again',
+			'tracker.payment.another' => 'Send another copy',
+			'tracker.payment.sentToast' => 'Proof sent. Finance will verify it.',
+			'tracker.payment.uploading' => 'Uploading file',
 			_ => null,
 		};
 	}

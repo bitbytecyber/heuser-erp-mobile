@@ -1,4 +1,7 @@
+import 'dart:typed_data';
+
 import 'package:heuser_erp_mobile/core/network/result.dart';
+import 'package:heuser_erp_mobile/features/applications/data/datasources/offer_api.dart';
 import 'package:heuser_erp_mobile/features/applications/data/models/application.dart';
 import 'package:heuser_erp_mobile/features/applications/data/models/application_summary.dart';
 import 'package:heuser_erp_mobile/features/applications/data/models/form_options.dart';
@@ -81,4 +84,24 @@ abstract interface class IntakeRepository {
 
   /// Books a trial session.
   Future<Result<Application>> bookTrial(int id, int booking, int session);
+
+  /// Accepts the offer.
+  Future<Result<Application>> acceptOffer(int id, int offer);
+
+  /// Downloads an offer PDF.
+  Future<Result<Uint8List>> offerPdf(
+    int id,
+    int offer,
+    OfferPdf kind, {
+    int? instalment,
+  });
+
+  /// Sends proof of payment for an instalment.
+  Future<Result<Application>> submitEvidence(
+    int id,
+    int instalment, {
+    required String filePath,
+    required String fileName,
+    required String method,
+  });
 }

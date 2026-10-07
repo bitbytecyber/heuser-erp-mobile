@@ -4,6 +4,7 @@ import 'package:flutter/services.dart' show Clipboard, ClipboardData;
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:heuser_ds/heuser_ds.dart';
+import 'package:heuser_erp_mobile/core/files/document_opener.dart';
 import 'package:heuser_erp_mobile/core/files/file_pick_service.dart';
 import 'package:heuser_erp_mobile/core/i18n/strings.g.dart';
 import 'package:heuser_erp_mobile/features/application_form/presentation/cubit/countries_cubit.dart';
@@ -15,6 +16,7 @@ import 'package:heuser_erp_mobile/features/documents/presentation/cubit/document
 import 'package:heuser_erp_mobile/features/documents/presentation/widgets/doc_labels.dart';
 import 'package:heuser_erp_mobile/features/tracker/domain/tracker_rules.dart';
 import 'package:heuser_erp_mobile/features/tracker/presentation/bloc/tracker_bloc.dart';
+import 'package:heuser_erp_mobile/features/tracker/presentation/cubit/downloads_cubit.dart';
 import 'package:heuser_erp_mobile/features/tracker/presentation/pages/tracker_feedback.dart';
 import 'package:heuser_erp_mobile/features/tracker/presentation/widgets/status_card_view.dart';
 import 'package:heuser_erp_mobile/features/tracker/presentation/widgets/todo_tab.dart';
@@ -29,6 +31,7 @@ class TrackerPage extends StatelessWidget {
     required this.application,
     required this.repo,
     required this.files,
+    required this.opener,
     required this.collegeName,
     this.onChanged,
     super.key,
@@ -42,6 +45,9 @@ class TrackerPage extends StatelessWidget {
 
   /// File picking for uploads.
   final FilePickService files;
+
+  /// Opens downloaded PDFs.
+  final DocumentOpener opener;
 
   /// College name for the copy.
   final String collegeName;
@@ -64,18 +70,31 @@ class TrackerPage extends StatelessWidget {
         ),
       ),
       BlocProvider(create: (_) => CountriesCubit(repo)),
+      BlocProvider(
+        create: (_) => DownloadsCubit(
+          repo: repo,
+          opener: opener,
+          applicationId: application.id,
+          reference: application.reference ?? 'application',
+        ),
+      ),
     ],
     child: TrackerFeedback(
       onChanged: onChanged,
-      child: _TrackerView(repo: repo, collegeName: collegeName),
+      child: _TrackerView(repo: repo, files: files, collegeName: collegeName),
     ),
   );
 }
 
 class _TrackerView extends StatefulWidget {
-  const _TrackerView({required this.repo, required this.collegeName});
+  const _TrackerView({
+    required this.repo,
+    required this.files,
+    required this.collegeName,
+  });
 
   final IntakeRepository repo;
+  final FilePickService files;
   final String collegeName;
 
   @override
@@ -200,6 +219,7 @@ class _TrackerViewState extends State<_TrackerView> {
                   application: a,
                   rows: rows,
                   repo: widget.repo,
+                  files: widget.files,
                   onOpenDocuments: () => setState(() => _tab = 1),
                 ),
                 1 => DocumentsTab(application: a, rows: rows),

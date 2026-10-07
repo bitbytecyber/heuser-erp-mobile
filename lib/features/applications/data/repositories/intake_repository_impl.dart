@@ -1,6 +1,9 @@
+import 'dart:typed_data';
+
 import 'package:heuser_erp_mobile/core/network/result.dart';
 import 'package:heuser_erp_mobile/features/applications/data/datasources/booking_api.dart';
 import 'package:heuser_erp_mobile/features/applications/data/datasources/intake_api.dart';
+import 'package:heuser_erp_mobile/features/applications/data/datasources/offer_api.dart';
 import 'package:heuser_erp_mobile/features/applications/data/models/application.dart';
 import 'package:heuser_erp_mobile/features/applications/data/models/application_summary.dart';
 import 'package:heuser_erp_mobile/features/applications/data/models/form_options.dart';
@@ -11,13 +14,18 @@ import 'package:heuser_erp_mobile/features/applications/domain/intake_repository
 /// and a short one for form options (the web keeps them for 60 s).
 class IntakeRepositoryImpl implements IntakeRepository {
   /// Creates the repository.
-  IntakeRepositoryImpl(this._api, this._booking, {DateTime Function()? clock})
-    : _clock = clock ?? DateTime.now;
+  IntakeRepositoryImpl(
+    this._api,
+    this._booking,
+    this._offers, {
+    DateTime Function()? clock,
+  }) : _clock = clock ?? DateTime.now;
 
   static const _optionsTtl = Duration(minutes: 1);
 
   final IntakeApi _api;
   final BookingApi _booking;
+  final OfferApi _offers;
   final DateTime Function() _clock;
   List<Country>? _countries;
   Future<Result<List<Country>>>? _countriesInFlight;
@@ -131,4 +139,31 @@ class IntakeRepositoryImpl implements IntakeRepository {
   @override
   Future<Result<Application>> bookTrial(int id, int booking, int session) =>
       _booking.bookTrial(id, booking, session);
+
+  @override
+  Future<Result<Application>> acceptOffer(int id, int offer) =>
+      _offers.accept(id, offer);
+
+  @override
+  Future<Result<Uint8List>> offerPdf(
+    int id,
+    int offer,
+    OfferPdf kind, {
+    int? instalment,
+  }) => _offers.download(id, offer, kind, instalment: instalment);
+
+  @override
+  Future<Result<Application>> submitEvidence(
+    int id,
+    int instalment, {
+    required String filePath,
+    required String fileName,
+    required String method,
+  }) => _offers.submitEvidence(
+    id,
+    instalment,
+    filePath: filePath,
+    fileName: fileName,
+    method: method,
+  );
 }

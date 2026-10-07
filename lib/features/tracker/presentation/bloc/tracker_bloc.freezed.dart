@@ -56,7 +56,7 @@ extension TrackerEventPatterns on TrackerEvent {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( TrackerStarted value)?  started,TResult Function( TrackerRefreshed value)?  refreshed,TResult Function( TrackerApplicationUpdated value)?  applicationUpdated,TResult Function( TrackerInterviewBooked value)?  interviewBooked,TResult Function( TrackerTrialBooked value)?  trialBooked,TResult Function( TrackerResultUpdated value)?  resultUpdated,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( TrackerStarted value)?  started,TResult Function( TrackerRefreshed value)?  refreshed,TResult Function( TrackerApplicationUpdated value)?  applicationUpdated,TResult Function( TrackerInterviewBooked value)?  interviewBooked,TResult Function( TrackerTrialBooked value)?  trialBooked,TResult Function( TrackerOfferAccepted value)?  offerAccepted,TResult Function( TrackerEvidenceSubmitted value)?  evidenceSubmitted,TResult Function( TrackerResultUpdated value)?  resultUpdated,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case TrackerStarted() when started != null:
@@ -64,7 +64,9 @@ return started(_that);case TrackerRefreshed() when refreshed != null:
 return refreshed(_that);case TrackerApplicationUpdated() when applicationUpdated != null:
 return applicationUpdated(_that);case TrackerInterviewBooked() when interviewBooked != null:
 return interviewBooked(_that);case TrackerTrialBooked() when trialBooked != null:
-return trialBooked(_that);case TrackerResultUpdated() when resultUpdated != null:
+return trialBooked(_that);case TrackerOfferAccepted() when offerAccepted != null:
+return offerAccepted(_that);case TrackerEvidenceSubmitted() when evidenceSubmitted != null:
+return evidenceSubmitted(_that);case TrackerResultUpdated() when resultUpdated != null:
 return resultUpdated(_that);case _:
   return orElse();
 
@@ -83,7 +85,7 @@ return resultUpdated(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( TrackerStarted value)  started,required TResult Function( TrackerRefreshed value)  refreshed,required TResult Function( TrackerApplicationUpdated value)  applicationUpdated,required TResult Function( TrackerInterviewBooked value)  interviewBooked,required TResult Function( TrackerTrialBooked value)  trialBooked,required TResult Function( TrackerResultUpdated value)  resultUpdated,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( TrackerStarted value)  started,required TResult Function( TrackerRefreshed value)  refreshed,required TResult Function( TrackerApplicationUpdated value)  applicationUpdated,required TResult Function( TrackerInterviewBooked value)  interviewBooked,required TResult Function( TrackerTrialBooked value)  trialBooked,required TResult Function( TrackerOfferAccepted value)  offerAccepted,required TResult Function( TrackerEvidenceSubmitted value)  evidenceSubmitted,required TResult Function( TrackerResultUpdated value)  resultUpdated,}){
 final _that = this;
 switch (_that) {
 case TrackerStarted():
@@ -91,7 +93,9 @@ return started(_that);case TrackerRefreshed():
 return refreshed(_that);case TrackerApplicationUpdated():
 return applicationUpdated(_that);case TrackerInterviewBooked():
 return interviewBooked(_that);case TrackerTrialBooked():
-return trialBooked(_that);case TrackerResultUpdated():
+return trialBooked(_that);case TrackerOfferAccepted():
+return offerAccepted(_that);case TrackerEvidenceSubmitted():
+return evidenceSubmitted(_that);case TrackerResultUpdated():
 return resultUpdated(_that);}
 }
 /// A variant of `map` that fallback to returning `null`.
@@ -106,7 +110,7 @@ return resultUpdated(_that);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( TrackerStarted value)?  started,TResult? Function( TrackerRefreshed value)?  refreshed,TResult? Function( TrackerApplicationUpdated value)?  applicationUpdated,TResult? Function( TrackerInterviewBooked value)?  interviewBooked,TResult? Function( TrackerTrialBooked value)?  trialBooked,TResult? Function( TrackerResultUpdated value)?  resultUpdated,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( TrackerStarted value)?  started,TResult? Function( TrackerRefreshed value)?  refreshed,TResult? Function( TrackerApplicationUpdated value)?  applicationUpdated,TResult? Function( TrackerInterviewBooked value)?  interviewBooked,TResult? Function( TrackerTrialBooked value)?  trialBooked,TResult? Function( TrackerOfferAccepted value)?  offerAccepted,TResult? Function( TrackerEvidenceSubmitted value)?  evidenceSubmitted,TResult? Function( TrackerResultUpdated value)?  resultUpdated,}){
 final _that = this;
 switch (_that) {
 case TrackerStarted() when started != null:
@@ -114,7 +118,9 @@ return started(_that);case TrackerRefreshed() when refreshed != null:
 return refreshed(_that);case TrackerApplicationUpdated() when applicationUpdated != null:
 return applicationUpdated(_that);case TrackerInterviewBooked() when interviewBooked != null:
 return interviewBooked(_that);case TrackerTrialBooked() when trialBooked != null:
-return trialBooked(_that);case TrackerResultUpdated() when resultUpdated != null:
+return trialBooked(_that);case TrackerOfferAccepted() when offerAccepted != null:
+return offerAccepted(_that);case TrackerEvidenceSubmitted() when evidenceSubmitted != null:
+return evidenceSubmitted(_that);case TrackerResultUpdated() when resultUpdated != null:
 return resultUpdated(_that);case _:
   return null;
 
@@ -132,14 +138,16 @@ return resultUpdated(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  started,TResult Function()?  refreshed,TResult Function( Application application)?  applicationUpdated,TResult Function( String startsAt,  bool reschedule)?  interviewBooked,TResult Function( int booking,  int session)?  trialBooked,TResult Function( int resultId,  String grade)?  resultUpdated,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  started,TResult Function()?  refreshed,TResult Function( Application application)?  applicationUpdated,TResult Function( String startsAt,  bool reschedule)?  interviewBooked,TResult Function( int booking,  int session)?  trialBooked,TResult Function()?  offerAccepted,TResult Function( int instalment,  String method,  String filePath,  String fileName)?  evidenceSubmitted,TResult Function( int resultId,  String grade)?  resultUpdated,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case TrackerStarted() when started != null:
 return started();case TrackerRefreshed() when refreshed != null:
 return refreshed();case TrackerApplicationUpdated() when applicationUpdated != null:
 return applicationUpdated(_that.application);case TrackerInterviewBooked() when interviewBooked != null:
 return interviewBooked(_that.startsAt,_that.reschedule);case TrackerTrialBooked() when trialBooked != null:
-return trialBooked(_that.booking,_that.session);case TrackerResultUpdated() when resultUpdated != null:
+return trialBooked(_that.booking,_that.session);case TrackerOfferAccepted() when offerAccepted != null:
+return offerAccepted();case TrackerEvidenceSubmitted() when evidenceSubmitted != null:
+return evidenceSubmitted(_that.instalment,_that.method,_that.filePath,_that.fileName);case TrackerResultUpdated() when resultUpdated != null:
 return resultUpdated(_that.resultId,_that.grade);case _:
   return orElse();
 
@@ -158,14 +166,16 @@ return resultUpdated(_that.resultId,_that.grade);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  started,required TResult Function()  refreshed,required TResult Function( Application application)  applicationUpdated,required TResult Function( String startsAt,  bool reschedule)  interviewBooked,required TResult Function( int booking,  int session)  trialBooked,required TResult Function( int resultId,  String grade)  resultUpdated,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  started,required TResult Function()  refreshed,required TResult Function( Application application)  applicationUpdated,required TResult Function( String startsAt,  bool reschedule)  interviewBooked,required TResult Function( int booking,  int session)  trialBooked,required TResult Function()  offerAccepted,required TResult Function( int instalment,  String method,  String filePath,  String fileName)  evidenceSubmitted,required TResult Function( int resultId,  String grade)  resultUpdated,}) {final _that = this;
 switch (_that) {
 case TrackerStarted():
 return started();case TrackerRefreshed():
 return refreshed();case TrackerApplicationUpdated():
 return applicationUpdated(_that.application);case TrackerInterviewBooked():
 return interviewBooked(_that.startsAt,_that.reschedule);case TrackerTrialBooked():
-return trialBooked(_that.booking,_that.session);case TrackerResultUpdated():
+return trialBooked(_that.booking,_that.session);case TrackerOfferAccepted():
+return offerAccepted();case TrackerEvidenceSubmitted():
+return evidenceSubmitted(_that.instalment,_that.method,_that.filePath,_that.fileName);case TrackerResultUpdated():
 return resultUpdated(_that.resultId,_that.grade);}
 }
 /// A variant of `when` that fallback to returning `null`
@@ -180,14 +190,16 @@ return resultUpdated(_that.resultId,_that.grade);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  started,TResult? Function()?  refreshed,TResult? Function( Application application)?  applicationUpdated,TResult? Function( String startsAt,  bool reschedule)?  interviewBooked,TResult? Function( int booking,  int session)?  trialBooked,TResult? Function( int resultId,  String grade)?  resultUpdated,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  started,TResult? Function()?  refreshed,TResult? Function( Application application)?  applicationUpdated,TResult? Function( String startsAt,  bool reschedule)?  interviewBooked,TResult? Function( int booking,  int session)?  trialBooked,TResult? Function()?  offerAccepted,TResult? Function( int instalment,  String method,  String filePath,  String fileName)?  evidenceSubmitted,TResult? Function( int resultId,  String grade)?  resultUpdated,}) {final _that = this;
 switch (_that) {
 case TrackerStarted() when started != null:
 return started();case TrackerRefreshed() when refreshed != null:
 return refreshed();case TrackerApplicationUpdated() when applicationUpdated != null:
 return applicationUpdated(_that.application);case TrackerInterviewBooked() when interviewBooked != null:
 return interviewBooked(_that.startsAt,_that.reschedule);case TrackerTrialBooked() when trialBooked != null:
-return trialBooked(_that.booking,_that.session);case TrackerResultUpdated() when resultUpdated != null:
+return trialBooked(_that.booking,_that.session);case TrackerOfferAccepted() when offerAccepted != null:
+return offerAccepted();case TrackerEvidenceSubmitted() when evidenceSubmitted != null:
+return evidenceSubmitted(_that.instalment,_that.method,_that.filePath,_that.fileName);case TrackerResultUpdated() when resultUpdated != null:
 return resultUpdated(_that.resultId,_that.grade);case _:
   return null;
 
@@ -471,6 +483,112 @@ class _$TrackerTrialBookedCopyWithImpl<$Res>
 booking: null == booking ? _self.booking : booking // ignore: cast_nullable_to_non_nullable
 as int,session: null == session ? _self.session : session // ignore: cast_nullable_to_non_nullable
 as int,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class TrackerOfferAccepted implements TrackerEvent {
+  const TrackerOfferAccepted();
+  
+
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is TrackerOfferAccepted);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+    return 'TrackerEvent.offerAccepted()';
+}
+
+
+}
+
+
+
+
+/// @nodoc
+
+
+class TrackerEvidenceSubmitted implements TrackerEvent {
+  const TrackerEvidenceSubmitted({required this.instalment, required this.method, required this.filePath, required this.fileName});
+  
+
+ final  int instalment;
+ final  String method;
+ final  String filePath;
+ final  String fileName;
+
+/// Create a copy of TrackerEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$TrackerEvidenceSubmittedCopyWith<TrackerEvidenceSubmitted> get copyWith => _$TrackerEvidenceSubmittedCopyWithImpl<TrackerEvidenceSubmitted>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is TrackerEvidenceSubmitted&&(identical(other.instalment, instalment) || other.instalment == instalment)&&(identical(other.method, method) || other.method == method)&&(identical(other.filePath, filePath) || other.filePath == filePath)&&(identical(other.fileName, fileName) || other.fileName == fileName));
+}
+
+
+@override
+int get hashCode {
+    return Object.hash(runtimeType,instalment,method,filePath,fileName);
+}
+
+@override
+String toString() {
+    return 'TrackerEvent.evidenceSubmitted(instalment: $instalment, method: $method, filePath: $filePath, fileName: $fileName)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $TrackerEvidenceSubmittedCopyWith<$Res> implements $TrackerEventCopyWith<$Res> {
+  factory $TrackerEvidenceSubmittedCopyWith(TrackerEvidenceSubmitted value, $Res Function(TrackerEvidenceSubmitted) _then) = _$TrackerEvidenceSubmittedCopyWithImpl;
+@useResult
+$Res call({
+ int instalment, String method, String filePath, String fileName
+});
+
+
+
+
+}
+/// @nodoc
+class _$TrackerEvidenceSubmittedCopyWithImpl<$Res>
+    implements $TrackerEvidenceSubmittedCopyWith<$Res> {
+  _$TrackerEvidenceSubmittedCopyWithImpl(this._self, this._then);
+
+  final TrackerEvidenceSubmitted _self;
+  final $Res Function(TrackerEvidenceSubmitted) _then;
+
+/// Create a copy of TrackerEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? instalment = null,Object? method = null,Object? filePath = null,Object? fileName = null,}) {
+  return _then(TrackerEvidenceSubmitted(
+instalment: null == instalment ? _self.instalment : instalment // ignore: cast_nullable_to_non_nullable
+as int,method: null == method ? _self.method : method // ignore: cast_nullable_to_non_nullable
+as String,filePath: null == filePath ? _self.filePath : filePath // ignore: cast_nullable_to_non_nullable
+as String,fileName: null == fileName ? _self.fileName : fileName // ignore: cast_nullable_to_non_nullable
+as String,
   ));
 }
 

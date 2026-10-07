@@ -850,6 +850,8 @@ class Translations$tracker$en {
 	late final Translations$tracker$aid$en aid = Translations$tracker$aid$en.internal(_root);
 	late final Translations$tracker$enrolled$en enrolled = Translations$tracker$enrolled$en.internal(_root);
 	late final Translations$tracker$results$en results = Translations$tracker$results$en.internal(_root);
+	late final Translations$tracker$offer$en offer = Translations$tracker$offer$en.internal(_root);
+	late final Translations$tracker$payment$en payment = Translations$tracker$payment$en.internal(_root);
 }
 
 // Path: form.steps
@@ -2196,6 +2198,177 @@ class Translations$tracker$results$en {
 
 	/// en: 'Result saved. Upload its slip below.'
 	String get savedToast => 'Result saved. Upload its slip below.';
+}
+
+// Path: tracker.offer
+class Translations$tracker$offer$en {
+	Translations$tracker$offer$en.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Offer'
+	String get waitingTitle => 'Offer';
+
+	/// en: 'Usually within a week of your interview'
+	String get waitingSub => 'Usually within a week of your interview';
+
+	/// en: 'Your offer'
+	String get title => 'Your offer';
+
+	/// en: 'Accepted'
+	String get accepted => 'Accepted';
+
+	/// en: 'You declined this offer'
+	String get declined => 'You declined this offer';
+
+	/// en: 'This offer has expired'
+	String get expired => 'This offer has expired';
+
+	/// en: '{level}, {cycle}'
+	String summary({required Object level, required Object cycle}) => '${level}, ${cycle}';
+
+	/// en: '{summary}, with {list}'
+	String withScholarships({required Object summary, required Object list}) => '${summary}, with ${list}';
+
+	/// en: '{summary} · conditional'
+	String conditional({required Object summary}) => '${summary} · conditional';
+
+	/// en: 'Respond and pay by {date}'
+	String respondBy({required Object date}) => 'Respond and pay by ${date}';
+
+	/// en: 'Deadline passed'
+	String get deadlinePassed => 'Deadline passed';
+
+	/// en: '{label} (monthly)'
+	String monthly({required Object label}) => '${label} (monthly)';
+
+	/// en: 'Scholarship on {label}'
+	String scholarshipOn({required Object label}) => 'Scholarship on ${label}';
+
+	/// en: 'Due now'
+	String get dueNow => 'Due now';
+
+	/// en: 'Monthly'
+	String get monthlyTotal => 'Monthly';
+
+	/// en: 'Accept offer'
+	String get accept => 'Accept offer';
+
+	/// en: 'Accept this offer?'
+	String get acceptTitle => 'Accept this offer?';
+
+	/// en: 'You'll then pay {amount} and upload proof of payment to secure your place.'
+	String acceptBody({required Object amount}) => 'You\'ll then pay ${amount} and upload proof of payment to secure your place.';
+
+	/// en: 'Not yet'
+	String get notYet => 'Not yet';
+
+	/// en: 'Offer accepted. Your fee voucher is ready.'
+	String get acceptedToast => 'Offer accepted. Your fee voucher is ready.';
+
+	/// en: 'Download letter'
+	String get letter => 'Download letter';
+
+	/// en: 'Offer details'
+	String get details => 'Offer details';
+
+	/// en: 'Terms and conditions'
+	String get terms => 'Terms and conditions';
+
+	/// en: '{course} with {teacher}'
+	String kWith({required Object course, required Object teacher}) => '${course} with ${teacher}';
+
+	/// en: 'Could not open the file.'
+	String get downloadFailed => 'Could not open the file.';
+
+	/// en: 'Accepted'
+	String get pillAccepted => 'Accepted';
+
+	/// en: 'Declined'
+	String get pillDeclined => 'Declined';
+
+	/// en: 'Expired'
+	String get pillExpired => 'Expired';
+}
+
+// Path: tracker.payment
+class Translations$tracker$payment$en {
+	Translations$tracker$payment$en.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Fee payment'
+	String get title => 'Fee payment';
+
+	/// en: 'Your voucher appears when you accept the offer'
+	String get locked => 'Your voucher appears when you accept the offer';
+
+	/// en: 'Paid'
+	String get paid => 'Paid';
+
+	/// en: 'Pay online or at the bank, then upload the screenshot or the bank's copy'
+	String get due => 'Pay online or at the bank, then upload the screenshot or the bank\'s copy';
+
+	/// en: 'Tuition voucher'
+	String get tuition => 'Tuition voucher';
+
+	/// en: 'Tuition voucher · {period}'
+	String tuitionPeriod({required Object period}) => 'Tuition voucher · ${period}';
+
+	/// en: 'Instalment {n}'
+	String instalment({required Object n}) => 'Instalment ${n}';
+
+	/// en: 'Admission fee voucher'
+	String get admission => 'Admission fee voucher';
+
+	/// en: 'Amount'
+	String get amount => 'Amount';
+
+	/// en: 'Pay by'
+	String get payBy => 'Pay by';
+
+	/// en: 'We've received {paid}. {left} is still due: pay it and upload the proof.'
+	String partly({required Object paid, required Object left}) => 'We\'ve received ${paid}. ${left} is still due: pay it and upload the proof.';
+
+	/// en: 'Please upload it again.'
+	String get uploadAgain => 'Please upload it again.';
+
+	/// en: 'Paid · approved by finance'
+	String get paidPill => 'Paid · approved by finance';
+
+	/// en: 'Proof sent · being checked'
+	String get checkingPill => 'Proof sent · being checked';
+
+	/// en: 'Download voucher'
+	String get voucher => 'Download voucher';
+
+	/// en: 'Download balance voucher'
+	String get balanceVoucher => 'Download balance voucher';
+
+	/// en: 'Paid online (screenshot)'
+	String get online => 'Paid online (screenshot)';
+
+	/// en: 'Paid at the bank (bank copy)'
+	String get bank => 'Paid at the bank (bank copy)';
+
+	/// en: 'Upload proof'
+	String get upload => 'Upload proof';
+
+	/// en: 'Upload again'
+	String get again => 'Upload again';
+
+	/// en: 'Send another copy'
+	String get another => 'Send another copy';
+
+	/// en: 'Proof sent. Finance will verify it.'
+	String get sentToast => 'Proof sent. Finance will verify it.';
+
+	/// en: 'Uploading file'
+	String get uploading => 'Uploading file';
 }
 
 // Path: form.errors.req

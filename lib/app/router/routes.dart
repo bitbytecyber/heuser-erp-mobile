@@ -6,6 +6,7 @@ import 'package:heuser_erp_mobile/app/di/injection.dart';
 import 'package:heuser_erp_mobile/app/router/auth_redirect.dart';
 import 'package:heuser_erp_mobile/app/router/shells/applicant_shell.dart';
 import 'package:heuser_erp_mobile/core/connectivity/connectivity_service.dart';
+import 'package:heuser_erp_mobile/core/files/document_opener.dart';
 import 'package:heuser_erp_mobile/core/files/file_pick_service.dart';
 import 'package:heuser_erp_mobile/core/storage/json_file_cache.dart';
 import 'package:heuser_erp_mobile/features/application_form/data/file_draft_store.dart';

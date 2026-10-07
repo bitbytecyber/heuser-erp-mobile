@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:heuser_ds/heuser_ds.dart';
+import 'package:heuser_erp_mobile/core/files/file_pick_service.dart';
 import 'package:heuser_erp_mobile/core/i18n/strings.g.dart';
 import 'package:heuser_erp_mobile/features/applications/data/models/application.dart';
 import 'package:heuser_erp_mobile/features/applications/data/models/intake_enums.dart';
@@ -7,18 +8,20 @@ import 'package:heuser_erp_mobile/features/applications/domain/intake_repository
 import 'package:heuser_erp_mobile/features/documents/domain/doc_rows.dart';
 import 'package:heuser_erp_mobile/features/tracker/domain/tracker_rules.dart';
 import 'package:heuser_erp_mobile/features/tracker/presentation/widgets/interview_task_view.dart';
+import 'package:heuser_erp_mobile/features/tracker/presentation/widgets/offer_task_view.dart';
+import 'package:heuser_erp_mobile/features/tracker/presentation/widgets/payment_task_view.dart';
 import 'package:heuser_erp_mobile/features/tracker/presentation/widgets/task_tile.dart';
 import 'package:heuser_erp_mobile/features/tracker/presentation/widgets/tracker_format.dart';
 import 'package:heuser_erp_mobile/features/tracker/presentation/widgets/trials_task_view.dart';
 
 /// The "To do" tab: documents, interview, trials, financial aid, enrolment.
-/// Offer and payment tasks join in M5.
 class TodoTab extends StatelessWidget {
   /// Creates the tab.
   const TodoTab({
     required this.application,
     required this.rows,
     required this.repo,
+    required this.files,
     required this.onOpenDocuments,
     super.key,
   });
@@ -31,6 +34,9 @@ class TodoTab extends StatelessWidget {
 
   /// For the booking pickers.
   final IntakeRepository repo;
+
+  /// File picking for proofs of payment.
+  final FilePickService files;
 
   /// Switches to the Documents tab.
   final VoidCallback onOpenDocuments;
@@ -102,6 +108,10 @@ class TodoTab extends StatelessWidget {
             ],
           ),
         ],
+        HSpace.gap3,
+        OfferTaskView(application: a),
+        HSpace.gap3,
+        PaymentTaskView(application: a, files: files),
         if (a.status == AppStatus.enrolled) ...[
           HSpace.gap3,
           TaskTile(
