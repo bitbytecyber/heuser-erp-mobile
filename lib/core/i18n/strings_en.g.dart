@@ -48,6 +48,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final Translations$form$en form = Translations$form$en.internal(_root);
 	late final Translations$documents$en documents = Translations$documents$en.internal(_root);
 	late final Translations$tracker$en tracker = Translations$tracker$en.internal(_root);
+	late final Translations$lock$en lock = Translations$lock$en.internal(_root);
 }
 
 // Path: app
@@ -474,6 +475,33 @@ class Translations$profile$en {
 
 	/// en: 'Showing your last known details. We'll refresh when you're back online.'
 	String get offlineSnapshot => 'Showing your last known details. We\'ll refresh when you\'re back online.';
+
+	/// en: 'Enter your current password, then the new one twice.'
+	String get changePasswordBody => 'Enter your current password, then the new one twice.';
+
+	/// en: 'You signed in with Google or Apple. Set a password to sign in with your email too.'
+	String get setPasswordBody => 'You signed in with Google or Apple. Set a password to sign in with your email too.';
+
+	/// en: 'Current password'
+	String get currentPassword => 'Current password';
+
+	/// en: 'New password'
+	String get newPassword => 'New password';
+
+	/// en: 'Enter your current password.'
+	String get currentPasswordNeeded => 'Enter your current password.';
+
+	/// en: 'Password saved.'
+	String get passwordChanged => 'Password saved.';
+
+	/// en: 'Security'
+	String get security => 'Security';
+
+	/// en: 'App lock'
+	String get appLock => 'App lock';
+
+	/// en: 'Ask for your fingerprint, face or phone PIN when you open the app.'
+	String get appLockSub => 'Ask for your fingerprint, face or phone PIN when you open the app.';
 }
 
 // Path: applications
@@ -861,6 +889,30 @@ class Translations$tracker$en {
 	late final Translations$tracker$results$en results = Translations$tracker$results$en.internal(_root);
 	late final Translations$tracker$offer$en offer = Translations$tracker$offer$en.internal(_root);
 	late final Translations$tracker$payment$en payment = Translations$tracker$payment$en.internal(_root);
+}
+
+// Path: lock
+class Translations$lock$en {
+	Translations$lock$en.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Heuser is locked'
+	String get title => 'Heuser is locked';
+
+	/// en: 'Unlock with your fingerprint, face or phone PIN.'
+	String get body => 'Unlock with your fingerprint, face or phone PIN.';
+
+	/// en: 'Unlock'
+	String get unlock => 'Unlock';
+
+	/// en: 'Unlock Heuser'
+	String get reason => 'Unlock Heuser';
+
+	/// en: 'Confirm it is you to turn on app lock'
+	String get enableReason => 'Confirm it is you to turn on app lock';
 }
 
 // Path: form.steps

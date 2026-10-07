@@ -58,13 +58,20 @@ class ApplicationsPage extends StatelessWidget {
           showBack: false,
         ),
         body: BlocBuilder<ApplicationsBloc, ApplicationsState>(
-          builder: (context, state) => RefreshIndicatorless(
+          builder: (context, state) => HRefreshable(
+            semanticsLabel: t.common.loading,
             onRefresh: () async {
-              context.read<ApplicationsBloc>().add(
-                const ApplicationsEvent.refreshed(force: true),
-              );
+              final bloc = context.read<ApplicationsBloc>()
+                ..add(const ApplicationsEvent.refreshed(force: true));
+              await bloc.stream
+                  .firstWhere((s) => !s.loading)
+                  .timeout(
+                    const Duration(seconds: 15),
+                    onTimeout: () => bloc.state,
+                  );
             },
             child: ListView(
+              physics: const AlwaysScrollableScrollPhysics(),
               padding: HSpace.page,
               children: [
                 HHeroCard(
@@ -219,31 +226,4 @@ class ApplicationsPage extends StatelessWidget {
     if (h < 17) return 'Good afternoon';
     return 'Good evening';
   }
-}
-
-/// Pull-to-refresh without Material's indicator: a plain gesture hook so
-/// the list stays on H tokens. (The DS adds a styled indicator in M8.)
-class RefreshIndicatorless extends StatelessWidget {
-  /// Creates the wrapper.
-  const RefreshIndicatorless({
-    required this.onRefresh,
-    required this.child,
-    super.key,
-  });
-
-  /// Refresh callback.
-  final Future<void> Function() onRefresh;
-
-  /// The scrollable.
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) =>
-      NotificationListener<ScrollEndNotification>(
-        onNotification: (n) {
-          if (n.metrics.pixels < -HSpace.x16) unawaited(onRefresh());
-          return false;
-        },
-        child: child,
-      );
 }

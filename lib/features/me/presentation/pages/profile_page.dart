@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:heuser_ds/heuser_ds.dart';
+import 'package:heuser_erp_mobile/app/security/app_lock_cubit.dart';
 import 'package:heuser_erp_mobile/core/i18n/strings.g.dart';
 import 'package:heuser_erp_mobile/features/auth/domain/auth_user.dart';
 import 'package:heuser_erp_mobile/features/auth/presentation/bloc/auth_bloc.dart';
@@ -9,10 +10,17 @@ import 'package:package_info_plus/package_info_plus.dart';
 /// Profile tab: identity card, account rows, appearance, about, sign out.
 class ProfilePage extends StatelessWidget {
   /// Creates the page.
-  const ProfilePage({required this.onAppearance, super.key});
+  const ProfilePage({
+    required this.onAppearance,
+    required this.onPassword,
+    super.key,
+  });
 
   /// Opens the appearance page.
   final VoidCallback onAppearance;
+
+  /// Opens change / set password.
+  final VoidCallback onPassword;
 
   @override
   Widget build(BuildContext context) {
@@ -76,11 +84,12 @@ class ProfilePage extends StatelessWidget {
                   title: (user?.hasUsablePassword ?? true)
                       ? t.profile.changePassword
                       : t.profile.setPassword,
-                  onTap: () {},
+                  onTap: onPassword,
                 ),
               ],
             ),
           ),
+          const _AppLockSection(),
           HSpace.gap4,
           HText(
             t.profile.about,
@@ -128,6 +137,42 @@ class ProfilePage extends StatelessWidget {
           ),
         ].hStaggered(context),
       ),
+    );
+  }
+}
+
+/// "App lock" switch, only on devices that can authenticate.
+class _AppLockSection extends StatelessWidget {
+  const _AppLockSection();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = Translations.of(context);
+    final s = context.watch<AppLockCubit>().state;
+    if (!s.supported) return const SizedBox.shrink();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        HSpace.gap4,
+        HText(
+          t.profile.security,
+          style: HTextStyle.labelMd,
+          tone: HTextTone.secondary,
+        ),
+        HSpace.gap2,
+        HCard(
+          child: HSwitch(
+            label: t.profile.appLock,
+            description: t.profile.appLockSub,
+            value: s.enabled,
+            enabled: !s.busy,
+            onChanged: (v) => context.read<AppLockCubit>().setEnabled(
+              value: v,
+              reason: t.lock.enableReason,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

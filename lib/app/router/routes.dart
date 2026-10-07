@@ -30,6 +30,7 @@ import 'package:heuser_erp_mobile/features/auth/presentation/pages/social_choice
 import 'package:heuser_erp_mobile/features/auth/presentation/pages/welcome_page.dart';
 import 'package:heuser_erp_mobile/features/branding/data/branding_repository.dart';
 import 'package:heuser_erp_mobile/features/me/presentation/pages/appearance_page.dart';
+import 'package:heuser_erp_mobile/features/me/presentation/pages/change_password_page.dart';
 import 'package:heuser_erp_mobile/features/me/presentation/pages/profile_page.dart';
 import 'package:heuser_erp_mobile/features/notifications/domain/notification_link.dart';
 import 'package:heuser_erp_mobile/features/notifications/domain/notifications_repository.dart';

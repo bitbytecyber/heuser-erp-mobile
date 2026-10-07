@@ -140,99 +140,115 @@ class _TrackerViewState extends State<_TrackerView> {
             ),
         ],
       ),
-      body: ListView(
-        padding: HSpace.page,
-        children: [
-          HHeroCard(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                HText(
-                  first.isEmpty ? t.tracker.hiThere : t.tracker.hi(name: first),
-                  style: HTextStyle.headlineMd,
-                ),
-                HSpace.gap1,
-                HText(t.tracker.lede, tone: HTextTone.secondary),
-                if (a.reference != null) ...[
-                  HSpace.gap3,
-                  Row(
-                    children: [
-                      HStatusPill(
-                        '${t.tracker.reference} ${a.reference}',
-                        tone: HTone.brand,
-                      ),
-                      HSpace.hgap2,
-                      HButton.ghost(
-                        label: t.tracker.copy,
-                        icon: HIcons.copy,
-                        size: HButtonSize.sm,
-                        onPressed: () {
-                          unawaited(
-                            Clipboard.setData(
-                              ClipboardData(text: a.reference!),
-                            ),
-                          );
-                          HToast.success(context, t.tracker.copied);
-                        },
-                      ),
-                    ],
+      body: HRefreshable(
+        semanticsLabel: t.common.loading,
+        onRefresh: () async {
+          final bloc = context.read<TrackerBloc>()
+            ..add(const TrackerEvent.refreshed());
+          await bloc.stream
+              .firstWhere((s) => !s.refreshing)
+              .timeout(
+                const Duration(seconds: 15),
+                onTimeout: () => bloc.state,
+              );
+        },
+        child: ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: HSpace.page,
+          children: [
+            HHeroCard(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  HText(
+                    first.isEmpty
+                        ? t.tracker.hiThere
+                        : t.tracker.hi(name: first),
+                    style: HTextStyle.headlineMd,
                   ),
+                  HSpace.gap1,
+                  HText(t.tracker.lede, tone: HTextTone.secondary),
+                  if (a.reference != null) ...[
+                    HSpace.gap3,
+                    Row(
+                      children: [
+                        HStatusPill(
+                          '${t.tracker.reference} ${a.reference}',
+                          tone: HTone.brand,
+                        ),
+                        HSpace.hgap2,
+                        HButton.ghost(
+                          label: t.tracker.copy,
+                          icon: HIcons.copy,
+                          size: HButtonSize.sm,
+                          onPressed: () {
+                            unawaited(
+                              Clipboard.setData(
+                                ClipboardData(text: a.reference!),
+                              ),
+                            );
+                            HToast.success(context, t.tracker.copied);
+                          },
+                        ),
+                      ],
+                    ),
+                  ],
                 ],
-              ],
-            ),
-          ),
-          HSpace.gap4,
-          if (a.tracker.stages.isNotEmpty) ...[
-            HCard(
-              child: HStageBar(
-                stages: [
-                  for (final s in a.tracker.stages)
-                    HStage(key: s.key, label: s.label),
-                ],
-                currentIndex: TrackerRules.stageIndex(a.tracker),
               ),
             ),
-            HSpace.gap3,
-          ],
-          StatusCardView(
-            card: TrackerRules.statusCard(a, rows),
-            collegeName: widget.collegeName,
-          ),
-          HSpace.gap4,
-          HTabs(
-            tabs: [
-              HTab(t.tracker.tabs.todo),
-              HTab(t.tracker.tabs.docs),
-              HTab(t.tracker.tabs.form),
-              HTab(t.tracker.tabs.history),
+            HSpace.gap4,
+            if (a.tracker.stages.isNotEmpty) ...[
+              HCard(
+                child: HStageBar(
+                  stages: [
+                    for (final s in a.tracker.stages)
+                      HStage(key: s.key, label: s.label),
+                  ],
+                  currentIndex: TrackerRules.stageIndex(a.tracker),
+                ),
+              ),
+              HSpace.gap3,
             ],
-            index: _tab,
-            onChanged: (i) => setState(() => _tab = i),
-          ),
-          HSpace.gap4,
-          AnimatedSwitcher(
-            duration: context.h.motion.of(context.h.motion.standard),
-            child: KeyedSubtree(
-              key: ValueKey(_tab),
-              child: switch (_tab) {
-                0 => TodoTab(
-                  application: a,
-                  rows: rows,
-                  repo: widget.repo,
-                  files: widget.files,
-                  onOpenDocuments: () => setState(() => _tab = 1),
-                ),
-                1 => DocumentsTab(application: a, rows: rows),
-                2 => ApplicationTab(
-                  application: a,
-                  options: state.options,
-                  collegeName: widget.collegeName,
-                ),
-                _ => HistoryTab(application: a),
-              },
+            StatusCardView(
+              card: TrackerRules.statusCard(a, rows),
+              collegeName: widget.collegeName,
             ),
-          ),
-        ],
+            HSpace.gap4,
+            HTabs(
+              tabs: [
+                HTab(t.tracker.tabs.todo),
+                HTab(t.tracker.tabs.docs),
+                HTab(t.tracker.tabs.form),
+                HTab(t.tracker.tabs.history),
+              ],
+              index: _tab,
+              onChanged: (i) => setState(() => _tab = i),
+            ),
+            HSpace.gap4,
+            AnimatedSwitcher(
+              duration: context.h.motion.of(context.h.motion.standard),
+              child: KeyedSubtree(
+                key: ValueKey(_tab),
+                child: switch (_tab) {
+                  0 => TodoTab(
+                    application: a,
+                    rows: rows,
+                    repo: widget.repo,
+                    files: widget.files,
+                    onOpenDocuments: () => setState(() => _tab = 1),
+                  ),
+                  1 => DocumentsTab(application: a, rows: rows),
+                  2 => ApplicationTab(
+                    application: a,
+                    options: state.options,
+                    collegeName: widget.collegeName,
+                  ),
+                  _ => HistoryTab(application: a),
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

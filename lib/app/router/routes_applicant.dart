@@ -20,7 +20,10 @@ part of 'routes.dart';
       routes: [
         TypedGoRoute<ProfileRoute>(
           path: '/apply/profile',
-          routes: [TypedGoRoute<AppearanceRoute>(path: 'appearance')],
+          routes: [
+            TypedGoRoute<AppearanceRoute>(path: 'appearance'),
+            TypedGoRoute<ChangePasswordRoute>(path: 'password'),
+          ],
         ),
       ],
     ),
@@ -186,8 +189,10 @@ class ProfileRoute extends GoRouteData with $ProfileRoute {
   /// Const.
   const ProfileRoute();
   @override
-  Widget build(BuildContext context, GoRouterState state) =>
-      ProfilePage(onAppearance: () => const AppearanceRoute().go(context));
+  Widget build(BuildContext context, GoRouterState state) => ProfilePage(
+    onAppearance: () => const AppearanceRoute().go(context),
+    onPassword: () => const ChangePasswordRoute().go(context),
+  );
 }
 
 /// Appearance (preset + mode).
@@ -197,4 +202,20 @@ class AppearanceRoute extends GoRouteData with $AppearanceRoute {
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) =>
       _slide(state, const AppearancePage());
+}
+
+/// Change (or set a first) password.
+class ChangePasswordRoute extends GoRouteData with $ChangePasswordRoute {
+  /// Const.
+  const ChangePasswordRoute();
+  @override
+  Page<void> buildPage(BuildContext context, GoRouterState state) {
+    final user = context.read<AuthBloc>().state.userOrNull;
+    return _slide(
+      state,
+      _withAction(
+        ChangePasswordPage(hasPassword: user?.hasUsablePassword ?? true),
+      ),
+    );
+  }
 }

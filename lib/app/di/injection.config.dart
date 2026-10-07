@@ -24,6 +24,7 @@ import 'package:heuser_erp_mobile/core/files/document_opener.dart' as _i851;
 import 'package:heuser_erp_mobile/core/files/file_pick_service.dart' as _i685;
 import 'package:heuser_erp_mobile/core/realtime/notifications_socket.dart'
     as _i722;
+import 'package:heuser_erp_mobile/core/security/app_lock_service.dart' as _i952;
 import 'package:heuser_erp_mobile/core/storage/json_file_cache.dart' as _i675;
 import 'package:heuser_erp_mobile/features/applications/data/datasources/booking_api.dart'
     as _i328;
@@ -83,6 +84,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i256.SessionSnapshotStore>(
       () => coreModule.snapshotStore(gh<_i460.SharedPreferencesAsync>()),
+    );
+    gh.lazySingleton<_i952.AppLockService>(
+      () => coreModule.appLockService(gh<_i460.SharedPreferencesAsync>()),
     );
     gh.lazySingleton<_i850.ThemePreferenceStore>(
       () => coreModule.themeStore(gh<_i460.SharedPreferencesAsync>()),

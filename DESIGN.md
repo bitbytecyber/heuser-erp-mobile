@@ -79,7 +79,7 @@ from the network afterwards, so the admin's theme shows on a cold start.
 | buttons | `HButton` (filled / tonal / outline / ghost / danger; sm md lg; loading; icons), `HIconButton` (ghost / tonal / filled / outline; badge dot), `HPressable` (press/hover/focus engine) |
 | inputs | `HTextField` (+ `HMasks.cnic`, `pkMobile`, `verificationCode`), `HFieldFrame`, `HSelect`, `HSearchSelect` (paged), `HDatePicker`, `HOtpField` (6 digits / 8 alphanumeric with group dash), `HCheckbox`, `HSwitch`, `HRadio`, `HChip`, `HSegmented`, `HFilePickerTile` (missing / later / uploading / pending / approved / rejected) |
 | surfaces | `HCard` (flat / raised / floating, tappable), `HHeroCard` (soft gradient, inverse), `HScaffold`, `HBottomSheet.show`, `HDialog.show` / `confirm` |
-| feedback | `HStatusPill` + `HTone`, `HBadge`, `HToast` (one at a time, de-duplicated), `HSkeleton` / `HSkeletonBox`, `HEmptyState`, `HSpinner`, `HProgressBar`, `HCountdown` |
+| feedback | `HStatusPill` + `HTone`, `HBadge`, `HToast` (one at a time, de-duplicated), `HSkeleton` / `HSkeletonBox`, `HEmptyState`, `HSpinner`, `HProgressBar`, `HCountdown`, `HRefreshable` (pull to refresh, brand arc, haptic) |
 | navigation | `HAppBar`, `HNavBar` (animated pill), `HStepper`, `HTabs` |
 | data | `HListTile` + `HDivider`, `HKeyValue` / `HKeyValueGroup`, `HTimeline`, `HStageBar` (done / now / next / ended), `HFeeTable`, `HAvatar` |
 | foundation | `HText` (+ `HTextStyle`, `HTextTone`), `HIcon` + `HIcons` (curated rounded set), `HHaptics`, `HAnimate` (`hFadeInUp`, `hScaleIn`, `hPop`, `hShake`, `hStaggered`), `HPageTransitions` (sharedAxisX/Y, fadeThrough, fade), `HScrollBehavior` |

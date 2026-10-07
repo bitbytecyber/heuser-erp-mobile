@@ -132,7 +132,16 @@
     "version": "Version {version}",
     "signOutConfirmTitle": "Sign out?",
     "signOutConfirmBody": "You'll need your email and password to sign back in.",
-    "offlineSnapshot": "Showing your last known details. We'll refresh when you're back online."
+    "offlineSnapshot": "Showing your last known details. We'll refresh when you're back online.",
+    "changePasswordBody": "Enter your current password, then the new one twice.",
+    "setPasswordBody": "You signed in with Google or Apple. Set a password to sign in with your email too.",
+    "currentPassword": "Current password",
+    "newPassword": "New password",
+    "currentPasswordNeeded": "Enter your current password.",
+    "passwordChanged": "Password saved.",
+    "security": "Security",
+    "appLock": "App lock",
+    "appLockSub": "Ask for your fingerprint, face or phone PIN when you open the app."
   },
   "applications": {
     "title": "Your applications",
@@ -754,5 +763,12 @@
       "sentToast": "Proof sent. Finance will verify it.",
       "uploading": "Uploading file"
     }
+  },
+  "lock": {
+    "title": "Heuser is locked",
+    "body": "Unlock with your fingerprint, face or phone PIN.",
+    "unlock": "Unlock",
+    "reason": "Unlock Heuser",
+    "enableReason": "Confirm it is you to turn on app lock"
   }
 }

@@ -90,22 +90,37 @@ class NotificationsPage extends StatelessWidget {
         }
         return false;
       },
-      child: ListView.separated(
-        padding: HSpace.page,
-        itemCount: state.items.length + (state.loadingMore ? 1 : 0),
-        separatorBuilder: (_, _) => HSpace.gap2,
-        itemBuilder: (context, i) {
-          if (i >= state.items.length) {
-            return const Center(child: HSpinner());
-          }
-          final item = state.items[i];
-          return Dismissible(
-            key: ValueKey(item.id),
-            direction: DismissDirection.endToStart,
-            onDismissed: (_) => bloc.add(NotificationsEvent.dismissed(item.id)),
-            child: _ItemCard(item: item, onTap: () => _open(context, item)),
-          );
+      child: HRefreshable(
+        semanticsLabel: t.common.loading,
+        onRefresh: () async {
+          bloc.add(const NotificationsEvent.refreshed());
+          unawaited(context.read<UnreadCubit>().refresh());
+          await bloc.stream
+              .firstWhere((s) => !s.loading)
+              .timeout(
+                const Duration(seconds: 15),
+                onTimeout: () => bloc.state,
+              );
         },
+        child: ListView.separated(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: HSpace.page,
+          itemCount: state.items.length + (state.loadingMore ? 1 : 0),
+          separatorBuilder: (_, _) => HSpace.gap2,
+          itemBuilder: (context, i) {
+            if (i >= state.items.length) {
+              return const Center(child: HSpinner());
+            }
+            final item = state.items[i];
+            return Dismissible(
+              key: ValueKey(item.id),
+              direction: DismissDirection.endToStart,
+              onDismissed: (_) =>
+                  bloc.add(NotificationsEvent.dismissed(item.id)),
+              child: _ItemCard(item: item, onTap: () => _open(context, item)),
+            );
+          },
+        ),
       ),
     );
   }

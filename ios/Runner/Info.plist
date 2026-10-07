@@ -70,5 +70,11 @@
 		<true/>
 		<key>UIViewControllerBasedStatusBarAppearance</key>
 		<false/>
-	</dict>
+	<key>NSCameraUsageDescription</key>
+	<string>Take a photo of a document or proof of payment for your application.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Choose a photo of a document or proof of payment for your application.</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>Unlock the app with Face ID when you turn on app lock.</string>
+</dict>
 </plist>

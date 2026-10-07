@@ -53,6 +53,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final Translations$form$en form = Translations$form$en._(_root);
 	late final Translations$documents$en documents = Translations$documents$en._(_root);
 	late final Translations$tracker$en tracker = Translations$tracker$en._(_root);
+	late final Translations$lock$en lock = Translations$lock$en._(_root);
 }
 
 // Path: app
@@ -479,6 +480,33 @@ class Translations$profile$en {
 
 	/// en: 'Showing your last known details. We'll refresh when you're back online.'
 	String get offlineSnapshot => 'Showing your last known details. We\'ll refresh when you\'re back online.';
+
+	/// en: 'Enter your current password, then the new one twice.'
+	String get changePasswordBody => 'Enter your current password, then the new one twice.';
+
+	/// en: 'You signed in with Google or Apple. Set a password to sign in with your email too.'
+	String get setPasswordBody => 'You signed in with Google or Apple. Set a password to sign in with your email too.';
+
+	/// en: 'Current password'
+	String get currentPassword => 'Current password';
+
+	/// en: 'New password'
+	String get newPassword => 'New password';
+
+	/// en: 'Enter your current password.'
+	String get currentPasswordNeeded => 'Enter your current password.';
+
+	/// en: 'Password saved.'
+	String get passwordChanged => 'Password saved.';
+
+	/// en: 'Security'
+	String get security => 'Security';
+
+	/// en: 'App lock'
+	String get appLock => 'App lock';
+
+	/// en: 'Ask for your fingerprint, face or phone PIN when you open the app.'
+	String get appLockSub => 'Ask for your fingerprint, face or phone PIN when you open the app.';
 }
 
 // Path: applications
@@ -866,6 +894,30 @@ class Translations$tracker$en {
 	late final Translations$tracker$results$en results = Translations$tracker$results$en._(_root);
 	late final Translations$tracker$offer$en offer = Translations$tracker$offer$en._(_root);
 	late final Translations$tracker$payment$en payment = Translations$tracker$payment$en._(_root);
+}
+
+// Path: lock
+class Translations$lock$en {
+	Translations$lock$en._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Heuser is locked'
+	String get title => 'Heuser is locked';
+
+	/// en: 'Unlock with your fingerprint, face or phone PIN.'
+	String get body => 'Unlock with your fingerprint, face or phone PIN.';
+
+	/// en: 'Unlock'
+	String get unlock => 'Unlock';
+
+	/// en: 'Unlock Heuser'
+	String get reason => 'Unlock Heuser';
+
+	/// en: 'Confirm it is you to turn on app lock'
+	String get enableReason => 'Confirm it is you to turn on app lock';
 }
 
 // Path: form.steps
@@ -2628,6 +2680,15 @@ extension on Translations {
 			'profile.signOutConfirmTitle' => 'Sign out?',
 			'profile.signOutConfirmBody' => 'You\'ll need your email and password to sign back in.',
 			'profile.offlineSnapshot' => 'Showing your last known details. We\'ll refresh when you\'re back online.',
+			'profile.changePasswordBody' => 'Enter your current password, then the new one twice.',
+			'profile.setPasswordBody' => 'You signed in with Google or Apple. Set a password to sign in with your email too.',
+			'profile.currentPassword' => 'Current password',
+			'profile.newPassword' => 'New password',
+			'profile.currentPasswordNeeded' => 'Enter your current password.',
+			'profile.passwordChanged' => 'Password saved.',
+			'profile.security' => 'Security',
+			'profile.appLock' => 'App lock',
+			'profile.appLockSub' => 'Ask for your fingerprint, face or phone PIN when you open the app.',
 			'applications.title' => 'Your applications',
 			'applications.emptyTitle' => 'No applications yet',
 			'applications.emptyBody' => 'Start your application and we\'ll guide you through every step.',
@@ -3010,6 +3071,8 @@ extension on Translations {
 			'tracker.reference' => 'Reference',
 			'tracker.copy' => 'Copy',
 			'tracker.copied' => 'Reference copied.',
+			_ => null,
+		} ?? switch (path) {
 			'tracker.tabs.todo' => 'To do',
 			'tracker.tabs.docs' => 'Documents',
 			'tracker.tabs.form' => 'Application',
@@ -3019,8 +3082,6 @@ extension on Translations {
 			'tracker.formHint' => 'A read-only copy of what you sent, exactly as the admissions office sees it. Contact the office if something needs correcting.',
 			'tracker.historyEmpty' => 'Nothing yet.',
 			'tracker.status.withdrawnTitle' => 'Application withdrawn',
-			_ => null,
-		} ?? switch (path) {
 			'tracker.status.withdrawnBody' => 'You withdrew this application on {date}. The admissions office has been told. To apply again, start a new application.',
 			'tracker.status.anEarlierDate' => 'an earlier date',
 			'tracker.status.notOfferedTitle' => 'We couldn\'t offer you a place',
@@ -3173,6 +3234,11 @@ extension on Translations {
 			'tracker.payment.another' => 'Send another copy',
 			'tracker.payment.sentToast' => 'Proof sent. Finance will verify it.',
 			'tracker.payment.uploading' => 'Uploading file',
+			'lock.title' => 'Heuser is locked',
+			'lock.body' => 'Unlock with your fingerprint, face or phone PIN.',
+			'lock.unlock' => 'Unlock',
+			'lock.reason' => 'Unlock Heuser',
+			'lock.enableReason' => 'Confirm it is you to turn on app lock',
 			_ => null,
 		};
 	}

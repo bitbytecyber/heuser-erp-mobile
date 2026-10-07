@@ -1,5 +1,6 @@
 package com.heusercollege.erp
 
-import io.flutter.embedding.android.FlutterActivity
+import io.flutter.embedding.android.FlutterFragmentActivity
 
-class MainActivity : FlutterActivity()
+// FragmentActivity: local_auth's biometric prompt needs it (app lock).
+class MainActivity : FlutterFragmentActivity()

@@ -8,12 +8,15 @@ import 'package:go_router/go_router.dart';
 import 'package:heuser_ds/heuser_ds.dart';
 import 'package:heuser_erp_mobile/app/di/injection.dart';
 import 'package:heuser_erp_mobile/app/router/app_router.dart';
+import 'package:heuser_erp_mobile/app/security/app_lock_cubit.dart';
+import 'package:heuser_erp_mobile/app/security/app_lock_gate.dart';
 import 'package:heuser_erp_mobile/app/theme/theme_cubit.dart';
 import 'package:heuser_erp_mobile/app/theme/theme_preference_store.dart';
 import 'package:heuser_erp_mobile/core/connectivity/connectivity_banner.dart';
 import 'package:heuser_erp_mobile/core/connectivity/connectivity_service.dart';
 import 'package:heuser_erp_mobile/core/env/app_env.dart';
 import 'package:heuser_erp_mobile/core/i18n/strings.g.dart';
+import 'package:heuser_erp_mobile/core/security/app_lock_service.dart';
 import 'package:heuser_erp_mobile/features/auth/domain/auth_repository.dart';
 import 'package:heuser_erp_mobile/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:heuser_erp_mobile/features/branding/data/branding_repository.dart';
@@ -38,6 +41,7 @@ class _HeuserAppState extends State<HeuserApp> with WidgetsBindingObserver {
 
   late final AuthBloc _auth;
   late final ThemeCubit _theme;
+  late final AppLockCubit _lock = AppLockCubit(getIt<AppLockService>());
   late final GoRouter _router;
   late final BrandingRepository _branding = getIt<BrandingRepository>();
   late final ConnectivityService _connectivity = getIt<ConnectivityService>();
@@ -108,6 +112,7 @@ class _HeuserAppState extends State<HeuserApp> with WidgetsBindingObserver {
     _router.dispose();
     unawaited(_auth.close());
     unawaited(_theme.close());
+    unawaited(_lock.close());
     super.dispose();
   }
 
@@ -117,10 +122,14 @@ class _HeuserAppState extends State<HeuserApp> with WidgetsBindingObserver {
       providers: [
         BlocProvider.value(value: _auth),
         BlocProvider.value(value: _theme),
+        BlocProvider.value(value: _lock),
       ],
       child: BlocListener<AuthBloc, AuthState>(
         listenWhen: (_, s) => s is! AuthUnknown,
-        listener: (_, _) => _removeSplashOnce(),
+        listener: (_, s) {
+          _removeSplashOnce();
+          if (s is AuthUnauthenticated) unawaited(_lock.signedOut());
+        },
         child: BlocBuilder<ThemeCubit, ThemeState>(
           builder: (context, state) => MaterialApp.router(
             title: widget.env.appName,
@@ -133,7 +142,7 @@ class _HeuserAppState extends State<HeuserApp> with WidgetsBindingObserver {
               service: _connectivity,
               child: HThemeScope(
                 data: state.data,
-                child: child ?? const SizedBox.shrink(),
+                child: AppLockGate(child: child ?? const SizedBox.shrink()),
               ),
             ),
           ),

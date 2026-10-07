@@ -94,3 +94,16 @@ Widget progress(BuildContext context) {
     ),
   );
 }
+
+@wb.UseCase(name: 'Pull to refresh', type: HRefreshable)
+Widget refreshable(BuildContext context) => SizedBox(
+  height: 420,
+  child: HRefreshable.list(
+    onRefresh: () => Future<void>.delayed(const Duration(seconds: 1)),
+    padding: HSpace.page,
+    children: [
+      for (var i = 1; i <= 6; i++)
+        HListTile(title: 'Notification $i', subtitle: 'Pull down to refresh'),
+    ],
+  ),
+);

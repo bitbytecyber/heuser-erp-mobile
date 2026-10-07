@@ -8,6 +8,7 @@ import 'package:heuser_erp_mobile/core/files/document_opener.dart';
 import 'package:heuser_erp_mobile/core/files/file_pick_service.dart';
 import 'package:heuser_erp_mobile/core/network/dio_factory.dart';
 import 'package:heuser_erp_mobile/core/realtime/notifications_socket.dart';
+import 'package:heuser_erp_mobile/core/security/app_lock_service.dart';
 import 'package:heuser_erp_mobile/core/storage/json_file_cache.dart';
 import 'package:heuser_erp_mobile/features/applications/data/datasources/booking_api.dart';
 import 'package:heuser_erp_mobile/features/applications/data/datasources/intake_api.dart';
@@ -184,4 +185,9 @@ abstract class CoreModule {
     origin: env.apiBaseUrl,
     token: tokens.read,
   );
+
+  /// Optional fingerprint / face lock.
+  @lazySingleton
+  AppLockService appLockService(SharedPreferencesAsync prefs) =>
+      AppLockService(prefs);
 }

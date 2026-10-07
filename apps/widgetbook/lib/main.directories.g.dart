@@ -138,6 +138,16 @@ final directories = <_widgetbook.WidgetbookNode>[
             ],
           ),
           _widgetbook.WidgetbookComponent(
+            name: 'HRefreshable',
+            useCases: [
+              _widgetbook.WidgetbookUseCase(
+                name: 'Pull to refresh',
+                builder:
+                    _heuser_widgetbook_use_cases_feedback_use_cases.refreshable,
+              ),
+            ],
+          ),
+          _widgetbook.WidgetbookComponent(
             name: 'HSkeleton',
             useCases: [
               _widgetbook.WidgetbookUseCase(
