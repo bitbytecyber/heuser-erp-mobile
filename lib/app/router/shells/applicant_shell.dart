@@ -14,6 +14,7 @@ class ApplicantShell extends StatelessWidget {
   const ApplicantShell({
     required this.navigationShell,
     this.unreadCount = 0,
+    this.showNav = true,
     super.key,
   });
 
@@ -22,6 +23,9 @@ class ApplicantShell extends StatelessWidget {
 
   /// Unread notifications for the badge (wired in M6).
   final int unreadCount;
+
+  /// Whether the tab bar is shown (hidden on nested pages).
+  final bool showNav;
 
   @override
   Widget build(BuildContext context) {
@@ -72,22 +76,24 @@ class ApplicantShell extends StatelessWidget {
           Expanded(child: navigationShell),
         ],
       ),
-      bottomNav: HNavBar(
-        items: [
-          HNavItem(icon: HIcons.home, label: t.shell.applications),
-          HNavItem(
-            icon: HIcons.bell,
-            label: t.shell.notifications,
-            badgeCount: unreadCount,
-          ),
-          HNavItem(icon: HIcons.person, label: t.shell.profile),
-        ],
-        index: navigationShell.currentIndex,
-        onChanged: (i) => navigationShell.goBranch(
-          i,
-          initialLocation: i == navigationShell.currentIndex,
-        ),
-      ),
+      bottomNav: !showNav
+          ? null
+          : HNavBar(
+              items: [
+                HNavItem(icon: HIcons.home, label: t.shell.applications),
+                HNavItem(
+                  icon: HIcons.bell,
+                  label: t.shell.notifications,
+                  badgeCount: unreadCount,
+                ),
+                HNavItem(icon: HIcons.person, label: t.shell.profile),
+              ],
+              index: navigationShell.currentIndex,
+              onChanged: (i) => navigationShell.goBranch(
+                i,
+                initialLocation: i == navigationShell.currentIndex,
+              ),
+            ),
     );
   }
 }

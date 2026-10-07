@@ -20,6 +20,13 @@ abstract final class RoutePaths {
   static const applyProfile = '/apply/profile';
   static const student = '/student';
 
+  /// Branch roots of the applicant shell (the tab bar shows only here).
+  static const Set<String> applicantTabs = {
+    apply,
+    applyNotifications,
+    applyProfile,
+  };
+
   /// Routes reachable without a session.
   static const Set<String> public = {
     welcome,

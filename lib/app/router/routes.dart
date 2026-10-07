@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:heuser_ds/heuser_ds.dart';
 import 'package:heuser_erp_mobile/app/di/injection.dart';
+import 'package:heuser_erp_mobile/app/router/auth_redirect.dart';
 import 'package:heuser_erp_mobile/app/router/shells/applicant_shell.dart';
 import 'package:heuser_erp_mobile/core/connectivity/connectivity_service.dart';
 import 'package:heuser_erp_mobile/core/files/file_pick_service.dart';

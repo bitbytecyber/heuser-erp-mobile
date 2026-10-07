@@ -40,7 +40,11 @@ class ApplicantShellRoute extends StatefulShellRouteData {
     create: (_) =>
         ApplicationsBloc(getIt<IntakeRepository>())
           ..add(const ApplicationsEvent.started()),
-    child: ApplicantShell(navigationShell: navigationShell),
+    child: ApplicantShell(
+      navigationShell: navigationShell,
+      // Nested pages (the form, the tracker) take the whole height.
+      showNav: RoutePaths.applicantTabs.contains(state.uri.path),
+    ),
   );
 }
 

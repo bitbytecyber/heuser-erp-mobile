@@ -27,7 +27,9 @@ class TruncatingLogInterceptor extends Interceptor {
     options.extra[_startKey] = DateTime.now();
     sink('→ ${options.method} ${options.uri}');
     final body = options.data;
-    if (body != null && body is! FormData) sink('  body: ${_clip(body)}');
+    if (body != null && body is! FormData) {
+      sink('  body: ${_clip(_redact(body as Object))}');
+    }
     if (body is FormData) {
       sink(
         '  multipart: ${body.fields.map((f) => f.key).join(', ')} + ${body.files.length} file(s)',
@@ -80,5 +82,32 @@ class TruncatingLogInterceptor extends Interceptor {
     text = text.replaceAll('\n', ' ');
     if (text.length <= maxBodyChars) return text;
     return '${text.substring(0, maxBodyChars)}… (+${text.length - maxBodyChars} chars)';
+  }
+
+  /// Secrets never reach a log line, even in debug.
+  static const _secretKeys = {
+    'password',
+    'new_password',
+    'current_password',
+    'key',
+    'code',
+    'id_token',
+    'token',
+    'pending_token',
+  };
+
+  static Object _redact(Object body) {
+    if (body is Map) {
+      return {
+        for (final e in body.entries)
+          e.key: _secretKeys.contains(e.key.toString())
+              ? '***'
+              : _redact(e.value as Object? ?? ''),
+      };
+    }
+    if (body is List) {
+      return [for (final v in body) _redact(v as Object? ?? '')];
+    }
+    return body;
   }
 }
