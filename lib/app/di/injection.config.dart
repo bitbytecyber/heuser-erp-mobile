@@ -22,6 +22,8 @@ import 'package:heuser_erp_mobile/core/connectivity/connectivity_service.dart'
 import 'package:heuser_erp_mobile/core/env/app_env.dart' as _i1035;
 import 'package:heuser_erp_mobile/core/files/document_opener.dart' as _i851;
 import 'package:heuser_erp_mobile/core/files/file_pick_service.dart' as _i685;
+import 'package:heuser_erp_mobile/core/realtime/notifications_socket.dart'
+    as _i722;
 import 'package:heuser_erp_mobile/core/storage/json_file_cache.dart' as _i675;
 import 'package:heuser_erp_mobile/features/applications/data/datasources/booking_api.dart'
     as _i328;
@@ -48,6 +50,10 @@ import 'package:heuser_erp_mobile/features/branding/data/branding_repository.dar
 import 'package:heuser_erp_mobile/features/branding/data/site_branding_api.dart'
     as _i712;
 import 'package:heuser_erp_mobile/features/me/data/me_api.dart' as _i994;
+import 'package:heuser_erp_mobile/features/notifications/data/datasources/notifications_api.dart'
+    as _i547;
+import 'package:heuser_erp_mobile/features/notifications/domain/notifications_repository.dart'
+    as _i17;
 import 'package:injectable/injectable.dart' as _i526;
 import 'package:shared_preferences/shared_preferences.dart' as _i460;
 
@@ -89,6 +95,12 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i608.AuthSignals>(),
       ),
     );
+    gh.lazySingleton<_i722.NotificationsSocket>(
+      () => coreModule.notificationsSocket(
+        gh<_i1035.AppEnv>(),
+        gh<_i725.SessionTokenStore>(),
+      ),
+    );
     gh.lazySingleton<_i55.AllauthApi>(
       () => coreModule.allauthApi(gh<_i361.Dio>()),
     );
@@ -107,6 +119,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i328.BookingApi>(
       () => coreModule.bookingApi(gh<_i361.Dio>()),
+    );
+    gh.lazySingleton<_i547.NotificationsApi>(
+      () => coreModule.notificationsApi(gh<_i361.Dio>()),
     );
     gh.lazySingleton<_i6.AuthRepository>(
       () => coreModule.authRepository(
@@ -133,6 +148,9 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i712.SiteBrandingApi>(),
         gh<_i460.SharedPreferencesAsync>(),
       ),
+    );
+    gh.lazySingleton<_i17.NotificationsRepository>(
+      () => coreModule.notificationsRepository(gh<_i547.NotificationsApi>()),
     );
     return this;
   }

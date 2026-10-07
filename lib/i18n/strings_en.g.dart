@@ -608,6 +608,15 @@ class Translations$notifications$en {
 
 	/// en: 'Updates about your application will appear here.'
 	String get emptyBody => 'Updates about your application will appear here.';
+
+	/// en: 'Mark all read'
+	String get markAllRead => 'Mark all read';
+
+	/// en: 'Couldn't load your notifications'
+	String get loadFailed => 'Couldn\'t load your notifications';
+
+	/// en: 'Open'
+	String get open => 'Open';
 }
 
 // Path: form
@@ -2656,6 +2665,9 @@ extension on Translations {
 			'notifications.title' => 'Notifications',
 			'notifications.emptyTitle' => 'You\'re all caught up',
 			'notifications.emptyBody' => 'Updates about your application will appear here.',
+			'notifications.markAllRead' => 'Mark all read',
+			'notifications.loadFailed' => 'Couldn\'t load your notifications',
+			'notifications.open' => 'Open',
 			'form.steps.family' => 'You and your family',
 			'form.steps.studies' => 'Your studies',
 			'form.steps.review' => 'Check and send',
@@ -3007,11 +3019,11 @@ extension on Translations {
 			'tracker.formHint' => 'A read-only copy of what you sent, exactly as the admissions office sees it. Contact the office if something needs correcting.',
 			'tracker.historyEmpty' => 'Nothing yet.',
 			'tracker.status.withdrawnTitle' => 'Application withdrawn',
+			_ => null,
+		} ?? switch (path) {
 			'tracker.status.withdrawnBody' => 'You withdrew this application on {date}. The admissions office has been told. To apply again, start a new application.',
 			'tracker.status.anEarlierDate' => 'an earlier date',
 			'tracker.status.notOfferedTitle' => 'We couldn\'t offer you a place',
-			_ => null,
-		} ?? switch (path) {
 			'tracker.status.notOfferedBody' => 'We\'re unable to offer you a place this time. Thank you for applying.',
 			'tracker.status.closedTitle' => 'Application closed',
 			'tracker.status.closedBody' => 'This application is closed. Contact the admissions office if you have questions.',

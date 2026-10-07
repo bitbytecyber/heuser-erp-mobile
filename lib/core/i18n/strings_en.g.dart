@@ -603,6 +603,15 @@ class Translations$notifications$en {
 
 	/// en: 'Updates about your application will appear here.'
 	String get emptyBody => 'Updates about your application will appear here.';
+
+	/// en: 'Mark all read'
+	String get markAllRead => 'Mark all read';
+
+	/// en: 'Couldn't load your notifications'
+	String get loadFailed => 'Couldn\'t load your notifications';
+
+	/// en: 'Open'
+	String get open => 'Open';
 }
 
 // Path: form

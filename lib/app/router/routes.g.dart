@@ -387,7 +387,7 @@ RouteBase get $applicantShellRoute => StatefulShellRouteData.$route(
           factory: $ApplicationsRoute._fromState,
           routes: [
             GoRouteData.$route(
-              path: ':id',
+              path: 'application/:id',
               hasOverriddenOnExit: false,
               factory: $ApplicationRoute._fromState,
             ),
@@ -459,7 +459,7 @@ mixin $ApplicationRoute on GoRouteData {
 
   @override
   String get location => GoRouteData.$location(
-    '/apply/${Uri.encodeComponent(_self.id.toString())}',
+    '/apply/application/${Uri.encodeComponent(_self.id.toString())}',
   );
 
   @override

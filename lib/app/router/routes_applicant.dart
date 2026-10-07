@@ -9,7 +9,7 @@ part of 'routes.dart';
       routes: [
         TypedGoRoute<ApplicationsRoute>(
           path: '/apply',
-          routes: [TypedGoRoute<ApplicationRoute>(path: ':id')],
+          routes: [TypedGoRoute<ApplicationRoute>(path: 'application/:id')],
         ),
       ],
     ),
@@ -35,13 +35,28 @@ class ApplicantShellRoute extends StatefulShellRouteData {
     BuildContext context,
     GoRouterState state,
     StatefulNavigationShell navigationShell,
-  ) => BlocProvider(
-    // Shell-scoped: the list and the nested application pages share it.
-    create: (_) =>
-        ApplicationsBloc(getIt<IntakeRepository>())
-          ..add(const ApplicationsEvent.started()),
+  ) => MultiBlocProvider(
+    providers: [
+      // Shell-scoped: the list and the nested application pages share it.
+      BlocProvider(
+        create: (_) =>
+            ApplicationsBloc(getIt<IntakeRepository>())
+              ..add(const ApplicationsEvent.started()),
+      ),
+      // The badge and the live socket live as long as the signed-in shell.
+      BlocProvider(
+        create: (_) => UnreadCubit(
+          getIt<NotificationsRepository>(),
+          getIt<NotificationsSocket>(),
+        ),
+      ),
+    ],
     child: ApplicantShell(
       navigationShell: navigationShell,
+      onOpenLink: (link) => switch (link) {
+        ApplicationLink(:final id) => ApplicationRoute(id: id).go(context),
+        ApplicationsLink() => const ApplicationsRoute().go(context),
+      },
       // Nested pages (the form, the tracker) take the whole height.
       showNav: RoutePaths.applicantTabs.contains(state.uri.path),
     ),
@@ -153,8 +168,17 @@ class NotificationsRoute extends GoRouteData with $NotificationsRoute {
   /// Const.
   const NotificationsRoute();
   @override
-  Widget build(BuildContext context, GoRouterState state) =>
-      const NotificationsPage();
+  Widget build(BuildContext context, GoRouterState state) => BlocProvider(
+    create: (_) =>
+        NotificationsBloc(getIt<NotificationsRepository>())
+          ..add(const NotificationsEvent.started()),
+    child: NotificationsPage(
+      onOpenLink: (link) => switch (link) {
+        ApplicationLink(:final id) => ApplicationRoute(id: id).go(context),
+        ApplicationsLink() => const ApplicationsRoute().go(context),
+      },
+    ),
+  );
 }
 
 /// Profile tab.

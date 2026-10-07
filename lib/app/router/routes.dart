@@ -8,6 +8,7 @@ import 'package:heuser_erp_mobile/app/router/shells/applicant_shell.dart';
 import 'package:heuser_erp_mobile/core/connectivity/connectivity_service.dart';
 import 'package:heuser_erp_mobile/core/files/document_opener.dart';
 import 'package:heuser_erp_mobile/core/files/file_pick_service.dart';
+import 'package:heuser_erp_mobile/core/realtime/notifications_socket.dart';
 import 'package:heuser_erp_mobile/core/storage/json_file_cache.dart';
 import 'package:heuser_erp_mobile/features/application_form/data/file_draft_store.dart';
 import 'package:heuser_erp_mobile/features/application_form/presentation/pages/application_form_page.dart';
@@ -30,6 +31,10 @@ import 'package:heuser_erp_mobile/features/auth/presentation/pages/welcome_page.
 import 'package:heuser_erp_mobile/features/branding/data/branding_repository.dart';
 import 'package:heuser_erp_mobile/features/me/presentation/pages/appearance_page.dart';
 import 'package:heuser_erp_mobile/features/me/presentation/pages/profile_page.dart';
+import 'package:heuser_erp_mobile/features/notifications/domain/notification_link.dart';
+import 'package:heuser_erp_mobile/features/notifications/domain/notifications_repository.dart';
+import 'package:heuser_erp_mobile/features/notifications/presentation/bloc/notifications_bloc.dart';
+import 'package:heuser_erp_mobile/features/notifications/presentation/cubit/unread_cubit.dart';
 import 'package:heuser_erp_mobile/features/notifications/presentation/pages/notifications_page.dart';
 import 'package:heuser_erp_mobile/features/tracker/presentation/pages/tracker_page.dart';
 

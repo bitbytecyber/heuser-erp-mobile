@@ -173,7 +173,10 @@
   "notifications": {
     "title": "Notifications",
     "emptyTitle": "You're all caught up",
-    "emptyBody": "Updates about your application will appear here."
+    "emptyBody": "Updates about your application will appear here.",
+    "markAllRead": "Mark all read",
+    "loadFailed": "Couldn't load your notifications",
+    "open": "Open"
   },
   "form": {
     "steps": {

@@ -7,6 +7,7 @@ import 'package:heuser_erp_mobile/core/env/app_env.dart';
 import 'package:heuser_erp_mobile/core/files/document_opener.dart';
 import 'package:heuser_erp_mobile/core/files/file_pick_service.dart';
 import 'package:heuser_erp_mobile/core/network/dio_factory.dart';
+import 'package:heuser_erp_mobile/core/realtime/notifications_socket.dart';
 import 'package:heuser_erp_mobile/core/storage/json_file_cache.dart';
 import 'package:heuser_erp_mobile/features/applications/data/datasources/booking_api.dart';
 import 'package:heuser_erp_mobile/features/applications/data/datasources/intake_api.dart';
@@ -23,6 +24,9 @@ import 'package:heuser_erp_mobile/features/auth/domain/auth_repository.dart';
 import 'package:heuser_erp_mobile/features/branding/data/branding_repository.dart';
 import 'package:heuser_erp_mobile/features/branding/data/site_branding_api.dart';
 import 'package:heuser_erp_mobile/features/me/data/me_api.dart';
+import 'package:heuser_erp_mobile/features/notifications/data/datasources/notifications_api.dart';
+import 'package:heuser_erp_mobile/features/notifications/data/repositories/notifications_repository_impl.dart';
+import 'package:heuser_erp_mobile/features/notifications/domain/notifications_repository.dart';
 import 'package:injectable/injectable.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -160,4 +164,24 @@ abstract class CoreModule {
   /// Camera / gallery / document picking with compression.
   @lazySingleton
   FilePickService filePickService() => FilePickService();
+
+  /// Inbox, unread count and push devices.
+  @lazySingleton
+  NotificationsApi notificationsApi(Dio dio) => NotificationsApi(dio);
+
+  /// The inbox.
+  @LazySingleton(as: NotificationsRepository)
+  NotificationsRepositoryImpl notificationsRepository(NotificationsApi api) =>
+      NotificationsRepositoryImpl(api);
+
+  /// The notifications WebSocket (started and stopped by the shell).
+  @lazySingleton
+  NotificationsSocket notificationsSocket(
+    AppEnv env,
+    SessionTokenStore tokens,
+  ) => NotificationsSocket(
+    uri: env.notificationsSocket,
+    origin: env.apiBaseUrl,
+    token: tokens.read,
+  );
 }
