@@ -41,6 +41,7 @@ class HPressable extends StatefulWidget {
     this.haptic = true,
     this.pressedScale = 0.97,
     this.semanticsLabel,
+    this.excludeChildSemantics = false,
     this.isButton = true,
     this.enabled = true,
     this.behavior = HitTestBehavior.opaque,
@@ -64,6 +65,9 @@ class HPressable extends StatefulWidget {
 
   /// Semantics label.
   final String? semanticsLabel;
+
+  /// Read only [semanticsLabel], not the text inside (which repeats it).
+  final bool excludeChildSemantics;
 
   /// Whether semantics mark this as a button.
   final bool isButton;
@@ -135,7 +139,9 @@ class _HPressableState extends State<HPressable> {
             scale: state.pressed ? widget.pressedScale : 1,
             duration: motion.of(motion.fast),
             curve: HMotion.easeOut,
-            child: widget.builder(context, state),
+            child: widget.excludeChildSemantics
+                ? ExcludeSemantics(child: widget.builder(context, state))
+                : widget.builder(context, state),
           ),
         ),
       ),

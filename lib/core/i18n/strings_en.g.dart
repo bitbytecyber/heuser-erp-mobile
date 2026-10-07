@@ -49,6 +49,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final Translations$documents$en documents = Translations$documents$en.internal(_root);
 	late final Translations$tracker$en tracker = Translations$tracker$en.internal(_root);
 	late final Translations$lock$en lock = Translations$lock$en.internal(_root);
+	late final Translations$student$en student = Translations$student$en.internal(_root);
 }
 
 // Path: app
@@ -640,6 +641,9 @@ class Translations$notifications$en {
 
 	/// en: 'Open'
 	String get open => 'Open';
+
+	/// en: 'Unread'
+	String get unreadA11y => 'Unread';
 }
 
 // Path: form
@@ -889,6 +893,17 @@ class Translations$tracker$en {
 	late final Translations$tracker$results$en results = Translations$tracker$results$en.internal(_root);
 	late final Translations$tracker$offer$en offer = Translations$tracker$offer$en.internal(_root);
 	late final Translations$tracker$payment$en payment = Translations$tracker$payment$en.internal(_root);
+
+	/// en: 'Stage {n} of {total}: {stage}'
+	String stageSummary({required Object n, required Object total, required Object stage}) => 'Stage ${n} of ${total}: ${stage}';
+
+	/// en: 'All {total} stages complete'
+	String stagesDone({required Object total}) => 'All ${total} stages complete';
+
+	/// en: 'This application has ended'
+	String get stagesEnded => 'This application has ended';
+
+	late final Translations$tracker$taskState$en taskState = Translations$tracker$taskState$en.internal(_root);
 }
 
 // Path: lock
@@ -913,6 +928,45 @@ class Translations$lock$en {
 
 	/// en: 'Confirm it is you to turn on app lock'
 	String get enableReason => 'Confirm it is you to turn on app lock';
+}
+
+// Path: student
+class Translations$student$en {
+	Translations$student$en.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Student'
+	String get title => 'Student';
+
+	/// en: 'Welcome to Heuser'
+	String get welcome => 'Welcome to Heuser';
+
+	/// en: 'Welcome to Heuser, {name}'
+	String welcomeName({required Object name}) => 'Welcome to Heuser, ${name}';
+
+	/// en: 'Your student portal is on its way to the app. Until then, use the web portal for everything below.'
+	String get body => 'Your student portal is on its way to the app. Until then, use the web portal for everything below.';
+
+	/// en: 'Coming to the app'
+	String get comingTitle => 'Coming to the app';
+
+	/// en: 'Timetable'
+	String get timetable => 'Timetable';
+
+	/// en: 'Attendance'
+	String get attendance => 'Attendance';
+
+	/// en: 'Results'
+	String get results => 'Results';
+
+	/// en: 'Fees and vouchers'
+	String get fees => 'Fees and vouchers';
+
+	/// en: 'Coming soon'
+	String get soon => 'Coming soon';
 }
 
 // Path: form.steps
@@ -2430,6 +2484,24 @@ class Translations$tracker$payment$en {
 
 	/// en: 'Uploading file'
 	String get uploading => 'Uploading file';
+}
+
+// Path: tracker.taskState
+class Translations$tracker$taskState$en {
+	Translations$tracker$taskState$en.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'To do'
+	String get todo => 'To do';
+
+	/// en: 'Done'
+	String get done => 'Done';
+
+	/// en: 'Not yet available'
+	String get locked => 'Not yet available';
 }
 
 // Path: form.errors.req

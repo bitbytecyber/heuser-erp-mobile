@@ -54,27 +54,32 @@ class HStepper extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Row(
-          children: [
-            Expanded(
-              child: HText(
-                '$stepLabel ${current + 1} $ofLabel ${steps.length} · ${steps[current]}',
-                style: HTextStyle.titleSm,
-                tone: HTextTone.secondary,
-                maxLines: 1,
+        // The progress bar below speaks this line; the text is visual only.
+        ExcludeSemantics(
+          child: Row(
+            children: [
+              Expanded(
+                child: HText(
+                  '$stepLabel ${current + 1} $ofLabel ${steps.length} · ${steps[current]}',
+                  style: HTextStyle.titleSm,
+                  tone: HTextTone.secondary,
+                  maxLines: 1,
+                ),
               ),
-            ),
-            HText(
-              '${(progress * 100).round()}%',
-              style: HTextStyle.labelMd,
-              tone: HTextTone.brand,
-            ),
-          ],
+              HText(
+                '${(progress * 100).round()}%',
+                style: HTextStyle.labelMd,
+                tone: HTextTone.brand,
+              ),
+            ],
+          ),
         ),
         HSpace.gap2,
         HProgressBar(
           value: progress,
-          semanticsLabel: '$stepLabel ${current + 1} $ofLabel ${steps.length}',
+          semanticsLabel:
+              '$stepLabel ${current + 1} $ofLabel ${steps.length} · '
+              '${steps[current]}',
         ),
         HSpace.gap3,
         Row(
@@ -86,6 +91,7 @@ class HStepper extends StatelessWidget {
                   button: _reachable(i) && onStepTap != null,
                   selected: i == current,
                   label: steps[i],
+                  excludeSemantics: true,
                   child: GestureDetector(
                     behavior: HitTestBehavior.opaque,
                     onTap: _reachable(i) && onStepTap != null && i != current

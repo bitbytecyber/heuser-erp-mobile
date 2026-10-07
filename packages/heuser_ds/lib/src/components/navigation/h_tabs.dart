@@ -85,6 +85,7 @@ class HTabs extends StatelessWidget {
                     button: true,
                     selected: i == index,
                     label: tabs[i].label,
+                    excludeSemantics: true,
                     child: GestureDetector(
                       behavior: HitTestBehavior.opaque,
                       onTap: i == index

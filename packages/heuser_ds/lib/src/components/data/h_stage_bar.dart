@@ -20,14 +20,22 @@ class HStage {
 
 /// Horizontal stage tracker: done (green check), now (brand, ring), next
 /// (outline). [currentIndex] `-1` = ended, `== stages.length` = all done.
-/// Scrolls horizontally and starts scrolled to the current stage.
+/// Scrolls horizontally and starts scrolled to the current stage; grows
+/// with the text scale so two-line labels never clip.
+///
+/// Screen readers hear [semanticsLabel] (e.g. "Stage 3 of 8: Interview")
+/// instead of eight separate dots.
 class HStageBar extends StatefulWidget {
   /// Creates a stage bar.
   const HStageBar({
     required this.stages,
     required this.currentIndex,
+    this.semanticsLabel,
     super.key,
   });
+
+  /// One sentence describing the progress, read instead of the dots.
+  final String? semanticsLabel;
 
   /// Stages in order.
   final List<HStage> stages;
@@ -42,6 +50,7 @@ class HStageBar extends StatefulWidget {
 class _HStageBarState extends State<HStageBar> {
   final _controller = ScrollController();
   static const _itemWidth = 96.0;
+  static const _dotBox = 36.0;
 
   @override
   void initState() {
@@ -88,8 +97,11 @@ class _HStageBarState extends State<HStageBar> {
     final h = context.h;
     final c = h.colors;
     final ended = widget.currentIndex < 0;
-    return SizedBox(
-      height: 76,
+    final label = h.type.labelSm;
+    final labelLines = MediaQuery.textScalerOf(context)
+        .scale((label.fontSize ?? 12) * (label.height ?? 1.3) * 2);
+    final bar = SizedBox(
+      height: _dotBox + HSpace.x1 + labelLines + HSpace.x1,
       child: ListView.builder(
         controller: _controller,
         scrollDirection: Axis.horizontal,
@@ -110,7 +122,7 @@ class _HStageBarState extends State<HStageBar> {
             child: Column(
               children: [
                 SizedBox(
-                  height: 36,
+                  height: _dotBox,
                   child: Stack(
                     alignment: Alignment.center,
                     children: [
@@ -186,6 +198,13 @@ class _HStageBarState extends State<HStageBar> {
           );
         },
       ),
+    );
+    final text = widget.semanticsLabel;
+    if (text == null) return bar;
+    return Semantics(
+      container: true,
+      label: text,
+      child: ExcludeSemantics(child: bar),
     );
   }
 }

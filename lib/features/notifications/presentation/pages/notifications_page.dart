@@ -151,7 +151,10 @@ class _ItemCard extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsets.only(top: HSpace.x1),
-            child: HBadge(count: item.isRead ? 0 : null, tone: HTone.brand),
+            child: Semantics(
+              label: item.isRead ? null : t.notifications.unreadA11y,
+              child: HBadge(count: item.isRead ? 0 : null, tone: HTone.brand),
+            ),
           ),
           HSpace.hgap3,
           Expanded(

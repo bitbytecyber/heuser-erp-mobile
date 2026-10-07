@@ -60,7 +60,6 @@ class HRadio<T> extends StatelessWidget {
       builder: (context, state) => Semantics(
         inMutuallyExclusiveGroup: true,
         checked: selected,
-        label: label,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

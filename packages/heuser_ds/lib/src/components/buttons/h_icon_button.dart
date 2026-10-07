@@ -59,6 +59,7 @@ class HIconButton extends StatelessWidget {
     return HPressable(
       onPressed: onPressed,
       semanticsLabel: semanticsLabel,
+      excludeChildSemantics: true,
       pressedScale: 0.92,
       builder: (context, state) {
         final (bg, fg, border) = switch (variant) {

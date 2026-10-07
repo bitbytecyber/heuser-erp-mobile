@@ -79,7 +79,7 @@ from the network afterwards, so the admin's theme shows on a cold start.
 | buttons | `HButton` (filled / tonal / outline / ghost / danger; sm md lg; loading; icons), `HIconButton` (ghost / tonal / filled / outline; badge dot), `HPressable` (press/hover/focus engine) |
 | inputs | `HTextField` (+ `HMasks.cnic`, `pkMobile`, `verificationCode`), `HFieldFrame`, `HSelect`, `HSearchSelect` (paged), `HDatePicker`, `HOtpField` (6 digits / 8 alphanumeric with group dash), `HCheckbox`, `HSwitch`, `HRadio`, `HChip`, `HSegmented`, `HFilePickerTile` (missing / later / uploading / pending / approved / rejected) |
 | surfaces | `HCard` (flat / raised / floating, tappable), `HHeroCard` (soft gradient, inverse), `HScaffold`, `HBottomSheet.show`, `HDialog.show` / `confirm` |
-| feedback | `HStatusPill` + `HTone`, `HBadge`, `HToast` (one at a time, de-duplicated), `HSkeleton` / `HSkeletonBox`, `HEmptyState`, `HSpinner`, `HProgressBar`, `HCountdown`, `HRefreshable` (pull to refresh, brand arc, haptic) |
+| feedback | `HStatusPill` + `HTone`, `HBadge`, `HToast` (one at a time, de-duplicated), `HSkeleton` / `HSkeletonBox`, `HEmptyState`, `HSpinner`, `HProgressBar`, `HCountdown`, `HRefreshable` (pull to refresh, brand arc, haptic), `HSplashReveal` (launch-navy lockup that lifts and dissolves into the app; skipped on warm start and reduced motion) |
 | navigation | `HAppBar`, `HNavBar` (animated pill), `HStepper`, `HTabs` |
 | data | `HListTile` + `HDivider`, `HKeyValue` / `HKeyValueGroup`, `HTimeline`, `HStageBar` (done / now / next / ended), `HFeeTable`, `HAvatar` |
 | foundation | `HText` (+ `HTextStyle`, `HTextTone`), `HIcon` + `HIcons` (curated rounded set), `HHaptics`, `HAnimate` (`hFadeInUp`, `hScaleIn`, `hPop`, `hShake`, `hStaggered`), `HPageTransitions` (sharedAxisX/Y, fadeThrough, fade), `HScrollBehavior` |
@@ -99,6 +99,20 @@ Every component has a Widgetbook use-case (`apps/widgetbook`) and a golden in
   `HHaptics` (selection / tap / success / error).
 - Reduce motion: `MediaQuery`/`accessibilityFeatures.disableAnimations` flips
   `HMotion.enabled`; presets and spinners render static.
+
+## 5a. Accessibility
+
+- Every control is announced **once**: a component that sets a semantics
+  label hides the text that repeats it (`HPressable.excludeChildSemantics`,
+  `Semantics(excludeSemantics: true)`), and labelled toggles merge their
+  visible label and description into one node. `test/unit/semantics_test.dart`
+  pins this for buttons, chips, switches, checkboxes and the stepper.
+- Meaning carried by colour or an icon is also spoken: task state on tracker
+  tiles, unread inbox items, the stage bar's "Stage n of m: …" summary.
+- Layouts grow with the text scale (no fixed heights around text); inputs,
+  buttons and the stage bar have 2.0× goldens, pages have 200 % widget tests.
+- Icon-only buttons require `semanticsLabel`; decorative overlays (splash,
+  lock screen backdrop) are excluded from semantics.
 
 ## 6. Material as an engine
 

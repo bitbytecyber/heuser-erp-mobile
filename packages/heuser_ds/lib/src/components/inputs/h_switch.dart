@@ -46,7 +46,6 @@ class HSwitch extends StatelessWidget {
       haptic: false,
       pressedScale: 1,
       enabled: active,
-      semanticsLabel: label,
       onPressed: active
           ? () {
               unawaited(HHaptics.selection());
@@ -86,31 +85,33 @@ class HSwitch extends StatelessWidget {
       ),
     );
     if (label == null) return track;
-    return Row(
-      children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              HText(
-                label!,
-                style: HTextStyle.bodyLg,
-                tone: active ? HTextTone.primary : HTextTone.tertiary,
-              ),
-              if (description != null) ...[
-                const SizedBox(height: 2),
+    return MergeSemantics(
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
                 HText(
-                  description!,
-                  style: HTextStyle.bodySm,
-                  tone: HTextTone.secondary,
+                  label!,
+                  style: HTextStyle.bodyLg,
+                  tone: active ? HTextTone.primary : HTextTone.tertiary,
                 ),
+                if (description != null) ...[
+                  const SizedBox(height: 2),
+                  HText(
+                    description!,
+                    style: HTextStyle.bodySm,
+                    tone: HTextTone.secondary,
+                  ),
+                ],
               ],
-            ],
+            ),
           ),
-        ),
-        HSpace.hgap3,
-        track,
-      ],
+          HSpace.hgap3,
+          track,
+        ],
+      ),
     );
   }
 }

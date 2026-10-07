@@ -1,8 +1,8 @@
 # Native launch screen (`dart run flutter_native_splash:create`).
 #
-# The native screen is navy with the white lockup; the in-app Rive reveal
-# (app/bootstrap/splash_gate.dart) plays on the same navy, so the hand-off is
-# invisible. Android 12+ ignores `image` and shows only `android_12.image`
+# The native screen is navy with the white lockup; the in-app reveal
+# (`HSplashReveal` in heuser_ds, wired in lib/app/app.dart) starts on the same
+# navy and lockup, so the hand-off is invisible. Android 12+ ignores `image` and shows only `android_12.image`
 # inside a circle, which is why that one is the mark alone.
 flutter_native_splash:
   color: "#000F1D"

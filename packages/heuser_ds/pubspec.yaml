@@ -12,7 +12,6 @@ dependencies:
     sdk: flutter
   flutter_animate: ^4.5.2
   animations: ^3.0.0
-  rive: ^0.14.11
   flutter_svg: ^2.3.0
   skeletonizer: ^3.0.0
   infinite_scroll_pagination: ^5.1.1
@@ -26,6 +25,8 @@ dev_dependencies:
   very_good_analysis: ^11.0.0
 
 flutter:
+  assets:
+    - assets/brand/
   # Fonts live in the design system so every consumer (app, widgetbook,
   # goldens) renders identical type. TextStyles must set `package: 'heuser_ds'`.
   fonts:

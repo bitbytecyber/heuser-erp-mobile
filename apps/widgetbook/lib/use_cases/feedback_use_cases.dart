@@ -107,3 +107,13 @@ Widget refreshable(BuildContext context) => SizedBox(
     ],
   ),
 );
+
+@wb.UseCase(name: 'Splash reveal', type: HSplashReveal)
+Widget splashReveal(BuildContext context) => SizedBox(
+  height: 420,
+  child: HSplashReveal(
+    key: UniqueKey(),
+    ready: context.knobs.boolean(label: 'Ready'),
+    child: const Center(child: HText('The app')),
+  ),
+);

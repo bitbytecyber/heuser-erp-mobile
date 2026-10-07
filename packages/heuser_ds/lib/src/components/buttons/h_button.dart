@@ -211,6 +211,7 @@ class HButton extends StatelessWidget {
       onPressed: loading ? null : onPressed,
       enabled: !loading && onPressed != null,
       semanticsLabel: semanticsLabel ?? label,
+      excludeChildSemantics: true,
       builder: (context, state) {
         final look = _look(
           h,

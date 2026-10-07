@@ -158,6 +158,16 @@ final directories = <_widgetbook.WidgetbookNode>[
             ],
           ),
           _widgetbook.WidgetbookComponent(
+            name: 'HSplashReveal',
+            useCases: [
+              _widgetbook.WidgetbookUseCase(
+                name: 'Splash reveal',
+                builder: _heuser_widgetbook_use_cases_feedback_use_cases
+                    .splashReveal,
+              ),
+            ],
+          ),
+          _widgetbook.WidgetbookComponent(
             name: 'HStatusPill',
             useCases: [
               _widgetbook.WidgetbookUseCase(

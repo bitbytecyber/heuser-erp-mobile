@@ -104,7 +104,10 @@ class _NavButton extends StatelessWidget {
     return Semantics(
       button: true,
       selected: selected,
-      label: item.label,
+      label: item.badgeCount > 0
+          ? '${item.label}, ${item.badgeCount}'
+          : item.label,
+      excludeSemantics: true,
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: onTap,

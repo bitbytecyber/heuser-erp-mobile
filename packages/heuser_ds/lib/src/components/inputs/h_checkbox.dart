@@ -65,7 +65,6 @@ class HCheckbox extends StatelessWidget {
               : null,
           builder: (context, state) => Semantics(
             checked: value,
-            label: label,
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

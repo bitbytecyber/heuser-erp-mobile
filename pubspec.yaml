@@ -71,7 +71,6 @@ dependencies:
   # ui / motion (the design system re-exports what screens need)
   flutter_animate: ^4.5.2
   animations: ^3.0.0
-  rive: ^0.14.11
   flutter_svg: ^2.3.0
   skeletonizer: ^3.0.0
   infinite_scroll_pagination: ^5.1.1
@@ -108,5 +107,4 @@ flutter:
   uses-material-design: true
   assets:
     - assets/images/
-    - assets/rive/
     - shorebird.yaml

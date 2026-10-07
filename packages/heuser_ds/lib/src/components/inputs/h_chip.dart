@@ -54,6 +54,7 @@ class HChip extends StatelessWidget {
       isButton: onTap != null,
       pressedScale: 0.96,
       semanticsLabel: label,
+      excludeChildSemantics: true,
       builder: (context, state) {
         final bg = !enabled
             ? c.surfaceAlt

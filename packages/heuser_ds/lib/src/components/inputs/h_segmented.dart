@@ -96,6 +96,7 @@ class HSegmented<T> extends StatelessWidget {
                     button: true,
                     selected: s.value == value,
                     label: s.label,
+                    excludeSemantics: true,
                     child: GestureDetector(
                       behavior: HitTestBehavior.opaque,
                       onTap: active && s.value != value

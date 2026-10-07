@@ -37,6 +37,7 @@ import 'package:heuser_erp_mobile/features/notifications/domain/notifications_re
 import 'package:heuser_erp_mobile/features/notifications/presentation/bloc/notifications_bloc.dart';
 import 'package:heuser_erp_mobile/features/notifications/presentation/cubit/unread_cubit.dart';
 import 'package:heuser_erp_mobile/features/notifications/presentation/pages/notifications_page.dart';
+import 'package:heuser_erp_mobile/features/student/presentation/pages/student_home_page.dart';
 import 'package:heuser_erp_mobile/features/tracker/presentation/pages/tracker_page.dart';
 
 part 'routes.g.dart';
@@ -219,7 +220,8 @@ class StudentRoute extends GoRouteData with $StudentRoute {
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) => _fade(
     state,
-    NoPortalPage(
+    StudentHomePage(
+      name: context.read<AuthBloc>().state.userOrNull?.greetingName ?? '',
       onSignOut: () =>
           context.read<AuthBloc>().add(const AuthEvent.signOutRequested()),
     ),

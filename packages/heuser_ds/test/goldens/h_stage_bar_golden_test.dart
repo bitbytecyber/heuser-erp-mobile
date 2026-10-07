@@ -28,4 +28,11 @@ void main() {
     ),
     width: 420,
   );
+  // Large text: the bar grows so two-line labels never clip.
+  goldenPresetMatrix(
+    'h_stage_bar',
+    (context) => const HStageBar(stages: stages, currentIndex: 2),
+    width: 420,
+    textScale: 2,
+  );
 }

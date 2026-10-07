@@ -48,6 +48,11 @@ class _HeuserAppState extends State<HeuserApp> with WidgetsBindingObserver {
   StreamSubscription<SiteBranding>? _brandingSub;
   bool _splashRemoved = false;
 
+  /// The in-app reveal plays once per process: a warm start (the engine
+  /// outlived its activity) goes straight to the app.
+  static bool _revealPlayed = false;
+  final bool _playReveal = !_revealPlayed;
+
   @override
   void initState() {
     super.initState();
@@ -77,7 +82,7 @@ class _HeuserAppState extends State<HeuserApp> with WidgetsBindingObserver {
 
   void _removeSplashOnce() {
     if (_splashRemoved) return;
-    _splashRemoved = true;
+    setState(() => _splashRemoved = true);
     WidgetsBinding.instance.addPostFrameCallback(
       (_) => FlutterNativeSplash.remove(),
     );
@@ -142,7 +147,12 @@ class _HeuserAppState extends State<HeuserApp> with WidgetsBindingObserver {
               service: _connectivity,
               child: HThemeScope(
                 data: state.data,
-                child: AppLockGate(child: child ?? const SizedBox.shrink()),
+                child: HSplashReveal(
+                  ready: _splashRemoved,
+                  play: _playReveal,
+                  onDone: () => _revealPlayed = true,
+                  child: AppLockGate(child: child ?? const SizedBox.shrink()),
+                ),
               ),
             ),
           ),

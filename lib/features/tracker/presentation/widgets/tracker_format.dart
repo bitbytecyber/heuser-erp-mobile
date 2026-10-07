@@ -1,3 +1,4 @@
+import 'package:heuser_erp_mobile/core/i18n/strings.g.dart';
 import 'package:intl/intl.dart';
 
 /// Date and time wording of the tracker (`tracker.tsx` helpers).
@@ -37,5 +38,18 @@ abstract final class TrackerFormat {
   ) {
     final head = list.take(3).join(', ');
     return list.length > 3 ? andMore(head, list.length - 3) : head;
+  }
+
+  /// What a screen reader says for the stage bar.
+  static String stageSummary(Translations t, List<String> labels, int index) {
+    if (index < 0) return t.tracker.stagesEnded;
+    if (index >= labels.length) {
+      return t.tracker.stagesDone(total: labels.length);
+    }
+    return t.tracker.stageSummary(
+      n: index + 1,
+      total: labels.length,
+      stage: labels[index],
+    );
   }
 }

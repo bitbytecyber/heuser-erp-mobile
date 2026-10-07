@@ -20,6 +20,7 @@ import 'package:heuser_erp_mobile/features/tracker/presentation/cubit/downloads_
 import 'package:heuser_erp_mobile/features/tracker/presentation/pages/tracker_feedback.dart';
 import 'package:heuser_erp_mobile/features/tracker/presentation/widgets/status_card_view.dart';
 import 'package:heuser_erp_mobile/features/tracker/presentation/widgets/todo_tab.dart';
+import 'package:heuser_erp_mobile/features/tracker/presentation/widgets/tracker_format.dart';
 import 'package:heuser_erp_mobile/features/tracker/presentation/widgets/tracker_tabs.dart';
 
 /// A sent application (`Tracker` in `tracker.tsx`): greeting and reference,
@@ -205,6 +206,9 @@ class _TrackerViewState extends State<_TrackerView> {
                       HStage(key: s.key, label: s.label),
                   ],
                   currentIndex: TrackerRules.stageIndex(a.tracker),
+                  semanticsLabel: TrackerFormat.stageSummary(t, [
+                    for (final s in a.tracker.stages) s.label,
+                  ], TrackerRules.stageIndex(a.tracker)),
                 ),
               ),
               HSpace.gap3,

@@ -18,6 +18,7 @@ export 'src/components/feedback/h_empty_state.dart';
 export 'src/components/feedback/h_progress.dart';
 export 'src/components/feedback/h_refreshable.dart';
 export 'src/components/feedback/h_skeleton.dart';
+export 'src/components/feedback/h_splash_reveal.dart';
 export 'src/components/feedback/h_status_pill.dart';
 export 'src/components/feedback/h_toast.dart';
 export 'src/components/inputs/h_checkbox.dart';
