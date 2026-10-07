@@ -1,14 +1,15 @@
 # Native launch screen (`dart run flutter_native_splash:create`).
 #
-# The native screen is navy with the white lockup; the in-app reveal
-# (`HSplashReveal` in heuser_ds, wired in lib/app/app.dart) starts on the same
-# navy and lockup, so the hand-off is invisible. Android 12+ ignores `image` and shows only `android_12.image`
-# inside a circle, which is why that one is the mark alone.
+# Every platform shows the white mark, 80 x 132 dp, centred on navy: `image`
+# is 320 x 530 px at 4x, and Android 12+'s `android_12.image` (1152 px = 288 dp)
+# holds the same mark at the same size. The in-app reveal (`HSplashReveal` in
+# heuser_ds, wired in lib/app/app.dart) starts from that exact frame, so the
+# hand-off is invisible.
 flutter_native_splash:
   color: "#000F1D"
   color_dark: "#000F1D"
-  image: assets/brand/splash-logo.png
-  image_dark: assets/brand/splash-logo.png
+  image: assets/brand/splash-mark.png
+  image_dark: assets/brand/splash-mark.png
   android_gravity: center
   ios_content_mode: center
   fullscreen: true

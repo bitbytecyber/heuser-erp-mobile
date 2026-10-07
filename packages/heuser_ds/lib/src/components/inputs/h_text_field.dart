@@ -156,6 +156,23 @@ class _HTextFieldState extends State<HTextField> {
     if (mounted) setState(() => _focused = _focus.hasFocus);
   }
 
+  /// "Next" on the keyboard: move to the next *text field*. Flutter's
+  /// default stops on the next focusable control, which is usually this
+  /// field's own show/hide button, and the keyboard closes.
+  void _focusNextField() {
+    final scope = _focus.nearestScope;
+    if (scope == null) return;
+    final ordered = _ReadingOrder().of(scope, _focus);
+    for (final node in ordered.skip(ordered.indexOf(_focus) + 1)) {
+      final field = node.context?.findAncestorStateOfType<EditableTextState>();
+      if (field != null) {
+        node.requestFocus();
+        return;
+      }
+    }
+    _focus.unfocus();
+  }
+
   @override
   void dispose() {
     _focus.removeListener(_onFocus);
@@ -226,6 +243,9 @@ class _HTextFieldState extends State<HTextField> {
         onTap: widget.onTap,
         onChanged: widget.onChanged,
         onSubmitted: widget.onSubmitted,
+        onEditingComplete: widget.textInputAction == TextInputAction.next
+            ? _focusNextField
+            : null,
         keyboardType:
             widget.keyboardType ?? (multiline ? TextInputType.multiline : null),
         textInputAction: widget.textInputAction,
@@ -258,4 +278,10 @@ class _HTextFieldState extends State<HTextField> {
       ),
     );
   }
+}
+
+/// Reading order of a scope's focusable nodes (the sort is protected API).
+class _ReadingOrder extends ReadingOrderTraversalPolicy {
+  List<FocusNode> of(FocusScopeNode scope, FocusNode current) =>
+      sortDescendants(scope.traversalDescendants, current).toList();
 }

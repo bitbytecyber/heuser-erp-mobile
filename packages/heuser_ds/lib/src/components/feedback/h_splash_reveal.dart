@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:heuser_ds/src/theme/h_theme.dart';
 import 'package:heuser_ds/src/tokens/h_motion.dart';
 
-/// The hand-off from the native launch screen: the white lockup on the
+/// The hand-off from the native launch screen: the white mark on the
 /// launch navy covers [child] until [ready], then the logo lifts and fades
 /// and the navy dissolves into the app (under 1 s).
 ///
@@ -24,8 +23,9 @@ class HSplashReveal extends StatefulWidget {
   /// The native launch-screen colour.
   static const Color launchColor = Color(0xFF000F1D);
 
-  /// Width of the lockup, matching the native splash image (1200 px @4x).
-  static const double logoWidth = 220;
+  /// Size of the mark, matching the native splash (320 x 530 px at 4x, and
+  /// the same mark inside Android 12's 288 dp icon).
+  static const Size markSize = Size(80, 132.5);
 
   /// Length of the whole reveal.
   static const Duration duration = Duration(milliseconds: 900);
@@ -129,10 +129,11 @@ class _HSplashRevealState extends State<HSplashReveal>
                     opacity: _logoOpacity,
                     child: ScaleTransition(
                       scale: _logoScale,
-                      child: SvgPicture.asset(
-                        'assets/brand/logo-white.svg',
+                      child: Image.asset(
+                        'assets/brand/mark-white.png',
                         package: 'heuser_ds',
-                        width: HSplashReveal.logoWidth,
+                        width: HSplashReveal.markSize.width,
+                        height: HSplashReveal.markSize.height,
                       ),
                     ),
                   ),
