@@ -29,4 +29,9 @@ abstract class SiteBranding with _$SiteBranding {
 
   /// Built-in fallback while nothing is cached.
   static const SiteBranding fallback = SiteBranding();
+
+  /// The college name for copy: the server's, or the built-in one when the
+  /// admin has not filled branding in yet.
+  String get displayName =>
+      name.trim().isNotEmpty ? name.trim() : fallback.name;
 }

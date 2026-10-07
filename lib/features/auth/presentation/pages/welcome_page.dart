@@ -22,7 +22,7 @@ class WelcomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = Translations.of(context);
-    final name = branding.current.name;
+    final name = branding.current.displayName;
     final reason = context.select<AuthBloc, SignOutReason>(
       (b) => switch (b.state) {
         AuthUnauthenticated(:final reason) => reason,

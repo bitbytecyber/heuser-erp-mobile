@@ -72,7 +72,7 @@ class ApplicationsRoute extends GoRouteData with $ApplicationsRoute {
   const ApplicationsRoute();
   @override
   Widget build(BuildContext context, GoRouterState state) => ApplicationsPage(
-    collegeName: getIt<BrandingRepository>().current.name,
+    collegeName: getIt<BrandingRepository>().current.displayName,
     onOpen: (id, {initial}) =>
         ApplicationRoute(id: id, $extra: initial).push<void>(context),
   );
@@ -93,7 +93,7 @@ class ApplicationRoute extends GoRouteData with $ApplicationRoute {
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) {
     final repo = getIt<IntakeRepository>();
-    final branding = getIt<BrandingRepository>().current.name;
+    final branding = getIt<BrandingRepository>().current.displayName;
     final user = context.read<AuthBloc>().state.userOrNull;
     void leave() {
       context.read<ApplicationsBloc>().add(

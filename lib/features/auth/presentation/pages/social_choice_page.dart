@@ -33,7 +33,7 @@ class SocialChoicePage extends StatelessWidget {
       title: t.auth.choiceTitle(name: precheck.greetingName),
       body: t.auth.choiceBody(
         email: precheck.email,
-        college: branding.current.name,
+        college: branding.current.displayName,
       ),
       fields: [
         HHeroCard(
