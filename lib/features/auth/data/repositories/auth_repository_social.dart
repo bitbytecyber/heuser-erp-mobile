@@ -110,23 +110,19 @@ mixin _SocialFlows on _AuthTransitions {
     Map<String, dynamic> token, {
     required String email,
   }) async {
-    _signals.beginCredentialSwap();
-    try {
-      await _wipeLocal();
-      final precheck = await _social.precheckIdentity(
-        provider: provider,
-        token: token,
-      );
-      return await precheck.fold((f) async => fail(f), (p) async {
-        if (!p.known) {
-          _lastProviderToken = (provider: provider, token: token);
-          return ok(AuthOutcome.socialChoiceRequired(p));
-        }
-        return await _providerToken(provider, token, email: email);
-      });
-    } finally {
-      _signals.endCredentialSwap();
-    }
+    // The precheck is an ordinary /api/v1 call: it must not run inside the
+    // credential-swap window (it would wait on its own swap for 20 s).
+    final precheck = await _social.precheckIdentity(
+      provider: provider,
+      token: token,
+    );
+    return await precheck.fold((f) async => fail(f), (p) async {
+      if (!p.known) {
+        _lastProviderToken = (provider: provider, token: token);
+        return ok(AuthOutcome.socialChoiceRequired(p));
+      }
+      return await _providerToken(provider, token, email: email);
+    });
   }
 
   Future<Result<AuthOutcome>> _providerToken(
@@ -136,6 +132,8 @@ mixin _SocialFlows on _AuthTransitions {
   }) async {
     try {
       _signals.beginCredentialSwap();
+      // The old token must go or allauth answers 409.
+      await _wipeLocal();
       final r = await _allauth.providerToken(
         provider: provider.name,
         token: token,
@@ -145,6 +143,8 @@ mixin _SocialFlows on _AuthTransitions {
       return outcome;
     } on DioException catch (e) {
       return fail(FailureMapper.fromDio(e));
+    } on Object catch (e) {
+      return fail(Failure.unknown(cause: e));
     } finally {
       _signals.endCredentialSwap();
     }

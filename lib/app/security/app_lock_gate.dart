@@ -50,23 +50,34 @@ class _AppLockGateState extends State<AppLockGate> {
     final signedIn = context.select<AuthBloc, bool>(
       (b) => b.state.isAuthenticated,
     );
-    return BlocConsumer<AppLockCubit, AppLockState>(
-      listenWhen: (a, b) => !a.locked && b.locked,
-      listener: (_, _) {
-        if (signedIn) {
+    // On a cold start the lock engages before the session is restored, so
+    // the prompt opens when the user becomes signed in, not only on lock.
+    return BlocListener<AuthBloc, AuthState>(
+      listenWhen: (a, b) => !a.isAuthenticated && b.isAuthenticated,
+      listener: (context, _) {
+        final lock = context.read<AppLockCubit>().state;
+        if (lock.locked && !lock.busy) {
           WidgetsBinding.instance.addPostFrameCallback((_) => _prompt());
         }
       },
-      builder: (context, s) {
-        final show = s.locked && signedIn;
-        return Stack(
-          children: [
-            // Kept mounted (and hidden from assistive tech) so state survives.
-            ExcludeSemantics(excluding: show, child: widget.child),
-            if (show) _LockScreen(busy: s.busy, onUnlock: _prompt),
-          ],
-        );
-      },
+      child: BlocConsumer<AppLockCubit, AppLockState>(
+        listenWhen: (a, b) => !a.locked && b.locked,
+        listener: (_, _) {
+          if (signedIn) {
+            WidgetsBinding.instance.addPostFrameCallback((_) => _prompt());
+          }
+        },
+        builder: (context, s) {
+          final show = s.locked && signedIn;
+          return Stack(
+            children: [
+              // Kept mounted (and hidden from assistive tech) so state survives.
+              ExcludeSemantics(excluding: show, child: widget.child),
+              if (show) _LockScreen(busy: s.busy, onUnlock: _prompt),
+            ],
+          );
+        },
+      ),
     );
   }
 }

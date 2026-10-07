@@ -47,12 +47,19 @@ part 'routes_applicant.dart';
 // The duration mirrors HMotion.slow; route builders have no theme context.
 const _transition = Duration(milliseconds: 360);
 
+/// With "remove animations" on, pages swap without moving.
+RouteTransitionsBuilder _respectingMotion(RouteTransitionsBuilder builder) =>
+    (context, animation, secondary, child) =>
+        MediaQuery.disableAnimationsOf(context)
+        ? child
+        : builder(context, animation, secondary, child);
+
 CustomTransitionPage<void> _slide(GoRouterState state, Widget child) =>
     CustomTransitionPage(
       key: state.pageKey,
       transitionDuration: _transition,
       reverseTransitionDuration: _transition,
-      transitionsBuilder: HPageTransitions.sharedAxisX,
+      transitionsBuilder: _respectingMotion(HPageTransitions.sharedAxisX),
       child: child,
     );
 
@@ -60,7 +67,7 @@ CustomTransitionPage<void> _fade(GoRouterState state, Widget child) =>
     CustomTransitionPage(
       key: state.pageKey,
       transitionDuration: _transition,
-      transitionsBuilder: HPageTransitions.fadeThrough,
+      transitionsBuilder: _respectingMotion(HPageTransitions.fadeThrough),
       child: child,
     );
 

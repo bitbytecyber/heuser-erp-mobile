@@ -22,6 +22,7 @@ import 'package:heuser_erp_mobile/features/me/data/me_api.dart';
 import 'package:heuser_erp_mobile/features/me/domain/abilities.dart';
 
 part 'auth_repository_account.dart';
+part 'auth_repository_restore.dart';
 part 'auth_repository_social.dart';
 part 'auth_repository_transitions.dart';
 
@@ -43,12 +44,16 @@ class AuthRepositoryImpl
     this._google,
     this._apple,
     this.onLocalWipe = const [],
+    this.onUserSignOut = const [],
   }) {
     _signals.onSessionRejected = (uri, code) =>
         unawaited(handleSessionRejected());
   }
 
   static const _abilitiesBudget = Duration(seconds: 4);
+
+  /// How long a cold start waits for the server before using the snapshot.
+  static const _restoreBudget = Duration(seconds: 6);
 
   @override
   final AllauthApi _allauth;
@@ -72,6 +77,11 @@ class AuthRepositoryImpl
   /// themselves so a second account never sees the first one's data).
   @override
   final List<void Function()> onLocalWipe;
+
+  /// Run only when the user signs out on purpose: device data that must not
+  /// outlive the account on a shared phone (unsaved form drafts). Not run on
+  /// an expired session, so a re-login keeps its unsaved edits.
+  final List<Future<void> Function()> onUserSignOut;
 
   final _events = StreamController<SessionEvent>.broadcast();
   @override
@@ -100,68 +110,7 @@ class AuthRepositoryImpl
   // --- cold start -----------------------------------------------------------
 
   @override
-  Future<Result<AuthOutcome>> restoreSession() async {
-    if (!await hasSession()) {
-      _emitSignedOut(SignOutReason.none);
-      return ok(const AuthOutcome.signedOut(SignOutReason.none));
-    }
-    final AllauthResponse session;
-    try {
-      session = await _allauth.getSession();
-    } on DioException catch (e) {
-      final failure = FailureMapper.fromDio(e);
-      if (failure.isConnectivity) {
-        final snapshot = await _snapshots.read();
-        if (snapshot != null) {
-          _user = snapshot.user;
-          _applyAbilitiesJson(snapshot.abilities);
-          _events.add(
-            SessionEvent.signedIn(
-              user: _user!,
-              abilities: _abilities,
-              fromSnapshot: true,
-            ),
-          );
-          return ok(
-            AuthOutcome.authenticated(
-              user: _user!,
-              abilities: _abilities,
-              fromSnapshot: true,
-            ),
-          );
-        }
-        _emitSignedOut(SignOutReason.offline, keepToken: true);
-        return ok(const AuthOutcome.signedOut(SignOutReason.offline));
-      }
-      await _wipeLocal();
-      _emitSignedOut(SignOutReason.serverRejected);
-      return fail(failure);
-    }
-    if (session.isOk && session.user != null) {
-      return await _completeSignIn(session.user!);
-    }
-    if (session.hasPendingFlow) {
-      final snapshot = await _snapshots.read();
-      return await _emitPending(
-        session,
-        _pendingEmail ?? snapshot?.user.email ?? '',
-      );
-    }
-    // 401 / 410: a reachable server says the token is dead. Definitive.
-    await _wipeLocal();
-    _emitSignedOut(
-      session.sessionGone
-          ? SignOutReason.expired
-          : SignOutReason.serverRejected,
-    );
-    return ok(
-      AuthOutcome.signedOut(
-        session.sessionGone
-            ? SignOutReason.expired
-            : SignOutReason.serverRejected,
-      ),
-    );
-  }
+  Future<Result<AuthOutcome>> restoreSession() => _restore();
 
   // --- password flows -------------------------------------------------------
 
@@ -224,6 +173,11 @@ class AuthRepositoryImpl
     // the token a newer login has stored.
     final token = await _tokens.read();
     await _wipeLocal();
+    for (final wipe in onUserSignOut) {
+      try {
+        await wipe();
+      } on Object catch (_) {}
+    }
     _emitSignedOut(SignOutReason.userSignedOut);
     try {
       await _allauth.logout(sessionToken: token);
@@ -239,12 +193,26 @@ class AuthRepositoryImpl
   Future<Result<AuthOutcome>> _completeSignIn(AuthUser user) async {
     _user = user;
     _pendingEmail = null;
+    Failure? failure;
     try {
-      await refreshAbilities().timeout(_abilitiesBudget);
-    } on Object catch (_) {
-      // Offline or slow: keep whatever the snapshot had.
+      failure = (await refreshAbilities().timeout(_abilitiesBudget))
+          .failureOrNull;
+    } on Object catch (e) {
+      failure = Failure.unknown(cause: e);
+    }
+    if (failure != null) {
+      // Offline, slow or failing: the last known abilities of *this* user.
       final snapshot = await _snapshots.read();
-      _applyAbilitiesJson(snapshot?.abilities);
+      if (snapshot != null && snapshot.user.id == user.id) {
+        _applyAbilitiesJson(snapshot.abilities);
+      }
+    }
+    if (_abilitiesJson == null) {
+      // Without abilities the portal is unknown; landing on "no portal"
+      // would be wrong. Keep the token (the session is fine) and let the
+      // user retry from the sign-in screen.
+      _emitSignedOut(SignOutReason.offline);
+      return fail(failure ?? const Failure.unknown());
     }
     await _snapshots.write(user: user, abilities: _abilitiesJson);
     _events.add(SessionEvent.signedIn(user: user, abilities: _abilities));
@@ -273,7 +241,8 @@ class AuthRepositoryImpl
     return ok(AuthOutcome.pending(flow: flow, email: email));
   }
 
-  void _emitSignedOut(SignOutReason reason, {bool keepToken = false}) {
+  @override
+  void _emitSignedOut(SignOutReason reason) {
     _user = null;
     _abilities = Abilities.none;
     _events.add(SessionEvent.signedOut(reason));

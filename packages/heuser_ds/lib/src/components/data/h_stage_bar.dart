@@ -69,7 +69,7 @@ class _HStageBarState extends State<HStageBar> {
   }
 
   void _scrollToCurrent({required bool animate}) {
-    if (!_controller.hasClients) return;
+    if (!mounted || !_controller.hasClients || widget.stages.isEmpty) return;
     final i = widget.currentIndex.clamp(0, widget.stages.length - 1);
     final target = (i * _itemWidth - _itemWidth).clamp(
       0.0,

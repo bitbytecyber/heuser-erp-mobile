@@ -2,22 +2,49 @@ part of 'application_form_bloc.dart';
 
 /// The autosave queue of [ApplicationFormBloc]: a debounce timer, the set of
 /// dirty steps, and one promise chain so PATCHes never overlap whichever
-/// handler asks for them (the web form's `chain` ref).
+/// handler asks for them (the web form's `chain` ref). A step leaves the
+/// dirty set only while its PATCH is in flight and for good once it
+/// succeeds; any failure puts it back, so the on-device draft is kept until
+/// every step has reached the server.
 mixin _SaveQueue on Bloc<ApplicationFormEvent, ApplicationFormState> {
   IntakeRepository get _repo;
   DraftStore get _drafts;
   DateTime Function() get _clock;
   Duration get autosaveDelay;
+  Duration get retryDelay;
 
   final Set<int> _dirty = <int>{};
+
+  /// Steps with a PATCH in flight (a list: two handlers may save the same
+  /// step back to back).
+  final List<int> _inFlight = <int>[];
   Timer? _timer;
+  Timer? _retry;
+  int _retryAttempt = 0;
   Future<void> _chain = Future.value();
+  Future<void> _disk = Future.value();
   bool _online = true;
+
+  /// Longest wait between two connectivity retries is `retryDelay * 2^5`.
+  static const _maxRetryShift = 5;
 
   /// Restarts the typing debounce.
   void _scheduleFlush() {
     _timer?.cancel();
     _timer = Timer(autosaveDelay, () {
+      if (!isClosed) add(const ApplicationFormEvent.flushRequested());
+    });
+  }
+
+  /// A save could not reach the server although the device looks online
+  /// (timeout, unreachable): try again with exponential backoff.
+  void _scheduleRetry() {
+    if (_retry?.isActive ?? false) return;
+    final shift = _retryAttempt < _maxRetryShift
+        ? _retryAttempt
+        : _maxRetryShift;
+    _retryAttempt++;
+    _retry = Timer(retryDelay * (1 << shift), () {
       if (!isClosed) add(const ApplicationFormEvent.flushRequested());
     });
   }
@@ -37,58 +64,97 @@ mixin _SaveQueue on Bloc<ApplicationFormEvent, ApplicationFormState> {
     return done.future;
   }
 
-  /// Saves every dirty step in ascending order.
-  Future<void> _flushDirty(Emitter<ApplicationFormState> emit) async {
+  /// Saves every dirty step (except [skip]) in ascending order and stops at
+  /// the first failure, which is returned (`null`: all reached the server).
+  Future<Failure?> _flushDirty(
+    Emitter<ApplicationFormState> emit, {
+    int? skip,
+  }) async {
     _timer?.cancel();
-    final steps = [..._dirty]..sort();
-    _dirty.clear();
+    _retry?.cancel();
+    final steps = _dirty.where((s) => s != skip).toList()..sort();
     for (final step in steps) {
-      if (emit.isDone) return;
-      await _save(step, emit);
+      if (emit.isDone) return const Failure.cancelled();
+      if (!_dirty.contains(step)) continue; // saved by another handler
+      final f = (await _save(step, emit)).failureOrNull;
+      if (f != null) return f;
     }
+    return null;
   }
 
-  /// Saves [step] and folds the result into the state. Returns the server's
-  /// `missing` list, or `null` when the save failed (state already updated).
-  Future<List<String>?> _save(
+  /// Continue / Send: saves the other dirty steps first, then [step], and
+  /// surfaces a failure. Returns the server's `missing` list for [step], or
+  /// `null` when anything failed (nothing after the failure was sent).
+  Future<List<String>?> _saveNow(
     int step,
     Emitter<ApplicationFormState> emit,
   ) async {
+    final r = switch (await _flushDirty(emit, skip: step)) {
+      null => await _save(step, emit),
+      final f => fail<List<String>>(f),
+    };
+    if (emit.isDone) return null;
+    return r.fold<List<String>?>((f) {
+      // Non-connectivity failures were already announced by [_save].
+      if (f.isConnectivity) emit(_notify(state, FormNotice.saveFailed(f)));
+      return null;
+    }, (missing) => missing);
+  }
+
+  /// [s] carrying the one-shot [notice] for the page's listener.
+  ApplicationFormState _notify(ApplicationFormState s, FormNotice notice) =>
+      s.copyWith(notice: notice, noticeSeq: s.noticeSeq + 1);
+
+  /// Saves [step] and folds the result into the state. Returns the server's
+  /// `missing` list, or the failure (state already updated, step dirty).
+  Future<Result<List<String>>> _save(
+    int step,
+    Emitter<ApplicationFormState> emit,
+  ) async {
+    _dirty.remove(step);
+    _inFlight.add(step);
     emit(state.copyWith(save: SaveStatus.saving));
     final r = await _patch(step);
-    if (emit.isDone || isClosed) return null;
-    return r.fold<List<String>?>(
+    _inFlight.remove(step);
+    if (r.isLeft()) _dirty.add(step); // retried on the next flush
+    if (emit.isDone || isClosed) {
+      unawaited(_persist());
+      return r.map((res) => res.missing);
+    }
+    final out = r.fold<Result<List<String>>>(
       (f) {
         if (f.isConnectivity) {
-          // Held back; released by connectivityChanged(online: true).
-          _dirty.add(step);
+          // Held back; released by connectivityChanged(online: true), or
+          // retried with backoff when the device still looks online.
           emit(state.copyWith(save: SaveStatus.offline));
+          if (_online) _scheduleRetry();
         } else {
           emit(
-            state.copyWith(
-              save: SaveStatus.error,
-              notice: FormNotice.saveFailed(f),
-              noticeSeq: state.noticeSeq + 1,
+            _notify(
+              state.copyWith(save: SaveStatus.error),
+              FormNotice.saveFailed(f),
             ),
           );
         }
-        unawaited(_persist());
-        return null;
+        return fail(f);
       },
       (res) {
+        _retryAttempt = 0;
         final app = res.application;
+        final idle = _dirty.isEmpty && _inFlight.isEmpty;
         emit(
           state.copyWith(
             application: app,
             formStep: app.formStep,
             draft: _reconcileResults(state.draft, app.results),
-            save: _dirty.isEmpty ? SaveStatus.saved : SaveStatus.saving,
+            save: idle ? SaveStatus.saved : SaveStatus.saving,
           ),
         );
-        unawaited(_persist());
-        return res.missing;
+        return ok(res.missing);
       },
     );
+    unawaited(_persist());
+    return out;
   }
 
   /// New result rows get their ids, so the next save updates them in place
@@ -110,21 +176,27 @@ mixin _SaveQueue on Bloc<ApplicationFormEvent, ApplicationFormState> {
   }
 
   /// Mirrors the draft to disk while anything is unsaved; clears it once
-  /// the server has everything.
-  Future<void> _persist() async {
+  /// the server has everything. Writes are serialised on one chain and the
+  /// snapshot is taken when the write runs, so the last write always holds
+  /// the latest state.
+  Future<void> _persist() => _onDisk(() {
     final id = state.application.id;
-    if (_dirty.isEmpty) {
-      await _drafts.clear(id);
-      return;
-    }
-    await _drafts.write(
+    final unsaved = {..._dirty, ..._inFlight};
+    if (unsaved.isEmpty) return _drafts.clear(id);
+    return _drafts.write(
       id,
       CachedDraft(
         draft: state.draft,
         baseUpdatedAt: state.application.updatedAt,
         savedAt: _clock().toIso8601String(),
-        dirtySteps: [..._dirty]..sort(),
+        dirtySteps: unsaved.toList()..sort(),
       ),
     );
-  }
+  });
+
+  /// Drops the on-device draft, after any write already queued.
+  Future<void> _clearDraft(int id) => _onDisk(() => _drafts.clear(id));
+
+  Future<void> _onDisk(Future<void> Function() io) =>
+      _disk = _disk.then((_) => io()).onError<Object>((_, _) {});
 }

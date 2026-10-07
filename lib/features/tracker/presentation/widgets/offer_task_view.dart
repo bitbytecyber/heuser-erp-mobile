@@ -15,7 +15,7 @@ import 'package:heuser_erp_mobile/features/tracker/presentation/widgets/task_til
 import 'package:heuser_erp_mobile/features/tracker/presentation/widgets/tracker_format.dart';
 
 /// The offer: summary, deadline countdown, fee table, accept, PDFs.
-class OfferTaskView extends StatelessWidget {
+class OfferTaskView extends StatefulWidget {
   /// Creates the task.
   const OfferTaskView({required this.application, super.key});
 
@@ -23,9 +23,52 @@ class OfferTaskView extends StatelessWidget {
   final Application application;
 
   @override
+  State<OfferTaskView> createState() => _OfferTaskViewState();
+}
+
+class _OfferTaskViewState extends State<OfferTaskView> {
+  /// Fires when the deadline passes while the screen is open, so Accept
+  /// gives way to "deadline passed" without a refresh.
+  Timer? _deadline;
+
+  @override
+  void initState() {
+    super.initState();
+    _schedule();
+  }
+
+  @override
+  void didUpdateWidget(OfferTaskView old) {
+    super.didUpdateWidget(old);
+    if (old.application.offer != widget.application.offer) _schedule();
+  }
+
+  @override
+  void dispose() {
+    _deadline?.cancel();
+    super.dispose();
+  }
+
+  void _schedule() {
+    _deadline?.cancel();
+    _deadline = null;
+    final offer = widget.application.offer;
+    final now = DateTime.now();
+    if (OfferRules.offerTask(offer, now) != OfferTaskKind.open) return;
+    final end = OfferRules.deadlineEnd(offer!);
+    if (end == null) return;
+    // At the end of that day `offerTask` flips; if the timer fires a hair
+    // early, [_schedule] arms it again for the remainder.
+    _deadline = Timer(end.difference(now), () {
+      if (!mounted) return;
+      setState(_schedule);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final t = Translations.of(context).tracker.offer;
-    final a = application;
+    final a = widget.application;
     final offer = a.offer;
     final kind = OfferRules.offerTask(offer, DateTime.now());
     if (offer == null || kind == OfferTaskKind.waiting) {
@@ -36,7 +79,7 @@ class OfferTaskView extends StatelessWidget {
         sub: t.waitingSub,
       );
     }
-    final level = a.level == Level.as_ ? 'AS Level' : 'A2 Level';
+    final level = a.level == Level.as_ ? t.levelAS : t.levelA2;
     var summary = t.summary(level: level, cycle: a.cycle);
     final sch = OfferRules.scholarshipSummary(offer);
     if (sch.isNotEmpty) {

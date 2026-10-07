@@ -24,13 +24,18 @@ class SessionTokenStore {
   /// Reads (and caches) the token.
   Future<String?> read() async {
     if (_loaded) return _cached;
+    String? stored;
     try {
-      _cached = await _storage.read(key: _key);
+      stored = await _storage.read(key: _key);
     } on Object catch (_) {
       // Keystore unavailable (rare: a device in a broken lock state).
-      _cached = null;
     }
-    _loaded = true;
+    // A write or clear that landed while the disk read was in flight is
+    // newer than what the disk returned: keep it.
+    if (!_loaded) {
+      _cached = stored;
+      _loaded = true;
+    }
     return _cached;
   }
 
@@ -41,7 +46,11 @@ class SessionTokenStore {
     if (trimmed.isEmpty || trimmed == _cached) return;
     _cached = trimmed;
     _loaded = true;
-    await _storage.write(key: _key, value: trimmed);
+    try {
+      await _storage.write(key: _key, value: trimmed);
+    } on Object catch (_) {
+      // Keystore unavailable: the session still works for this process.
+    }
   }
 
   /// Drops the token.

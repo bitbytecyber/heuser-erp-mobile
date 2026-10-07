@@ -4,19 +4,26 @@ import 'package:flutter/foundation.dart' show immutable;
 sealed class AppLink {
   const AppLink();
 
-  /// Parses a web-portal link (`/apply/42`, `https://…/apply/42?tab=docs`,
-  /// `/apply`). Unknown links return `null` (opened nowhere).
+  /// Parses a web-portal link. The backend sends absolute links built from
+  /// `FRONTEND_ORIGIN` (`intake/services/notify.py` `_applicant`):
+  /// `https://…/apply/applications/42`, possibly with `?tab=…`. The short
+  /// `/apply/42` shape and `/apply` / `/apply/applications` (the list) are
+  /// accepted too. Unknown links return `null` (opened nowhere).
   static AppLink? parse(String link) {
-    if (link.trim().isEmpty) return null;
-    final uri = Uri.tryParse(link.trim());
+    final trimmed = link.trim();
+    if (trimmed.isEmpty) return null;
+    final uri = Uri.tryParse(trimmed);
     if (uri == null) return null;
     final seg = uri.pathSegments.where((s) => s.isNotEmpty).toList();
-    if (seg.isEmpty || seg.first != 'apply') return null;
-    if (seg.length >= 2) {
-      final id = int.tryParse(seg[1]);
-      if (id != null) return ApplicationLink(id);
+    // The origin may carry a path prefix: look for the `apply` segment.
+    final at = seg.indexOf('apply');
+    if (at < 0) return null;
+    var rest = seg.sublist(at + 1);
+    if (rest.isNotEmpty && rest.first == 'applications') {
+      rest = rest.sublist(1);
     }
-    return const ApplicationsLink();
+    final id = rest.isEmpty ? null : int.tryParse(rest.first);
+    return id != null ? ApplicationLink(id) : const ApplicationsLink();
   }
 }
 

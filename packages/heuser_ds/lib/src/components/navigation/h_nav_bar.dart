@@ -48,7 +48,8 @@ class HNavBar extends StatelessWidget {
   /// Selection handler.
   final ValueChanged<int> onChanged;
 
-  /// Bar height excluding the safe area.
+  /// Minimum bar height excluding the safe area; the bar grows with the
+  /// text scale.
   static const double height = 64;
 
   @override
@@ -63,23 +64,27 @@ class HNavBar extends StatelessWidget {
       ),
       child: SafeArea(
         top: false,
-        child: SizedBox(
-          height: height,
-          child: Row(
-            children: [
-              for (var i = 0; i < items.length; i++)
-                Expanded(
-                  child: _NavButton(
-                    item: items[i],
-                    selected: i == index,
-                    onTap: () {
-                      if (i == index) return;
-                      unawaited(HHaptics.selection());
-                      onChanged(i);
-                    },
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: height),
+          // Every item takes the tallest item's height (full-height targets).
+          child: IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                for (var i = 0; i < items.length; i++)
+                  Expanded(
+                    child: _NavButton(
+                      item: items[i],
+                      selected: i == index,
+                      onTap: () {
+                        if (i == index) return;
+                        unawaited(HHaptics.selection());
+                        onChanged(i);
+                      },
+                    ),
                   ),
-                ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -111,37 +116,40 @@ class _NavButton extends StatelessWidget {
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: onTap,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            AnimatedContainer(
-              duration: h.motion.of(h.motion.standard),
-              curve: HMotion.easeOut,
-              width: selected ? 56 : 40,
-              height: 32,
-              decoration: BoxDecoration(
-                color: selected ? c.brandSoft : const Color(0x00000000),
-                borderRadius: HRadius.pillAll,
-              ),
-              child: Center(
-                child: HBadge(
-                  count: item.badgeCount,
-                  child: HIcon(
-                    item.icon,
-                    size: HIconSize.lg,
-                    color: selected ? c.navIndicator : c.textSecondary,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: HSpace.x1),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              AnimatedContainer(
+                duration: h.motion.of(h.motion.standard),
+                curve: HMotion.easeOut,
+                width: selected ? 56 : 40,
+                height: 32,
+                decoration: BoxDecoration(
+                  color: selected ? c.brandSoft : const Color(0x00000000),
+                  borderRadius: HRadius.pillAll,
+                ),
+                child: Center(
+                  child: HBadge(
+                    count: item.badgeCount,
+                    child: HIcon(
+                      item.icon,
+                      size: HIconSize.lg,
+                      color: selected ? c.navIndicator : c.textSecondary,
+                    ),
                   ),
                 ),
               ),
-            ),
-            const SizedBox(height: HSpace.x1),
-            HText(
-              item.label,
-              style: HTextStyle.labelMd,
-              color: selected ? c.navIndicator : c.textSecondary,
-              maxLines: 1,
-            ),
-          ],
+              const SizedBox(height: HSpace.x1),
+              HText(
+                item.label,
+                style: HTextStyle.labelMd,
+                color: selected ? c.navIndicator : c.textSecondary,
+                maxLines: 1,
+              ),
+            ],
+          ),
         ),
       ),
     );

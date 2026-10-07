@@ -54,6 +54,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final Translations$documents$en documents = Translations$documents$en._(_root);
 	late final Translations$tracker$en tracker = Translations$tracker$en._(_root);
 	late final Translations$lock$en lock = Translations$lock$en._(_root);
+	late final Translations$student$en student = Translations$student$en._(_root);
 }
 
 // Path: app
@@ -645,6 +646,9 @@ class Translations$notifications$en {
 
 	/// en: 'Open'
 	String get open => 'Open';
+
+	/// en: 'Unread'
+	String get unreadA11y => 'Unread';
 }
 
 // Path: form
@@ -894,6 +898,17 @@ class Translations$tracker$en {
 	late final Translations$tracker$results$en results = Translations$tracker$results$en._(_root);
 	late final Translations$tracker$offer$en offer = Translations$tracker$offer$en._(_root);
 	late final Translations$tracker$payment$en payment = Translations$tracker$payment$en._(_root);
+
+	/// en: 'Stage {n} of {total}: {stage}'
+	String get stageSummary => 'Stage {n} of {total}: {stage}';
+
+	/// en: 'All {total} stages complete'
+	String get stagesDone => 'All {total} stages complete';
+
+	/// en: 'This application has ended'
+	String get stagesEnded => 'This application has ended';
+
+	late final Translations$tracker$taskState$en taskState = Translations$tracker$taskState$en._(_root);
 }
 
 // Path: lock
@@ -918,6 +933,45 @@ class Translations$lock$en {
 
 	/// en: 'Confirm it is you to turn on app lock'
 	String get enableReason => 'Confirm it is you to turn on app lock';
+}
+
+// Path: student
+class Translations$student$en {
+	Translations$student$en._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Student'
+	String get title => 'Student';
+
+	/// en: 'Welcome to Heuser'
+	String get welcome => 'Welcome to Heuser';
+
+	/// en: 'Welcome to Heuser, {name}'
+	String get welcomeName => 'Welcome to Heuser, {name}';
+
+	/// en: 'Your student portal is on its way to the app. Until then, use the web portal for everything below.'
+	String get body => 'Your student portal is on its way to the app. Until then, use the web portal for everything below.';
+
+	/// en: 'Coming to the app'
+	String get comingTitle => 'Coming to the app';
+
+	/// en: 'Timetable'
+	String get timetable => 'Timetable';
+
+	/// en: 'Attendance'
+	String get attendance => 'Attendance';
+
+	/// en: 'Results'
+	String get results => 'Results';
+
+	/// en: 'Fees and vouchers'
+	String get fees => 'Fees and vouchers';
+
+	/// en: 'Coming soon'
+	String get soon => 'Coming soon';
 }
 
 // Path: form.steps
@@ -2437,6 +2491,24 @@ class Translations$tracker$payment$en {
 	String get uploading => 'Uploading file';
 }
 
+// Path: tracker.taskState
+class Translations$tracker$taskState$en {
+	Translations$tracker$taskState$en._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'To do'
+	String get todo => 'To do';
+
+	/// en: 'Done'
+	String get done => 'Done';
+
+	/// en: 'Not yet available'
+	String get locked => 'Not yet available';
+}
+
 // Path: form.errors.req
 class Translations$form$errors$req$en {
 	Translations$form$errors$req$en._(this._root);
@@ -2729,6 +2801,7 @@ extension on Translations {
 			'notifications.markAllRead' => 'Mark all read',
 			'notifications.loadFailed' => 'Couldn\'t load your notifications',
 			'notifications.open' => 'Open',
+			'notifications.unreadA11y' => 'Unread',
 			'form.steps.family' => 'You and your family',
 			'form.steps.studies' => 'Your studies',
 			'form.steps.review' => 'Check and send',
@@ -3070,9 +3143,9 @@ extension on Translations {
 			'tracker.lede' => 'Everything happens here: interview, documents, offer, fees and enrolment.',
 			'tracker.reference' => 'Reference',
 			'tracker.copy' => 'Copy',
-			'tracker.copied' => 'Reference copied.',
 			_ => null,
 		} ?? switch (path) {
+			'tracker.copied' => 'Reference copied.',
 			'tracker.tabs.todo' => 'To do',
 			'tracker.tabs.docs' => 'Documents',
 			'tracker.tabs.form' => 'Application',
@@ -3234,11 +3307,27 @@ extension on Translations {
 			'tracker.payment.another' => 'Send another copy',
 			'tracker.payment.sentToast' => 'Proof sent. Finance will verify it.',
 			'tracker.payment.uploading' => 'Uploading file',
+			'tracker.stageSummary' => 'Stage {n} of {total}: {stage}',
+			'tracker.stagesDone' => 'All {total} stages complete',
+			'tracker.stagesEnded' => 'This application has ended',
+			'tracker.taskState.todo' => 'To do',
+			'tracker.taskState.done' => 'Done',
+			'tracker.taskState.locked' => 'Not yet available',
 			'lock.title' => 'Heuser is locked',
 			'lock.body' => 'Unlock with your fingerprint, face or phone PIN.',
 			'lock.unlock' => 'Unlock',
 			'lock.reason' => 'Unlock Heuser',
 			'lock.enableReason' => 'Confirm it is you to turn on app lock',
+			'student.title' => 'Student',
+			'student.welcome' => 'Welcome to Heuser',
+			'student.welcomeName' => 'Welcome to Heuser, {name}',
+			'student.body' => 'Your student portal is on its way to the app. Until then, use the web portal for everything below.',
+			'student.comingTitle' => 'Coming to the app',
+			'student.timetable' => 'Timetable',
+			'student.attendance' => 'Attendance',
+			'student.results' => 'Results',
+			'student.fees' => 'Fees and vouchers',
+			'student.soon' => 'Coming soon',
 			_ => null,
 		};
 	}

@@ -65,23 +65,19 @@ class DocumentsCubit extends Cubit<DocumentsState> {
 
   /// Picks a file from [source] and uploads it into [row] (replacing its
   /// current copy when the slot exists).
-  Future<void> upload(DocRow row, FileSource source) async {
-    final f = await _files.pick(source);
-    if (f == null || isClosed) return;
-    await _run(
-      key: row.key,
-      title: row.title,
-      withFile: true,
-      call: () => _repo.uploadDocument(
-        _id,
-        docType: row.docType,
-        resultId: row.result,
-        document: row.docId,
-        filePath: f.path,
-        fileName: f.name,
-      ),
-    );
-  }
+  Future<void> upload(DocRow row, FileSource source) => _pickAndRun(
+    source,
+    key: row.key,
+    title: row.title,
+    call: (f) => _repo.uploadDocument(
+      _id,
+      docType: row.docType,
+      resultId: row.result,
+      document: row.docId,
+      filePath: f.path,
+      fileName: f.name,
+    ),
+  );
 
   /// Marks [row] as "later".
   Future<void> later(DocRow row) => _run(
@@ -102,21 +98,17 @@ class DocumentsCubit extends Cubit<DocumentsState> {
     int docType,
     FileSource source, {
     required String title,
-  }) async {
-    final f = await _files.pick(source);
-    if (f == null || isClosed) return;
-    await _run(
-      key: 'new:$docType',
-      title: title,
-      withFile: true,
-      call: () => _repo.uploadDocument(
-        _id,
-        docType: docType,
-        filePath: f.path,
-        fileName: f.name,
-      ),
-    );
-  }
+  }) => _pickAndRun(
+    source,
+    key: 'new:$docType',
+    title: title,
+    call: (f) => _repo.uploadDocument(
+      _id,
+      docType: docType,
+      filePath: f.path,
+      fileName: f.name,
+    ),
+  );
 
   /// A certificate for one sport / activity (a new slot each time).
   Future<void> uploadCertificate(
@@ -125,23 +117,19 @@ class DocumentsCubit extends Cubit<DocumentsState> {
     required String activity,
     required String activityName,
     required String title,
-  }) async {
-    final f = await _files.pick(source);
-    if (f == null || isClosed) return;
-    await _run(
-      key: 'cert:$activity',
-      title: title,
-      withFile: true,
-      call: () => _repo.uploadDocument(
-        _id,
-        docType: docType,
-        filePath: f.path,
-        fileName: f.name,
-        activity: activity,
-        activityName: activityName,
-      ),
-    );
-  }
+  }) => _pickAndRun(
+    source,
+    key: 'cert:$activity',
+    title: title,
+    call: (f) => _repo.uploadDocument(
+      _id,
+      docType: docType,
+      filePath: f.path,
+      fileName: f.name,
+      activity: activity,
+      activityName: activityName,
+    ),
+  );
 
   /// Takes back an unchecked file.
   Future<void> remove(DocRow row) async {
@@ -154,6 +142,20 @@ class DocumentsCubit extends Cubit<DocumentsState> {
       (f) => _notify(DocsNotice.removeFailed(f)),
       (a) => _notify(DocsNotice.removed(application: a, title: row.title)),
     );
+  }
+
+  /// Picks from [source] (nothing while another row is busy, or when the
+  /// user cancels) and uploads the file with [call].
+  Future<void> _pickAndRun(
+    FileSource source, {
+    required String key,
+    required String title,
+    required Future<Result<Application>> Function(PickedFile f) call,
+  }) async {
+    if (state.busy) return;
+    final f = await _files.pick(source);
+    if (f == null || isClosed) return;
+    await _run(key: key, title: title, withFile: true, call: () => call(f));
   }
 
   Future<void> _run({

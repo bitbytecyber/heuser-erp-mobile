@@ -419,6 +419,9 @@ class Translations$auth$en {
 
 	/// en: 'Sign in with Apple didn't complete.'
 	String get appleFailed => 'Sign in with Apple didn\'t complete.';
+
+	/// en: 'Verification code'
+	String get codeFieldLabel => 'Verification code';
 }
 
 // Path: shell
@@ -904,6 +907,9 @@ class Translations$tracker$en {
 	String get stagesEnded => 'This application has ended';
 
 	late final Translations$tracker$taskState$en taskState = Translations$tracker$taskState$en.internal(_root);
+
+	/// en: '{day} at {time}'
+	String slotAt({required Object day, required Object time}) => '${day} at ${time}';
 }
 
 // Path: lock
@@ -2406,6 +2412,12 @@ class Translations$tracker$offer$en {
 
 	/// en: 'Expired'
 	String get pillExpired => 'Expired';
+
+	/// en: 'AS Level'
+	String get levelAS => 'AS Level';
+
+	/// en: 'A2 Level'
+	String get levelA2 => 'A2 Level';
 }
 
 // Path: tracker.payment

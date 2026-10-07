@@ -213,6 +213,7 @@ class _CodePageState extends State<_CodePage> {
           controller: _controller,
           length: widget.length,
           alphanumeric: widget.alphanumeric,
+          semanticsLabel: t.auth.codeFieldLabel,
           enabled: !state.isBusy,
           error: error,
           onChanged: (_) {

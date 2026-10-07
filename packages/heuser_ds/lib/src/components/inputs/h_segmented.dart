@@ -58,13 +58,16 @@ class HSegmented<T> extends StatelessWidget {
     final alignX = n == 1 ? 0.0 : -1 + 2 * index / (n - 1);
     final hasSelection = selectedIndex >= 0;
     return Container(
-      height: 44,
+      // Grows with the text scale; 44 at 1.0.
+      constraints: const BoxConstraints(minHeight: 44),
       padding: const EdgeInsets.all(3),
       decoration: BoxDecoration(
         color: c.surfaceAlt,
         borderRadius: HRadius.mdAll,
       ),
+      // Passthrough so the row inherits the minimum height.
       child: Stack(
+        fit: StackFit.passthrough,
         children: [
           Positioned.fill(
             child: AnimatedAlign(
@@ -88,56 +91,65 @@ class HSegmented<T> extends StatelessWidget {
               ),
             ),
           ),
-          Row(
-            children: [
-              for (final s in segments)
-                Expanded(
-                  child: Semantics(
-                    button: true,
-                    selected: s.value == value,
-                    label: s.label,
-                    excludeSemantics: true,
-                    child: GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: active && s.value != value
-                          ? () {
-                              unawaited(HHaptics.selection());
-                              onChanged!(s.value);
-                            }
-                          : null,
-                      child: Center(
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            if (s.icon != null) ...[
-                              HIcon(
-                                s.icon!,
-                                size: HIconSize.sm,
-                                tone: s.value == value && active
-                                    ? HTextTone.brand
-                                    : HTextTone.secondary,
-                              ),
-                              HSpace.hgap1,
-                            ],
-                            Flexible(
-                              child: HText(
-                                s.label,
-                                style: HTextStyle.labelLg,
-                                tone: !active
-                                    ? HTextTone.tertiary
-                                    : s.value == value
-                                    ? HTextTone.primary
-                                    : HTextTone.secondary,
-                                maxLines: 1,
-                              ),
+          // Every segment takes the tallest one's height (full-height targets).
+          IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                for (final s in segments)
+                  Expanded(
+                    child: Semantics(
+                      button: true,
+                      selected: s.value == value,
+                      label: s.label,
+                      excludeSemantics: true,
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: active && s.value != value
+                            ? () {
+                                unawaited(HHaptics.selection());
+                                onChanged!(s.value);
+                              }
+                            : null,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: HSpace.x2,
+                          ),
+                          child: Center(
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                if (s.icon != null) ...[
+                                  HIcon(
+                                    s.icon!,
+                                    size: HIconSize.sm,
+                                    tone: s.value == value && active
+                                        ? HTextTone.brand
+                                        : HTextTone.secondary,
+                                  ),
+                                  HSpace.hgap1,
+                                ],
+                                Flexible(
+                                  child: HText(
+                                    s.label,
+                                    style: HTextStyle.labelLg,
+                                    tone: !active
+                                        ? HTextTone.tertiary
+                                        : s.value == value
+                                        ? HTextTone.primary
+                                        : HTextTone.secondary,
+                                    maxLines: 1,
+                                  ),
+                                ),
+                              ],
                             ),
-                          ],
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-            ],
+              ],
+            ),
           ),
         ],
       ),

@@ -29,7 +29,8 @@ class ApplicationFormBloc
     extends Bloc<ApplicationFormEvent, ApplicationFormState>
     with _SaveQueue, _Submit {
   /// Creates the bloc for [application]. [online] (connectivity) releases
-  /// held-back saves; [autosaveDelay] is the typing debounce.
+  /// held-back saves; [autosaveDelay] is the typing debounce; [retryDelay]
+  /// the first wait before re-sending a save that timed out while online.
   ApplicationFormBloc({
     required this._repo,
     required this._drafts,
@@ -37,6 +38,7 @@ class ApplicationFormBloc
     String? userEmail,
     Stream<bool>? online,
     this.autosaveDelay = const Duration(milliseconds: 900),
+    this.retryDelay = const Duration(seconds: 2),
     DateTime Function()? clock,
   }) : _clock = clock ?? DateTime.now,
        super(
@@ -75,6 +77,10 @@ class ApplicationFormBloc
   @override
   final Duration autosaveDelay;
 
+  /// First backoff step after a save could not reach the server.
+  @override
+  final Duration retryDelay;
+
   @override
   final IntakeRepository _repo;
   @override
@@ -95,13 +101,16 @@ class ApplicationFormBloc
       emit(state.copyWith(resumable: cached));
     } else {
       // Older than the server copy (edited elsewhere) or nothing unsaved.
-      await _drafts.clear(state.application.id);
+      await _clearDraft(state.application.id);
     }
   }
 
+  /// Options for the draft's level. A response for a level the draft no
+  /// longer has (quick A→B→A switches) is dropped.
   Future<void> _loadOptions(Emitter<ApplicationFormState> emit) async {
-    final r = await _repo.formOptions(level: state.draft.level);
-    if (emit.isDone) return;
+    final level = state.draft.level;
+    final r = await _repo.formOptions(level: level);
+    if (emit.isDone || state.draft.level != level) return;
     r.fold((_) {}, (o) => emit(state.copyWith(options: o)));
   }
 
@@ -131,7 +140,10 @@ class ApplicationFormBloc
   Future<void> _onFlush(
     FormFlushRequested e,
     Emitter<ApplicationFormState> emit,
-  ) => _flushDirty(emit);
+  ) async {
+    // A failure keeps its step dirty for the next flush (or the retry).
+    await _flushDirty(emit);
+  }
 
   void _onStepRequested(
     FormStepRequested e,
@@ -155,9 +167,7 @@ class ApplicationFormBloc
       );
       return;
     }
-    _dirty.remove(st);
-    await _flushDirty(emit);
-    final missing = await _save(st, emit);
+    final missing = await _saveNow(st, emit);
     if (missing == null || emit.isDone) return;
     if (missing.isNotEmpty) {
       emit(
@@ -209,11 +219,12 @@ class ApplicationFormBloc
     final cached = state.resumable;
     if (cached == null) return;
     if (!e.resume) {
-      await _drafts.clear(state.application.id);
+      await _clearDraft(state.application.id);
       if (!emit.isDone) emit(state.copyWith(resumable: null));
       return;
     }
     _dirty.addAll(cached.dirtySteps);
+    final levelChanged = cached.draft.level != state.draft.level;
     emit(
       state.copyWith(
         draft: cached.draft,
@@ -222,6 +233,7 @@ class ApplicationFormBloc
       ),
     );
     if (_online) add(const ApplicationFormEvent.flushRequested());
+    if (levelChanged) await _loadOptions(emit);
   }
 
   void _onConnectivity(
@@ -229,6 +241,9 @@ class ApplicationFormBloc
     Emitter<ApplicationFormState> emit,
   ) {
     _online = e.online;
+    // Offline: wait for the device to come back instead of backing off.
+    _retry?.cancel();
+    _retryAttempt = 0;
     if (e.online && _dirty.isNotEmpty) {
       emit(state.copyWith(save: SaveStatus.saving));
       add(const ApplicationFormEvent.flushRequested());
@@ -236,12 +251,9 @@ class ApplicationFormBloc
   }
 
   @override
-  ApplicationFormState _notify(ApplicationFormState s, FormNotice notice) =>
-      s.copyWith(notice: notice, noticeSeq: s.noticeSeq + 1);
-
-  @override
   Future<void> close() async {
     _timer?.cancel();
+    _retry?.cancel();
     await _onlineSub?.cancel();
     // Leaving mid-edit: fire what is pending; the cache keeps it regardless.
     final pending = [..._dirty]..sort();

@@ -164,23 +164,30 @@ abstract final class TrackerRules {
     return const InterviewTask(InterviewKind.book);
   }
 
-  /// Whether the family may pick a time now (loads the times list).
+  /// Whether the family may pick a time now (`canBook` in `InterviewTask`):
+  /// only while the office has times released, for a fresh booking or the
+  /// one move of a live one. Gates loading the times list.
   static bool canBookInterview(Application a) {
-    final k = interviewTask(a).kind;
-    return k == InterviewKind.book || k == InterviewKind.bookedCanMove;
+    final i = a.interview;
+    final live = i != null && (i.state == 'upcoming' || i.state == 'delayed');
+    final fresh =
+        i == null ||
+        i.state == 'cancelled' ||
+        (i.state == 'no_show' && a.interviewRebook);
+    return a.interviewReleased && (fresh || (live && i.canReschedule));
   }
 
   /// A trial still waiting for a booking.
   static bool trialOpen(Trial t) =>
       t.state == 'requested' || t.state == 'cancelled';
 
-  /// Documents still to add after enrolment.
+  /// Documents still to add after enrolment (`EnrolledTask`): every
+  /// required one not yet in, the early ones (photo, B-Form) included.
   static List<String> enrolledLeft(List<DocRow> rows) => rows
       .where(
         (r) =>
             r.actionable &&
             r.stage != DocStage.optional &&
-            !r.early &&
             !(r.state == DocState.ready ||
                 r.state == DocState.checking ||
                 r.state == DocState.verified),

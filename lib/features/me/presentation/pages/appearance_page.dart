@@ -144,8 +144,8 @@ class _Swatches extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 64,
-      height: 48,
+      width: HSpace.x16,
+      height: HSpace.x12,
       padding: const EdgeInsets.all(HSpace.x1),
       decoration: BoxDecoration(
         color: scheme.surface,
@@ -153,6 +153,7 @@ class _Swatches extends StatelessWidget {
         border: Border.all(color: context.h.colors.outlineSoft),
       ),
       child: Row(
+        spacing: HSpace.x1,
         children: [
           for (final color in [
             scheme.brand,
@@ -161,13 +162,10 @@ class _Swatches extends StatelessWidget {
             scheme.surfaceRaised,
           ])
             Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(1),
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: color,
-                    borderRadius: const BorderRadius.all(Radius.circular(4)),
-                  ),
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: color,
+                  borderRadius: HRadius.pillAll,
                 ),
               ),
             ),

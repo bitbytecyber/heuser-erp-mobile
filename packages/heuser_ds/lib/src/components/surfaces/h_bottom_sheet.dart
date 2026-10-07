@@ -76,7 +76,10 @@ class HBottomSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final h = context.h;
     final c = h.colors;
-    return Container(
+    // Lift the sheet above the keyboard (e.g. HSearchSelect's search box);
+    // the body scrolls within whatever height remains.
+    final keyboard = MediaQuery.viewInsetsOf(context).bottom;
+    final sheet = Container(
       decoration: BoxDecoration(
         color: c.surfaceRaised,
         borderRadius: HRadius.sheet,
@@ -134,6 +137,12 @@ class HBottomSheet extends StatelessWidget {
         ),
       ),
     );
+    return keyboard == 0
+        ? sheet
+        : Padding(
+            padding: EdgeInsets.only(bottom: keyboard),
+            child: sheet,
+          );
   }
 }
 

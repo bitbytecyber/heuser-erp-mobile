@@ -155,6 +155,7 @@ class ApplicationRoute extends GoRouteData with $ApplicationRoute {
               files: getIt<FilePickService>(),
               opener: getIt<DocumentOpener>(),
               collegeName: branding,
+              pushLinks: getIt<NotificationsSocket>().pushes.map((p) => p.link),
               onChanged: (_) => context.read<ApplicationsBloc>().add(
                 const ApplicationsEvent.refreshed(force: true),
               ),

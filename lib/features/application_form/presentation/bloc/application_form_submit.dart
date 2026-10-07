@@ -4,8 +4,6 @@ part of 'application_form_bloc.dart';
 /// declaration, a final save of step 3, then `POST submit/`. Server-side
 /// gaps jump the form to the first offending step.
 mixin _Submit on Bloc<ApplicationFormEvent, ApplicationFormState>, _SaveQueue {
-  ApplicationFormState _notify(ApplicationFormState s, FormNotice notice);
-
   Future<void> _onSubmit(
     FormSubmitPressed e,
     Emitter<ApplicationFormState> emit,
@@ -22,9 +20,9 @@ mixin _Submit on Bloc<ApplicationFormEvent, ApplicationFormState>, _SaveQueue {
       return;
     }
     emit(state.copyWith(sending: true));
-    _dirty.remove(3);
-    await _flushDirty(emit);
-    final missing = await _save(3, emit);
+    // Every earlier edit must be on the server first: a failed flush aborts
+    // the send (the web `send()` does the same when its flush rejects).
+    final missing = await _saveNow(3, emit);
     if (emit.isDone) return;
     if (missing == null) {
       emit(state.copyWith(sending: false));
@@ -47,7 +45,7 @@ mixin _Submit on Bloc<ApplicationFormEvent, ApplicationFormState>, _SaveQueue {
         }
       },
       (sent) {
-        unawaited(_drafts.clear(sent.id));
+        unawaited(_clearDraft(sent.id));
         emit(
           _notify(
             state.copyWith(application: sent, sending: false),

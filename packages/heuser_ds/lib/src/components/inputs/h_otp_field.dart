@@ -25,6 +25,7 @@ class HOtpField extends StatefulWidget {
     this.error,
     this.enabled = true,
     this.controller,
+    this.semanticsLabel = 'Verification code',
     super.key,
   });
 
@@ -55,38 +56,67 @@ class HOtpField extends StatefulWidget {
   /// Optional controller (to clear from outside).
   final TextEditingController? controller;
 
+  /// What screen readers call the field. The cells are drawn for sighted
+  /// users only; assistive tech sees one labelled text field.
+  final String semanticsLabel;
+
   @override
   State<HOtpField> createState() => _HOtpFieldState();
 }
 
 class _HOtpFieldState extends State<HOtpField> {
-  late final TextEditingController _c =
-      widget.controller ?? TextEditingController();
+  /// The controller this state created (and must dispose), if any.
+  TextEditingController? _owned;
+  late TextEditingController _c;
   final FocusNode _focus = FocusNode();
   String _last = '';
 
   @override
   void initState() {
     super.initState();
+    _c = widget.controller ?? (_owned = TextEditingController());
+    _last = _sanitize(_c.text);
     _c.addListener(_onText);
-    _focus.addListener(() => setState(() {}));
+    _focus.addListener(_onFocus);
+  }
+
+  @override
+  void didUpdateWidget(HOtpField old) {
+    super.didUpdateWidget(old);
+    if (widget.controller == old.controller) return;
+    _c.removeListener(_onText);
+    final previous = _c.value;
+    _owned?.dispose();
+    _owned = null;
+    _c =
+        widget.controller ??
+        (_owned = TextEditingController.fromValue(previous));
+    _last = _sanitize(_c.text);
+    _c.addListener(_onText);
   }
 
   @override
   void dispose() {
     _c.removeListener(_onText);
-    if (widget.controller == null) _c.dispose();
+    _owned?.dispose();
     _focus.dispose();
     super.dispose();
   }
 
+  void _onFocus() {
+    if (mounted) setState(() {});
+  }
+
+  String _sanitize(String raw) => _OtpFormatter.clean(
+    raw,
+    length: widget.length,
+    alphanumeric: widget.alphanumeric,
+  );
+
+  // Controllers set from outside bypass input formatters, so text is
+  // normalised here too.
   void _onText() {
-    var v = _c.text.replaceAll(
-      RegExp(widget.alphanumeric ? '[^A-Za-z0-9]' : '[^0-9]'),
-      '',
-    );
-    if (widget.alphanumeric) v = v.toUpperCase();
-    if (v.length > widget.length) v = v.substring(0, widget.length);
+    final v = _sanitize(_c.text);
     if (v != _c.text) {
       _c.value = TextEditingValue(
         text: v,
@@ -165,34 +195,49 @@ class _HOtpFieldState extends State<HOtpField> {
       children: [
         Stack(
           children: [
-            // The real input: transparent, full-size, so taps and paste land on it.
+            // The real input: transparent, full-size, so taps and paste land
+            // on it. It stays in the semantics tree as the one text field
+            // screen readers interact with; the cells are excluded.
             Positioned.fill(
-              child: Opacity(
-                opacity: 0,
-                child: TextField(
-                  controller: _c,
-                  focusNode: _focus,
-                  enabled: widget.enabled,
-                  autofocus: widget.autofocus,
-                  keyboardType: widget.alphanumeric
-                      ? TextInputType.text
-                      : TextInputType.number,
-                  textCapitalization: widget.alphanumeric
-                      ? TextCapitalization.characters
-                      : TextCapitalization.none,
-                  autofillHints: const [AutofillHints.oneTimeCode],
-                  enableSuggestions: false,
-                  autocorrect: false,
-                  showCursor: false,
-                  maxLength: widget.length,
-                  decoration: const InputDecoration(
-                    border: InputBorder.none,
-                    counterText: '',
+              child: Semantics(
+                label: widget.semanticsLabel,
+                child: Opacity(
+                  opacity: 0,
+                  alwaysIncludeSemantics: true,
+                  child: TextField(
+                    controller: _c,
+                    focusNode: _focus,
+                    enabled: widget.enabled,
+                    autofocus: widget.autofocus,
+                    keyboardType: widget.alphanumeric
+                        ? TextInputType.text
+                        : TextInputType.number,
+                    textCapitalization: widget.alphanumeric
+                        ? TextCapitalization.characters
+                        : TextCapitalization.none,
+                    autofillHints: const [AutofillHints.oneTimeCode],
+                    enableSuggestions: false,
+                    autocorrect: false,
+                    showCursor: false,
+                    // Strip separators *before* truncating, so a pasted
+                    // `ABCD-EFGH` or `123 456` fills every cell.
+                    inputFormatters: [
+                      _OtpFormatter(
+                        length: widget.length,
+                        alphanumeric: widget.alphanumeric,
+                      ),
+                    ],
+                    decoration: const InputDecoration(
+                      border: InputBorder.none,
+                      counterText: '',
+                    ),
                   ),
                 ),
               ),
             ),
-            IgnorePointer(child: hasError ? row.hShake(context) : row),
+            ExcludeSemantics(
+              child: IgnorePointer(child: hasError ? row.hShake(context) : row),
+            ),
           ],
         ),
         if (hasError) ...[
@@ -205,6 +250,41 @@ class _HOtpFieldState extends State<HOtpField> {
           ),
         ],
       ],
+    );
+  }
+}
+
+/// Keeps only code characters (uppercased when alphanumeric), then
+/// truncates to the code length.
+class _OtpFormatter extends TextInputFormatter {
+  _OtpFormatter({required this.length, required this.alphanumeric});
+
+  final int length;
+  final bool alphanumeric;
+
+  static String clean(
+    String raw, {
+    required int length,
+    required bool alphanumeric,
+  }) {
+    var v = raw.replaceAll(
+      RegExp(alphanumeric ? '[^A-Za-z0-9]' : '[^0-9]'),
+      '',
+    );
+    if (alphanumeric) v = v.toUpperCase();
+    return v.length > length ? v.substring(0, length) : v;
+  }
+
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    final v = clean(newValue.text, length: length, alphanumeric: alphanumeric);
+    if (v == newValue.text) return newValue;
+    return TextEditingValue(
+      text: v,
+      selection: TextSelection.collapsed(offset: v.length),
     );
   }
 }

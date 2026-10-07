@@ -10,7 +10,8 @@ abstract final class TrackerFormat {
   static String time(DateTime d) => DateFormat('h:mm a').format(d);
 
   /// `Tue 29 Sep at 10:30 AM`
-  static String slot(DateTime? d) => d == null ? '' : '${day(d)} at ${time(d)}';
+  static String slot(DateTime? d) =>
+      d == null ? '' : t.tracker.slotAt(day: day(d), time: time(d));
 
   /// `29 Sep 2026`
   static String dateLong(DateTime d) => DateFormat('d MMM yyyy').format(d);

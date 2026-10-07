@@ -68,9 +68,12 @@ class _InterviewTaskViewState extends State<InterviewTaskView> {
       InterviewKind.bookedFinal => t.booked(when: when),
       InterviewKind.book => t.choose,
     };
+    // Times can only be picked while the office has them released (as on
+    // the web); otherwise neither the picker nor "Change it" is offered.
+    final canBook = TrackerRules.canBookInterview(a);
+    final canMove = canBook && task.kind == InterviewKind.bookedCanMove;
     final showPicker =
-        task.kind == InterviewKind.book ||
-        (task.kind == InterviewKind.bookedCanMove && _changing);
+        canBook && (task.kind == InterviewKind.book || (canMove && _changing));
     return TaskTile(
       state: task.kind.locked
           ? TaskState.locked
@@ -87,7 +90,7 @@ class _InterviewTaskViewState extends State<InterviewTaskView> {
             style: HTextStyle.bodySm,
             tone: HTextTone.secondary,
           ),
-        if (task.kind == InterviewKind.bookedCanMove && !_changing)
+        if (canMove && !_changing)
           Row(
             children: [
               Expanded(
@@ -104,7 +107,7 @@ class _InterviewTaskViewState extends State<InterviewTaskView> {
               ),
             ],
           ),
-        if (live && _changing && task.at != null) ...[
+        if (canMove && _changing && task.at != null) ...[
           Row(
             children: [
               Expanded(

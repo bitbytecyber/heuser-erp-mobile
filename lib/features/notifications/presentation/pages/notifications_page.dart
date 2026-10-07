@@ -23,12 +23,30 @@ class NotificationsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = Translations.of(context);
-    return BlocListener<UnreadCubit, UnreadState>(
-      // A live push: show it at the top of the list.
-      listenWhen: (a, b) => a.pushSeq != b.pushSeq,
-      listener: (context, _) => context.read<NotificationsBloc>().add(
-        const NotificationsEvent.refreshed(),
-      ),
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<UnreadCubit, UnreadState>(
+          // A live push: show it at the top of the list.
+          listenWhen: (a, b) => a.pushSeq != b.pushSeq,
+          listener: (context, _) => context.read<NotificationsBloc>().add(
+            const NotificationsEvent.refreshed(),
+          ),
+        ),
+        BlocListener<NotificationsBloc, NotificationsState>(
+          // A read / dismiss / read-all settled on the server: the count
+          // read now includes it.
+          listenWhen: (a, b) => a.readSyncSeq != b.readSyncSeq,
+          listener: (context, _) =>
+              unawaited(context.read<UnreadCubit>().refresh()),
+        ),
+        BlocListener<NotificationsBloc, NotificationsState>(
+          listenWhen: (a, b) =>
+              a.actionFailureSeq != b.actionFailureSeq &&
+              b.actionFailure != null,
+          listener: (context, s) =>
+              HToast.error(context, failureMessage(s.actionFailure!, t)),
+        ),
+      ],
       child: BlocBuilder<NotificationsBloc, NotificationsState>(
         builder: (context, state) {
           final bloc = context.read<NotificationsBloc>();
@@ -58,7 +76,7 @@ class NotificationsPage extends StatelessWidget {
   Widget _body(BuildContext context, NotificationsState state, Translations t) {
     final bloc = context.read<NotificationsBloc>();
     if (state.loading) {
-      return const Center(child: HSpinner(size: 28));
+      return const Center(child: HSpinner(size: HSpace.x7));
     }
     final f = state.failure;
     if (f != null && state.items.isEmpty) {
@@ -126,8 +144,8 @@ class NotificationsPage extends StatelessWidget {
   }
 
   void _open(BuildContext context, InboxItem item) {
+    // The badge is re-read once the server has marked it (readSyncSeq).
     context.read<NotificationsBloc>().add(NotificationsEvent.opened(item));
-    unawaited(context.read<UnreadCubit>().refresh());
     final link = AppLink.parse(item.link);
     if (link != null) onOpenLink(link);
   }
@@ -145,7 +163,7 @@ class _ItemCard extends StatelessWidget {
     final c = context.h.colors;
     return HCard(
       onTap: onTap,
-      color: item.isRead ? null : c.brandSoft.withValues(alpha: 0.35),
+      color: item.isRead ? null : c.brandSoft,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -161,10 +179,12 @@ class _ItemCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Unread reads stronger through tone (and the card tint and
+                // dot), not a hand-picked weight.
                 HText(
                   item.title,
                   style: HTextStyle.titleSm,
-                  weight: item.isRead ? null : FontWeight.w700,
+                  tone: item.isRead ? HTextTone.secondary : HTextTone.primary,
                 ),
                 if (item.body.isNotEmpty) ...[
                   HSpace.gap1,

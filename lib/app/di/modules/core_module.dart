@@ -121,6 +121,7 @@ abstract class CoreModule {
     AppEnv env,
     GoogleAuthService google,
     AppleAuthService apple,
+    @Named('drafts') JsonFileCache drafts,
   ) => AuthRepositoryImpl(
     allauth: allauth,
     social: social,
@@ -131,6 +132,7 @@ abstract class CoreModule {
     env: env,
     google: google,
     apple: apple,
+    onUserSignOut: [drafts.clearAll],
   );
 
   /// Applicant intake endpoints.

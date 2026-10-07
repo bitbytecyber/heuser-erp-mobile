@@ -180,7 +180,8 @@ void main() {
         ..add(
           ApplicationFormEvent.draftChanged((d) => d.copyWith(firstName: 'A')),
         );
-      async.flushTimers();
+      // elapse, not flushTimers: the backoff retry is pending while online.
+      async.elapse(Duration.zero);
       expect(b.state.save, SaveStatus.offline);
       expect(calls, 1);
       online.add(false);

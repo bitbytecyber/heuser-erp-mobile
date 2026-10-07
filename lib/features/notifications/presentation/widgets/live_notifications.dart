@@ -61,7 +61,7 @@ class _LiveNotificationsState extends State<LiveNotifications> {
         p.preview.isEmpty ? p.title : '${p.title}: ${p.preview}',
         tone: HTone.brand,
         icon: HIcons.bell,
-        duration: const Duration(seconds: 5),
+        duration: HToast.long,
         actionLabel: link == null ? null : widget.openLabel,
         onAction: link == null ? null : () => widget.onOpenLink(link),
       );

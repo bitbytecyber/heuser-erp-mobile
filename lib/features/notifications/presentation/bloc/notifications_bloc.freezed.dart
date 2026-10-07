@@ -472,7 +472,11 @@ String toString() {
 /// @nodoc
 mixin _$NotificationsState {
 
- List<InboxItem> get items; bool get loading; bool get loadingMore; bool get hasMore; int get page; Failure? get failure;
+ List<InboxItem> get items; bool get loading; bool get loadingMore; bool get hasMore; int get page; Failure? get failure;/// Bumped when a write that changes read flags (open, dismiss, mark all
+/// read) has settled on the server: the page re-reads the badge then.
+ int get readSyncSeq;/// The last failed write (its optimistic change was rolled back).
+ Failure? get actionFailure;/// Bumped with every [actionFailure] so the page toasts it once.
+ int get actionFailureSeq;
 /// Create a copy of NotificationsState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -484,20 +488,20 @@ $NotificationsStateCopyWith<NotificationsState> get copyWith => _$NotificationsS
 @override
 bool operator ==(Object other) {
   final _this = this as NotificationsState;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is NotificationsState&&const DeepCollectionEquality().equals(other.items, _this.items)&&(identical(other.loading, _this.loading) || other.loading == _this.loading)&&(identical(other.loadingMore, _this.loadingMore) || other.loadingMore == _this.loadingMore)&&(identical(other.hasMore, _this.hasMore) || other.hasMore == _this.hasMore)&&(identical(other.page, _this.page) || other.page == _this.page)&&(identical(other.failure, _this.failure) || other.failure == _this.failure));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is NotificationsState&&const DeepCollectionEquality().equals(other.items, _this.items)&&(identical(other.loading, _this.loading) || other.loading == _this.loading)&&(identical(other.loadingMore, _this.loadingMore) || other.loadingMore == _this.loadingMore)&&(identical(other.hasMore, _this.hasMore) || other.hasMore == _this.hasMore)&&(identical(other.page, _this.page) || other.page == _this.page)&&(identical(other.failure, _this.failure) || other.failure == _this.failure)&&(identical(other.readSyncSeq, _this.readSyncSeq) || other.readSyncSeq == _this.readSyncSeq)&&(identical(other.actionFailure, _this.actionFailure) || other.actionFailure == _this.actionFailure)&&(identical(other.actionFailureSeq, _this.actionFailureSeq) || other.actionFailureSeq == _this.actionFailureSeq));
 }
 
 
 @override
 int get hashCode {
   final _this = this as NotificationsState;
-  return Object.hash(runtimeType,const DeepCollectionEquality().hash(_this.items),_this.loading,_this.loadingMore,_this.hasMore,_this.page,_this.failure);
+  return Object.hash(runtimeType,const DeepCollectionEquality().hash(_this.items),_this.loading,_this.loadingMore,_this.hasMore,_this.page,_this.failure,_this.readSyncSeq,_this.actionFailure,_this.actionFailureSeq);
 }
 
 @override
 String toString() {
   final _this = this as NotificationsState;
-  return 'NotificationsState(items: ${_this.items}, loading: ${_this.loading}, loadingMore: ${_this.loadingMore}, hasMore: ${_this.hasMore}, page: ${_this.page}, failure: ${_this.failure})';
+  return 'NotificationsState(items: ${_this.items}, loading: ${_this.loading}, loadingMore: ${_this.loadingMore}, hasMore: ${_this.hasMore}, page: ${_this.page}, failure: ${_this.failure}, readSyncSeq: ${_this.readSyncSeq}, actionFailure: ${_this.actionFailure}, actionFailureSeq: ${_this.actionFailureSeq})';
 }
 
 
@@ -508,11 +512,11 @@ abstract mixin class $NotificationsStateCopyWith<$Res>  {
   factory $NotificationsStateCopyWith(NotificationsState value, $Res Function(NotificationsState) _then) = _$NotificationsStateCopyWithImpl;
 @useResult
 $Res call({
- List<InboxItem> items, bool loading, bool loadingMore, bool hasMore, int page, Failure? failure
+ List<InboxItem> items, bool loading, bool loadingMore, bool hasMore, int page, Failure? failure, int readSyncSeq, Failure? actionFailure, int actionFailureSeq
 });
 
 
-$FailureCopyWith<$Res>? get failure;
+$FailureCopyWith<$Res>? get failure;$FailureCopyWith<$Res>? get actionFailure;
 
 }
 /// @nodoc
@@ -525,7 +529,7 @@ class _$NotificationsStateCopyWithImpl<$Res>
 
 /// Create a copy of NotificationsState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? items = null,Object? loading = null,Object? loadingMore = null,Object? hasMore = null,Object? page = null,Object? failure = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? items = null,Object? loading = null,Object? loadingMore = null,Object? hasMore = null,Object? page = null,Object? failure = freezed,Object? readSyncSeq = null,Object? actionFailure = freezed,Object? actionFailureSeq = null,}) {
   return _then(NotificationsState(
 items: null == items ? _self.items : items // ignore: cast_nullable_to_non_nullable
 as List<InboxItem>,loading: null == loading ? _self.loading : loading // ignore: cast_nullable_to_non_nullable
@@ -533,7 +537,10 @@ as bool,loadingMore: null == loadingMore ? _self.loadingMore : loadingMore // ig
 as bool,hasMore: null == hasMore ? _self.hasMore : hasMore // ignore: cast_nullable_to_non_nullable
 as bool,page: null == page ? _self.page : page // ignore: cast_nullable_to_non_nullable
 as int,failure: freezed == failure ? _self.failure : failure // ignore: cast_nullable_to_non_nullable
-as Failure?,
+as Failure?,readSyncSeq: null == readSyncSeq ? _self.readSyncSeq : readSyncSeq // ignore: cast_nullable_to_non_nullable
+as int,actionFailure: freezed == actionFailure ? _self.actionFailure : actionFailure // ignore: cast_nullable_to_non_nullable
+as Failure?,actionFailureSeq: null == actionFailureSeq ? _self.actionFailureSeq : actionFailureSeq // ignore: cast_nullable_to_non_nullable
+as int,
   ));
 }
 /// Create a copy of NotificationsState
@@ -547,6 +554,18 @@ $FailureCopyWith<$Res>? get failure {
 
   return $FailureCopyWith<$Res>(_self.failure!, (value) {
     return _then(_self.copyWith(failure: value));
+  });
+}/// Create a copy of NotificationsState
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$FailureCopyWith<$Res>? get actionFailure {
+    if (_self.actionFailure == null) {
+    return null;
+  }
+
+  return $FailureCopyWith<$Res>(_self.actionFailure!, (value) {
+    return _then(_self.copyWith(actionFailure: value));
   });
 }
 }
@@ -630,10 +649,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<InboxItem> items,  bool loading,  bool loadingMore,  bool hasMore,  int page,  Failure? failure)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<InboxItem> items,  bool loading,  bool loadingMore,  bool hasMore,  int page,  Failure? failure,  int readSyncSeq,  Failure? actionFailure,  int actionFailureSeq)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _NotificationsState() when $default != null:
-return $default(_that.items,_that.loading,_that.loadingMore,_that.hasMore,_that.page,_that.failure);case _:
+return $default(_that.items,_that.loading,_that.loadingMore,_that.hasMore,_that.page,_that.failure,_that.readSyncSeq,_that.actionFailure,_that.actionFailureSeq);case _:
   return orElse();
 
 }
@@ -651,10 +670,10 @@ return $default(_that.items,_that.loading,_that.loadingMore,_that.hasMore,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<InboxItem> items,  bool loading,  bool loadingMore,  bool hasMore,  int page,  Failure? failure)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<InboxItem> items,  bool loading,  bool loadingMore,  bool hasMore,  int page,  Failure? failure,  int readSyncSeq,  Failure? actionFailure,  int actionFailureSeq)  $default,) {final _that = this;
 switch (_that) {
 case _NotificationsState():
-return $default(_that.items,_that.loading,_that.loadingMore,_that.hasMore,_that.page,_that.failure);case _:
+return $default(_that.items,_that.loading,_that.loadingMore,_that.hasMore,_that.page,_that.failure,_that.readSyncSeq,_that.actionFailure,_that.actionFailureSeq);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -671,10 +690,10 @@ return $default(_that.items,_that.loading,_that.loadingMore,_that.hasMore,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<InboxItem> items,  bool loading,  bool loadingMore,  bool hasMore,  int page,  Failure? failure)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<InboxItem> items,  bool loading,  bool loadingMore,  bool hasMore,  int page,  Failure? failure,  int readSyncSeq,  Failure? actionFailure,  int actionFailureSeq)?  $default,) {final _that = this;
 switch (_that) {
 case _NotificationsState() when $default != null:
-return $default(_that.items,_that.loading,_that.loadingMore,_that.hasMore,_that.page,_that.failure);case _:
+return $default(_that.items,_that.loading,_that.loadingMore,_that.hasMore,_that.page,_that.failure,_that.readSyncSeq,_that.actionFailure,_that.actionFailureSeq);case _:
   return null;
 
 }
@@ -686,7 +705,7 @@ return $default(_that.items,_that.loading,_that.loadingMore,_that.hasMore,_that.
 
 
 class _NotificationsState extends NotificationsState {
-  const _NotificationsState({ List<InboxItem> items = const <InboxItem>[], this.loading = true, this.loadingMore = false, this.hasMore = false, this.page = 1, this.failure}): _items = items,super._();
+  const _NotificationsState({ List<InboxItem> items = const <InboxItem>[], this.loading = true, this.loadingMore = false, this.hasMore = false, this.page = 1, this.failure, this.readSyncSeq = 0, this.actionFailure, this.actionFailureSeq = 0}): _items = items,super._();
   
 
  final  List<InboxItem> _items;
@@ -701,6 +720,13 @@ class _NotificationsState extends NotificationsState {
 @override@JsonKey() final  bool hasMore;
 @override@JsonKey() final  int page;
 @override final  Failure? failure;
+/// Bumped when a write that changes read flags (open, dismiss, mark all
+/// read) has settled on the server: the page re-reads the badge then.
+@override@JsonKey() final  int readSyncSeq;
+/// The last failed write (its optimistic change was rolled back).
+@override final  Failure? actionFailure;
+/// Bumped with every [actionFailure] so the page toasts it once.
+@override@JsonKey() final  int actionFailureSeq;
 
 /// Create a copy of NotificationsState
 /// with the given fields replaced by the non-null parameter values.
@@ -712,18 +738,18 @@ _$NotificationsStateCopyWith<_NotificationsState> get copyWith => __$Notificatio
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _NotificationsState&&const DeepCollectionEquality().equals(other.items, _items)&&(identical(other.loading, loading) || other.loading == loading)&&(identical(other.loadingMore, loadingMore) || other.loadingMore == loadingMore)&&(identical(other.hasMore, hasMore) || other.hasMore == hasMore)&&(identical(other.page, page) || other.page == page)&&(identical(other.failure, failure) || other.failure == failure));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _NotificationsState&&const DeepCollectionEquality().equals(other.items, _items)&&(identical(other.loading, loading) || other.loading == loading)&&(identical(other.loadingMore, loadingMore) || other.loadingMore == loadingMore)&&(identical(other.hasMore, hasMore) || other.hasMore == hasMore)&&(identical(other.page, page) || other.page == page)&&(identical(other.failure, failure) || other.failure == failure)&&(identical(other.readSyncSeq, readSyncSeq) || other.readSyncSeq == readSyncSeq)&&(identical(other.actionFailure, actionFailure) || other.actionFailure == actionFailure)&&(identical(other.actionFailureSeq, actionFailureSeq) || other.actionFailureSeq == actionFailureSeq));
 }
 
 
 @override
 int get hashCode {
-    return Object.hash(runtimeType,const DeepCollectionEquality().hash(_items),loading,loadingMore,hasMore,page,failure);
+    return Object.hash(runtimeType,const DeepCollectionEquality().hash(_items),loading,loadingMore,hasMore,page,failure,readSyncSeq,actionFailure,actionFailureSeq);
 }
 
 @override
 String toString() {
-    return 'NotificationsState(items: $items, loading: $loading, loadingMore: $loadingMore, hasMore: $hasMore, page: $page, failure: $failure)';
+    return 'NotificationsState(items: $items, loading: $loading, loadingMore: $loadingMore, hasMore: $hasMore, page: $page, failure: $failure, readSyncSeq: $readSyncSeq, actionFailure: $actionFailure, actionFailureSeq: $actionFailureSeq)';
 }
 
 
@@ -734,11 +760,11 @@ abstract mixin class _$NotificationsStateCopyWith<$Res> implements $Notification
   factory _$NotificationsStateCopyWith(_NotificationsState value, $Res Function(_NotificationsState) _then) = __$NotificationsStateCopyWithImpl;
 @override @useResult
 $Res call({
- List<InboxItem> items, bool loading, bool loadingMore, bool hasMore, int page, Failure? failure
+ List<InboxItem> items, bool loading, bool loadingMore, bool hasMore, int page, Failure? failure, int readSyncSeq, Failure? actionFailure, int actionFailureSeq
 });
 
 
-@override $FailureCopyWith<$Res>? get failure;
+@override $FailureCopyWith<$Res>? get failure;@override $FailureCopyWith<$Res>? get actionFailure;
 
 }
 /// @nodoc
@@ -751,7 +777,7 @@ class __$NotificationsStateCopyWithImpl<$Res>
 
 /// Create a copy of NotificationsState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? items = null,Object? loading = null,Object? loadingMore = null,Object? hasMore = null,Object? page = null,Object? failure = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? items = null,Object? loading = null,Object? loadingMore = null,Object? hasMore = null,Object? page = null,Object? failure = freezed,Object? readSyncSeq = null,Object? actionFailure = freezed,Object? actionFailureSeq = null,}) {
   return _then(_NotificationsState(
 items: null == items ? _self._items : items // ignore: cast_nullable_to_non_nullable
 as List<InboxItem>,loading: null == loading ? _self.loading : loading // ignore: cast_nullable_to_non_nullable
@@ -759,7 +785,10 @@ as bool,loadingMore: null == loadingMore ? _self.loadingMore : loadingMore // ig
 as bool,hasMore: null == hasMore ? _self.hasMore : hasMore // ignore: cast_nullable_to_non_nullable
 as bool,page: null == page ? _self.page : page // ignore: cast_nullable_to_non_nullable
 as int,failure: freezed == failure ? _self.failure : failure // ignore: cast_nullable_to_non_nullable
-as Failure?,
+as Failure?,readSyncSeq: null == readSyncSeq ? _self.readSyncSeq : readSyncSeq // ignore: cast_nullable_to_non_nullable
+as int,actionFailure: freezed == actionFailure ? _self.actionFailure : actionFailure // ignore: cast_nullable_to_non_nullable
+as Failure?,actionFailureSeq: null == actionFailureSeq ? _self.actionFailureSeq : actionFailureSeq // ignore: cast_nullable_to_non_nullable
+as int,
   ));
 }
 
@@ -774,6 +803,18 @@ $FailureCopyWith<$Res>? get failure {
 
   return $FailureCopyWith<$Res>(_self.failure!, (value) {
     return _then(_self.copyWith(failure: value));
+  });
+}/// Create a copy of NotificationsState
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$FailureCopyWith<$Res>? get actionFailure {
+    if (_self.actionFailure == null) {
+    return null;
+  }
+
+  return $FailureCopyWith<$Res>(_self.actionFailure!, (value) {
+    return _then(_self.copyWith(actionFailure: value));
   });
 }
 }

@@ -70,10 +70,13 @@ class HChip extends StatelessWidget {
           child: AnimatedContainer(
             duration: h.motion.of(h.motion.fast),
             curve: HMotion.easeOut,
-            height: 36,
-            padding: EdgeInsets.only(
-              left: icon == null ? HSpace.x3 : HSpace.x2 + 2,
-              right: onDelete == null ? HSpace.x3 : HSpace.x1 + 2,
+            // Grows with the text scale; 36 at 1.0.
+            constraints: const BoxConstraints(minHeight: 36),
+            padding: EdgeInsets.fromLTRB(
+              icon == null ? HSpace.x3 : HSpace.x2 + 2,
+              HSpace.x1,
+              onDelete == null ? HSpace.x3 : HSpace.x1 + 2,
+              HSpace.x1,
             ),
             decoration: BoxDecoration(
               color: bg,
@@ -94,7 +97,16 @@ class HChip extends StatelessWidget {
                   HIcon(icon!, size: HIconSize.sm, color: fg),
                   HSpace.hgap1,
                 ],
-                HText(label, style: HTextStyle.labelLg, color: fg, maxLines: 1),
+                // Loose flex: shrinks (ellipsis) in a bounded row, sizes to
+                // the text in an unbounded one (horizontal lists).
+                Flexible(
+                  child: HText(
+                    label,
+                    style: HTextStyle.labelLg,
+                    color: fg,
+                    maxLines: 1,
+                  ),
+                ),
                 if (onDelete != null) ...[
                   HSpace.hgap1,
                   GestureDetector(

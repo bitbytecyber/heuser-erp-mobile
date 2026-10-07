@@ -127,19 +127,6 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i547.NotificationsApi>(
       () => coreModule.notificationsApi(gh<_i361.Dio>()),
     );
-    gh.lazySingleton<_i6.AuthRepository>(
-      () => coreModule.authRepository(
-        gh<_i55.AllauthApi>(),
-        gh<_i360.SocialAuthApi>(),
-        gh<_i994.MeApi>(),
-        gh<_i725.SessionTokenStore>(),
-        gh<_i256.SessionSnapshotStore>(),
-        gh<_i608.AuthSignals>(),
-        gh<_i1035.AppEnv>(),
-        gh<_i811.GoogleAuthService>(),
-        gh<_i142.AppleAuthService>(),
-      ),
-    );
     gh.lazySingleton<_i927.IntakeRepository>(
       () => coreModule.intakeRepository(
         gh<_i269.IntakeApi>(),
@@ -155,6 +142,20 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i17.NotificationsRepository>(
       () => coreModule.notificationsRepository(gh<_i547.NotificationsApi>()),
+    );
+    gh.lazySingleton<_i6.AuthRepository>(
+      () => coreModule.authRepository(
+        gh<_i55.AllauthApi>(),
+        gh<_i360.SocialAuthApi>(),
+        gh<_i994.MeApi>(),
+        gh<_i725.SessionTokenStore>(),
+        gh<_i256.SessionSnapshotStore>(),
+        gh<_i608.AuthSignals>(),
+        gh<_i1035.AppEnv>(),
+        gh<_i811.GoogleAuthService>(),
+        gh<_i142.AppleAuthService>(),
+        gh<_i675.JsonFileCache>(instanceName: 'drafts'),
+      ),
     );
     return this;
   }

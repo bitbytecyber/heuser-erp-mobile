@@ -99,12 +99,13 @@ class TrackerBloc extends Bloc<TrackerEvent, TrackerState> {
   TrackerBloc(this._repo, Application application)
     : super(TrackerState(application: application)) {
     on<TrackerStarted>(_onStarted);
-    // droppable: one refresh at a time; extra pulls are ignored.
+    // droppable: one refresh at a time; extra pulls are ignored. It still
+    // runs alongside the writes below, so its result is dropped when one of
+    // them replaced the application meanwhile (see [_generation]).
     on<TrackerRefreshed>(_onRefreshed, transformer: droppable());
-    on<TrackerApplicationUpdated>(
-      (e, emit) => emit(state.copyWith(application: e.application)),
-    );
-    // droppable: a double tap books once.
+    on<TrackerApplicationUpdated>((e, emit) => _replace(emit, e.application));
+    // droppable per action: a double tap books once. Different actions may
+    // overlap; [_inFlight] keeps `busy` up until the last one settles.
     on<TrackerInterviewBooked>(
       (e, emit) => _run(
         emit,
@@ -169,6 +170,18 @@ class TrackerBloc extends Bloc<TrackerEvent, TrackerState> {
 
   final IntakeRepository _repo;
 
+  /// Bumped whenever a write (or another cubit) replaces the application,
+  /// so a refresh that started before it cannot put an older copy back.
+  int _generation = 0;
+
+  /// Actions in flight; `busy` while above zero.
+  int _inFlight = 0;
+
+  void _replace(Emitter<TrackerState> emit, Application a) {
+    _generation++;
+    emit(state.copyWith(application: a));
+  }
+
   Future<void> _onStarted(TrackerStarted e, Emitter<TrackerState> emit) async {
     final r = await _repo.formOptions(level: state.application.level);
     if (emit.isDone) return;
@@ -179,6 +192,7 @@ class TrackerBloc extends Bloc<TrackerEvent, TrackerState> {
     TrackerRefreshed e,
     Emitter<TrackerState> emit,
   ) async {
+    final gen = _generation;
     emit(state.copyWith(refreshing: true));
     final r = await _repo.fetch(state.application.id);
     if (emit.isDone) return;
@@ -191,7 +205,12 @@ class TrackerBloc extends Bloc<TrackerEvent, TrackerState> {
           noticeSeq: state.noticeSeq + 1,
         ),
       ),
-      (a) => emit(state.copyWith(refreshing: false, application: a)),
+      (a) => emit(
+        // A newer copy arrived while this GET was out: keep it.
+        gen == _generation
+            ? state.copyWith(refreshing: false, application: a)
+            : state.copyWith(refreshing: false),
+      ),
     );
   }
 
@@ -200,26 +219,32 @@ class TrackerBloc extends Bloc<TrackerEvent, TrackerState> {
     Future<Result<Application>> Function() call,
     TrackerNoticeKind ok,
   ) async {
+    _inFlight++;
     emit(state.copyWith(busy: true, failure: null));
     final r = await call();
+    _inFlight--;
     if (emit.isDone) return;
+    final busy = _inFlight > 0;
     r.fold(
       (f) => emit(
         state.copyWith(
-          busy: false,
+          busy: busy,
           failure: f,
           notice: TrackerNoticeKind.failed,
           noticeSeq: state.noticeSeq + 1,
         ),
       ),
-      (a) => emit(
-        state.copyWith(
-          busy: false,
-          application: a,
-          notice: ok,
-          noticeSeq: state.noticeSeq + 1,
-        ),
-      ),
+      (a) {
+        _generation++;
+        emit(
+          state.copyWith(
+            busy: busy,
+            application: a,
+            notice: ok,
+            noticeSeq: state.noticeSeq + 1,
+          ),
+        );
+      },
     );
   }
 }

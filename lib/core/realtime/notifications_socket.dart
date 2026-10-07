@@ -122,18 +122,31 @@ class NotificationsSocket {
       return;
     }
     try {
+      await _sub?.cancel();
+      _sub = null;
+      unawaited(_channel?.sink.close());
       final ch = _connect(uri, ['x-session-token', token], {'Origin': origin});
       _channel = ch;
-      await _sub?.cancel();
+      // An error (dropped transport, rejected handshake) and the done event
+      // that may follow are one closure: reconnect once, not twice.
+      var closed = false;
+      void closedOnce() {
+        if (closed || !identical(_channel, ch)) return;
+        closed = true;
+        _onClosed(ch.closeCode);
+      }
+
       _sub = ch.stream.listen(
         (frame) {
           _attempt = 0;
           final push = SocketPush.tryParse(frame);
           if (push != null && !_pushes.isClosed) _pushes.add(push);
         },
-        onError: (Object e) => debugPrint('NotificationsSocket: $e'),
-        onDone: () => _onClosed(ch.closeCode),
-        cancelOnError: true,
+        onError: (Object e) {
+          debugPrint('NotificationsSocket: $e');
+          closedOnce();
+        },
+        onDone: closedOnce,
       );
     } on Object catch (e) {
       debugPrint('NotificationsSocket: connect failed: $e');

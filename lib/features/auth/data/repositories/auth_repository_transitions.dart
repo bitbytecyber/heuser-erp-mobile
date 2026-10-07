@@ -19,25 +19,22 @@ mixin _AuthTransitions {
   Future<Result<AuthOutcome>> _completeSignIn(AuthUser user);
   Future<Result<AuthOutcome>> _emitPending(AllauthResponse r, String email);
   Future<void> _wipeLocal();
+  void _emitSignedOut(SignOutReason reason);
 
   Future<void>? _inFlight;
-  _Transition? _inFlightKind;
 
   /// Upper bound on how long one transition may hold the lock: an abandoned
   /// Google picker must not break the login button for the life of the process.
   static const Duration _ttl = Duration(seconds: 90);
 
-  /// Same kind in flight → join it; different kind → queue behind it.
+  /// Anything in flight → this attempt runs after it. The chained future is
+  /// tracked too, so a later transition queues behind *this* one rather than
+  /// only behind the first.
   Future<T> _runTransition<T>(_Transition kind, Future<T> Function() attempt) {
     final existing = _inFlight;
-    if (existing != null && _inFlightKind == kind) {
-      return existing.then(
-        (_) => attempt(),
-      ); // joined: re-run cheaply after the first finishes
-    }
     final future = existing == null
         ? attempt()
-        : existing.catchError((_) {}).then((_) => attempt());
+        : existing.then((_) => attempt());
     _track(kind, future);
     return future;
   }
@@ -45,11 +42,9 @@ mixin _AuthTransitions {
   void _track(_Transition kind, Future<Object?> future) {
     final tracked = future.then((_) {}, onError: (_) {});
     _inFlight = tracked;
-    _inFlightKind = kind;
     void release() {
       if (identical(_inFlight, tracked)) {
         _inFlight = null;
-        _inFlightKind = null;
       }
     }
 
@@ -70,6 +65,8 @@ mixin _AuthTransitions {
       return await _handleAuthResponse(response, email: email);
     } on DioException catch (e) {
       return fail(FailureMapper.fromDio(e));
+    } on Object catch (e) {
+      return fail(Failure.unknown(cause: e));
     } finally {
       _signals.endCredentialSwap();
     }
@@ -129,6 +126,10 @@ mixin _AuthTransitions {
       // credentials alike; without a flow and without an error it is the
       // former (e.g. right after `auth/email/verify`).
       if (r.errorMessage == null && r.sessionToken == null) {
+        // Verified, but this server does not log in on verification: drop
+        // the pending flow so the router leaves the code page for sign-in.
+        await _wipeLocal();
+        _emitSignedOut(SignOutReason.none);
         return ok(const AuthOutcome.signedOut(SignOutReason.none));
       }
       return fail(

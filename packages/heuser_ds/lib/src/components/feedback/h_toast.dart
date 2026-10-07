@@ -1,6 +1,10 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart'
+    show TargetPlatform, defaultTargetPlatform;
+import 'package:flutter/semantics.dart' show SemanticsService;
 import 'package:flutter/widgets.dart';
+import 'package:heuser_ds/src/components/buttons/h_pressable.dart';
 import 'package:heuser_ds/src/components/feedback/h_status_pill.dart';
 import 'package:heuser_ds/src/foundation/h_icon.dart';
 import 'package:heuser_ds/src/foundation/h_icons.dart';
@@ -18,13 +22,19 @@ abstract final class HToast {
   static Timer? _timer;
   static String? _lastMessage;
 
+  /// How long a plain toast stays.
+  static const Duration short = Duration(seconds: 3);
+
+  /// How long a toast with an action (e.g. "Open") stays.
+  static const Duration long = Duration(seconds: 5);
+
   /// Shows [message] for [duration]. [tone] picks the icon and colour.
   static void show(
     BuildContext context,
     String message, {
     HTone tone = HTone.neutral,
     IconData? icon,
-    Duration duration = const Duration(seconds: 3),
+    Duration duration = short,
     String? actionLabel,
     VoidCallback? onAction,
   }) {
@@ -99,9 +109,31 @@ class _ToastViewState extends State<_ToastView>
     vsync: this,
     duration: widget.h.motion.of(widget.h.motion.standard),
   )..forward();
+  late final CurvedAnimation _curved = CurvedAnimation(
+    parent: _c,
+    curve: HMotion.enter,
+  );
+  bool _announced = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Android reads the live region below; iOS VoiceOver ignores live
+    // regions, so the message is announced explicitly there.
+    if (_announced || defaultTargetPlatform != TargetPlatform.iOS) return;
+    _announced = true;
+    unawaited(
+      SemanticsService.sendAnnouncement(
+        View.of(context),
+        widget.message,
+        Directionality.maybeOf(context) ?? TextDirection.ltr,
+      ),
+    );
+  }
 
   @override
   void dispose() {
+    _curved.dispose();
     _c.dispose();
     super.dispose();
   }
@@ -113,7 +145,6 @@ class _ToastViewState extends State<_ToastView>
     final (bg, fg) = widget.tone == HTone.neutral
         ? (c.surfaceInverse, c.textInverse)
         : widget.tone.resolve(h);
-    final curved = CurvedAnimation(parent: _c, curve: HMotion.enter);
     return HTheme(
       data: h,
       child: Positioned(
@@ -130,17 +161,18 @@ class _ToastViewState extends State<_ToastView>
               0,
             ),
             child: FadeTransition(
-              opacity: curved,
+              opacity: _curved,
               child: SlideTransition(
                 position: Tween(
                   begin: const Offset(0, -0.4),
                   end: Offset.zero,
-                ).animate(curved),
+                ).animate(_curved),
                 child: Dismissible(
                   key: const ValueKey('h_toast'),
                   direction: DismissDirection.up,
                   onDismissed: (_) => widget.onDismiss(),
                   child: Semantics(
+                    container: true,
                     liveRegion: true,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
@@ -167,13 +199,29 @@ class _ToastViewState extends State<_ToastView>
                           ),
                           if (widget.actionLabel != null) ...[
                             HSpace.hgap3,
-                            GestureDetector(
-                              onTap: widget.onAction,
-                              behavior: HitTestBehavior.opaque,
-                              child: HText(
-                                widget.actionLabel!,
-                                style: HTextStyle.labelLg,
-                                color: fg,
+                            // Its own node, so it is a button and not
+                            // merged into the announced message.
+                            Semantics(
+                              container: true,
+                              child: HPressable(
+                                onPressed: widget.onAction,
+                                semanticsLabel: widget.actionLabel,
+                                excludeChildSemantics: true,
+                                builder: (context, _) => ConstrainedBox(
+                                  // 48 dp touch target around a short label.
+                                  constraints: const BoxConstraints(
+                                    minWidth: 48,
+                                    minHeight: 48,
+                                  ),
+                                  child: Center(
+                                    widthFactor: 1,
+                                    child: HText(
+                                      widget.actionLabel!,
+                                      style: HTextStyle.labelLg,
+                                      color: fg,
+                                    ),
+                                  ),
+                                ),
                               ),
                             ),
                           ],

@@ -115,7 +115,8 @@
     "noPortalBody": "Your account doesn't have a mobile portal. Please use the web portal or contact the admissions office.",
     "backToSignIn": "Back to sign in",
     "googleFailed": "Google sign-in didn't complete.",
-    "appleFailed": "Sign in with Apple didn't complete."
+    "appleFailed": "Sign in with Apple didn't complete.",
+    "codeFieldLabel": "Verification code"
   },
   "shell": {
     "applications": "Applications",
@@ -737,7 +738,9 @@
       "downloadFailed": "Could not open the file.",
       "pillAccepted": "Accepted",
       "pillDeclined": "Declined",
-      "pillExpired": "Expired"
+      "pillExpired": "Expired",
+      "levelAS": "AS Level",
+      "levelA2": "A2 Level"
     },
     "payment": {
       "title": "Fee payment",
@@ -771,7 +774,8 @@
       "todo": "To do",
       "done": "Done",
       "locked": "Not yet available"
-    }
+    },
+    "slotAt": "{day} at {time}"
   },
   "lock": {
     "title": "Heuser is locked",

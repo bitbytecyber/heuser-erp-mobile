@@ -15,15 +15,46 @@ class _Repo extends Mock implements NotificationsRepository;
 
 void main() {
   group('links', () {
-    test('application, list and unknown', () {
-      expect(AppLink.parse('/apply/42'), const ApplicationLink(42));
+    // The shapes the backend emits for applicants: `notify._applicant` and
+    // `office.send_message` both use
+    // `_frontend(f"/apply/applications/{app.pk}")`, i.e.
+    // `FRONTEND_ORIGIN + path`; the MCP tools add `?tab=…`.
+    test('absolute backend links open the application', () {
       expect(
-        AppLink.parse('https://sis.example.com/apply/7?tab=docs'),
+        AppLink.parse('https://erp.heuser.edu.pk/apply/applications/42'),
+        const ApplicationLink(42),
+      );
+      expect(
+        AppLink.parse('http://localhost:3000/apply/applications/7?tab=docs'),
         const ApplicationLink(7),
       );
+      expect(
+        AppLink.parse('https://erp.heuser.edu.pk/apply/applications/42/'),
+        const ApplicationLink(42),
+      );
+    });
+
+    test('short and list shapes', () {
+      expect(AppLink.parse('/apply/applications/9'), const ApplicationLink(9));
+      expect(AppLink.parse('/apply/42'), const ApplicationLink(42));
       expect(AppLink.parse('/apply'), const ApplicationsLink());
+      expect(
+        AppLink.parse('https://erp.heuser.edu.pk/apply/applications'),
+        const ApplicationsLink(),
+      );
+    });
+
+    test('staff and unknown links open nowhere', () {
+      expect(
+        AppLink.parse(
+          'https://erp.heuser.edu.pk/admissions/applicants/5/offer',
+        ),
+        isNull,
+      );
+      expect(AppLink.parse('https://erp.heuser.edu.pk/interview/3'), isNull);
       expect(AppLink.parse('/dashboard/finance'), isNull);
       expect(AppLink.parse(''), isNull);
+      expect(AppLink.parse('   '), isNull);
     });
   });
 
@@ -42,10 +73,11 @@ void main() {
   group('socket', () {
     test('frames parse into pushes', () {
       final p = SocketPush.tryParse(
-        '{"id":"x","title":"Interview booked","preview":"Wed","unread_count":3,"link":"/apply/1"}',
+        '{"id":"x","title":"Interview booked","preview":"Wed","unread_count":3, '
+        '"link":"https://erp.heuser.edu.pk/apply/applications/1"}',
       );
       expect(p?.unreadCount, 3);
-      expect(p?.link, '/apply/1');
+      expect(AppLink.parse(p!.link), const ApplicationLink(1));
       expect(SocketPush.tryParse('{"type":"ping"}'), isNull);
       expect(SocketPush.tryParse('not json'), isNull);
     });

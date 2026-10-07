@@ -18,6 +18,7 @@ import 'package:heuser_erp_mobile/features/tracker/domain/tracker_rules.dart';
 import 'package:heuser_erp_mobile/features/tracker/presentation/bloc/tracker_bloc.dart';
 import 'package:heuser_erp_mobile/features/tracker/presentation/cubit/downloads_cubit.dart';
 import 'package:heuser_erp_mobile/features/tracker/presentation/pages/tracker_feedback.dart';
+import 'package:heuser_erp_mobile/features/tracker/presentation/pages/tracker_live_refresh.dart';
 import 'package:heuser_erp_mobile/features/tracker/presentation/widgets/status_card_view.dart';
 import 'package:heuser_erp_mobile/features/tracker/presentation/widgets/todo_tab.dart';
 import 'package:heuser_erp_mobile/features/tracker/presentation/widgets/tracker_format.dart';
@@ -35,6 +36,7 @@ class TrackerPage extends StatelessWidget {
     required this.opener,
     required this.collegeName,
     this.onChanged,
+    this.pushLinks = const Stream.empty(),
     super.key,
   });
 
@@ -52,6 +54,9 @@ class TrackerPage extends StatelessWidget {
 
   /// College name for the copy.
   final String collegeName;
+
+  /// Links of live pushes (refreshes this page when one is about it).
+  final Stream<String> pushLinks;
 
   /// Called with every fresh copy (keeps the list in sync).
   final ValueChanged<Application>? onChanged;
@@ -82,7 +87,10 @@ class TrackerPage extends StatelessWidget {
     ],
     child: TrackerFeedback(
       onChanged: onChanged,
-      child: _TrackerView(repo: repo, files: files, collegeName: collegeName),
+      child: TrackerLiveRefresh(
+        pushLinks: pushLinks,
+        child: _TrackerView(repo: repo, files: files, collegeName: collegeName),
+      ),
     ),
   );
 }

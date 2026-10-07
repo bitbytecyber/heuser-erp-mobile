@@ -109,8 +109,14 @@ Every component has a Widgetbook use-case (`apps/widgetbook`) and a golden in
   pins this for buttons, chips, switches, checkboxes and the stepper.
 - Meaning carried by colour or an icon is also spoken: task state on tracker
   tiles, unread inbox items, the stage bar's "Stage n of m: …" summary.
-- Layouts grow with the text scale (no fixed heights around text); inputs,
-  buttons and the stage bar have 2.0× goldens, pages have 200 % widget tests.
+- Layouts grow with the text scale (no fixed heights around text: use min
+  heights plus padding); inputs, buttons, chips, the segmented control, the
+  nav bar and the stage bar have 2.0× goldens, pages have 200 % widget tests.
+- A visually hidden engine input (the OTP field's transparent `TextField`)
+  stays in the semantics tree as one labelled text field; the cells it draws
+  are excluded. Sheets lift above the keyboard (`viewInsets`).
+- Toasts are announced (live region; explicit announcement on iOS) and their
+  action is a real button with a 48 dp target.
 - Icon-only buttons require `semanticsLabel`; decorative overlays (splash,
   lock screen backdrop) are excluded from semantics.
 

@@ -5,6 +5,7 @@ import 'package:flutter/services.dart'
 import 'package:flutter/widgets.dart';
 import 'package:heuser_ds/src/components/buttons/h_icon_button.dart';
 import 'package:heuser_ds/src/components/inputs/h_field_frame.dart';
+import 'package:heuser_ds/src/components/inputs/text_field_focus.dart';
 import 'package:heuser_ds/src/foundation/h_icon.dart';
 import 'package:heuser_ds/src/foundation/h_icons.dart';
 import 'package:heuser_ds/src/foundation/h_text.dart';
@@ -140,44 +141,57 @@ class HTextField extends StatefulWidget {
 }
 
 class _HTextFieldState extends State<HTextField> {
-  late final FocusNode _focus = widget.focusNode ?? FocusNode();
-  late final TextEditingController _controller =
-      widget.controller ?? TextEditingController(text: widget.initialValue);
+  // Ownership is decided once, when each object is created, so swapping a
+  // parent's controller/focus node in or out never disposes theirs.
+  FocusNode? _ownedFocus;
+  TextEditingController? _ownedController;
+  late FocusNode _focus;
+  late TextEditingController _controller;
   bool _focused = false;
   bool _obscured = true;
 
   @override
   void initState() {
     super.initState();
+    _focus = widget.focusNode ?? (_ownedFocus = FocusNode());
+    _controller =
+        widget.controller ??
+        (_ownedController = TextEditingController(text: widget.initialValue));
     _focus.addListener(_onFocus);
+  }
+
+  @override
+  void didUpdateWidget(HTextField old) {
+    super.didUpdateWidget(old);
+    if (widget.focusNode != old.focusNode) {
+      _focus.removeListener(_onFocus);
+      _ownedFocus?.dispose();
+      _ownedFocus = null;
+      _focus = widget.focusNode ?? (_ownedFocus = FocusNode());
+      _focus.addListener(_onFocus);
+      _focused = _focus.hasFocus;
+    }
+    if (widget.controller != old.controller) {
+      final previous = _controller.value;
+      _ownedController?.dispose();
+      _ownedController = null;
+      _controller =
+          widget.controller ??
+          (_ownedController = TextEditingController.fromValue(previous));
+    }
   }
 
   void _onFocus() {
     if (mounted) setState(() => _focused = _focus.hasFocus);
   }
 
-  /// "Next" on the keyboard: move to the next *text field*. Flutter's
-  /// default stops on the next focusable control, which is usually this
-  /// field's own show/hide button, and the keyboard closes.
-  void _focusNextField() {
-    final scope = _focus.nearestScope;
-    if (scope == null) return;
-    final ordered = _ReadingOrder().of(scope, _focus);
-    for (final node in ordered.skip(ordered.indexOf(_focus) + 1)) {
-      final field = node.context?.findAncestorStateOfType<EditableTextState>();
-      if (field != null) {
-        node.requestFocus();
-        return;
-      }
-    }
-    _focus.unfocus();
-  }
+  void _focusNextField() => focusNextTextField(_focus);
 
   @override
   void dispose() {
     _focus.removeListener(_onFocus);
-    if (widget.focusNode == null) _focus.dispose();
-    if (widget.controller == null) _controller.dispose();
+    _ownedFocus?.dispose();
+    _ownedController?.dispose();
     super.dispose();
   }
 
@@ -278,10 +292,4 @@ class _HTextFieldState extends State<HTextField> {
       ),
     );
   }
-}
-
-/// Reading order of a scope's focusable nodes (the sort is protected API).
-class _ReadingOrder extends ReadingOrderTraversalPolicy {
-  List<FocusNode> of(FocusScopeNode scope, FocusNode current) =>
-      sortDescendants(scope.traversalDescendants, current).toList();
 }

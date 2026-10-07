@@ -38,7 +38,7 @@ _ApplicantProfile _$ApplicantProfileFromJson(Map<String, dynamic> json) =>
           ) ??
           Qualification.oLevel,
       qualificationOther: json['qualification_other'] as String? ?? '',
-      matricPercentage: json['matric_percentage'] as String?,
+      matricPercentage: _decimalString(json['matric_percentage']),
       futureStudy: json['future_study'] as String? ?? '',
       referee: json['referee'] == null
           ? const Referee()

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:heuser_ds/heuser_ds.dart';
+import 'package:heuser_erp_mobile/core/i18n/failure_messages.dart';
 import 'package:heuser_erp_mobile/core/i18n/strings.g.dart';
 import 'package:heuser_erp_mobile/core/network/result.dart';
 import 'package:heuser_erp_mobile/features/applications/data/models/application.dart';
@@ -147,7 +148,16 @@ class _TrialRow extends StatelessWidget {
             child: BlocBuilder<SlotListCubit, SlotListState>(
               builder: (context, state) => switch (state) {
                 SlotListLoading() => const Center(child: HSpinner()),
-                SlotListFailed() || SlotListLoaded(items: []) => HText(
+                SlotListFailed(:final failure) => HEmptyState(
+                  compact: true,
+                  icon: HIcons.warning,
+                  tone: HTone.warning,
+                  title: failureMessage(failure, Translations.of(context)),
+                  actionLabel: Translations.of(context).common.retry,
+                  onAction: () =>
+                      unawaited(context.read<SlotListCubit>().load()),
+                ),
+                SlotListLoaded(items: []) => HText(
                   t.noTimes,
                   style: HTextStyle.bodySm,
                   tone: HTextTone.secondary,

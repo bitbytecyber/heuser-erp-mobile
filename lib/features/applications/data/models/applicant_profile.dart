@@ -40,7 +40,9 @@ abstract class ApplicantProfile with _$ApplicantProfile {
     @JsonKey(name: 'qualification_other')
     @Default('')
     String qualificationOther,
-    @JsonKey(name: 'matric_percentage') String? matricPercentage,
+    // A DecimalField in a raw dict: DRF's encoder sends it as a number.
+    @JsonKey(name: 'matric_percentage', fromJson: _decimalString)
+    String? matricPercentage,
     @JsonKey(name: 'future_study') @Default('') String futureStudy,
     @JsonKey(fromJson: _refereeFromJson) @Default(Referee()) Referee referee,
     @JsonKey(name: 'wants_sports_trial') @Default(false) bool wantsSportsTrial,
@@ -82,4 +84,11 @@ const _textKeys = {
   'future_study',
   'anything_else',
   'statement',
+};
+
+/// A decimal the backend may send as a number (`88.5`) or a string.
+String? _decimalString(Object? raw) => switch (raw) {
+  null => null,
+  final num n => n == n.roundToDouble() ? n.toInt().toString() : n.toString(),
+  _ => raw.toString(),
 };

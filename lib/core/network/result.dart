@@ -32,8 +32,4 @@ extension ResultX<T> on Result<T> {
 
   /// Maps the value on success, keeping the failure otherwise.
   Result<R> mapOk<R>(R Function(T value) f) => map(f);
-
-  /// Chains another result-producing call on success.
-  Future<Result<R>> andThen<R>(Future<Result<R>> Function(T value) f) =>
-      fold((failure) async => Left(failure), f);
 }
